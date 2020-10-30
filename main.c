@@ -3,17 +3,21 @@
 #include <dirent.h>
 #include <fcntl.h>
 #include <string.h>
+#include "structs.h"
 
 
 int parse(char* json){
 	char* tmp,c,prev = ' ';
-	int i, start=0,flag=0,count=0;
+	int i, start=0,flag=0,count=0,isValue = 0;
 	FILE* fd;
+	Item* item;
 	
 	
 	fd=fopen(json,"r");	//Anoigma tou json
 	if(fd == NULL) 
 		return 1;
+		
+	item =(Item*) malloc(sizeof(Item));
 		
 		
 	while(!feof(fd)){
