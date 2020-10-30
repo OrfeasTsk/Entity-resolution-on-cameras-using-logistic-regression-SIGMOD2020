@@ -4,7 +4,6 @@ struct QueueNode{
         
 };
 
-
 typedef struct{
         struct QueueNode* head;
         struct QueueNode* tail;
@@ -22,3 +21,6 @@ typedef struct{
 	Queue specs;
 	
 }Item;
+
+void QueueInit(Queue* queue);
+void QueueInsert(Queue* queue,void ** data);
