@@ -5,13 +5,55 @@
 #include <string.h>
 
 
+int parse(char* json){
+	char* tmp,c,prev = ' ';
+	int i, start=0,flag=0,count=0;
+	FILE* fd;
+	
+	
+	fd=fopen(json,"r");	//Anoigma tou json
+	if(fd == NULL) 
+		return 1;
+		
+		
+	while(!feof(fd)){
+		
+		c = fgetc(fd);
+		
+		if( c == '"' && flag == 0){
+			start = count;
+			flag = 1 ;
+		}
+		else if ( c == '"' && prev != '\\' && flag == 1){
+			tmp = (char*)malloc((count - start - 1)*sizeof(char) + 1);
+			fseek(fd,start + 1,SEEK_SET);
+			for( i = 0; i < count - start - 1; i++)
+				tmp[i] = fgetc(fd);
+			tmp[count - start - 1] = '\0';
+			fseek(fd,count + 1,SEEK_SET);
+			printf("%s\n",tmp);
+			flag = 0;
+		}  
+			
+		count++;
+		prev = c;
+	}
+	
+	fclose(fd);
+	return 0;
+	
+		
+}
+
+
+
 
 int main(int argc, char* argv[]){
 	int i;
 	char* datasetX=NULL,*datasetW=NULL,*tmpdir1,*json;
 	DIR* dir_ptr1,*dir_ptr2;
-	FILE* fd;
 	struct dirent* dirent_ptr;
+	size_t length=150;
 	
 	
 	if(argc != 5){
@@ -31,10 +73,11 @@ int main(int argc, char* argv[]){
 		}
 	}
 	
+
 	
 	dir_ptr1 = opendir(datasetX);
 	while(dirent_ptr = readdir(dir_ptr1)) //Diavasma twn katalogwn
-		if(strcmp(dirent_ptr->d_name,".")  && strcmp(dirent_ptr->d_name,"..")){
+		if(strcmp(dirent_ptr->d_name,".") && strcmp(dirent_ptr->d_name,"..")){
 			tmpdir1 = (char*)malloc(strlen(datasetX) + strlen(dirent_ptr->d_name) + 2);
 			strcpy(tmpdir1,datasetX);
 			strcat(tmpdir1,"/");
@@ -47,10 +90,8 @@ int main(int argc, char* argv[]){
 					strcat(json,"/");
 					strcat(json,dirent_ptr->d_name); 
 					printf("%s\n",json);
-					fd=fopen(json,"r");	//Anoigma tou arxeiou hmeras
-					if(fd == NULL) 
-						return 1;
-					fclose(fd);
+					parse(json);
+					
 				}
 			free(tmpdir1);
 			closedir(dir_ptr2);
