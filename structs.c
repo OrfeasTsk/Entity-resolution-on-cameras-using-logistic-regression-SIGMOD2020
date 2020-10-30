@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include "structs.h"
 
 void QueueInit(Queue* queue){ 			//Arxikopoihsh ouras
