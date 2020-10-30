@@ -18,6 +18,7 @@ void QueueInsert(Queue* queue,void ** data){ //Eisagwgh sthn oura
     	}
     	else{
             queue->tail->next=node;
+            queue->tail=node;
         }
         
         queue->count++;
