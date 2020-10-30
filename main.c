@@ -53,7 +53,6 @@ int main(int argc, char* argv[]){
 	char* datasetX=NULL,*datasetW=NULL,*tmpdir1,*json;
 	DIR* dir_ptr1,*dir_ptr2;
 	struct dirent* dirent_ptr;
-	size_t length=150;
 	
 	
 	if(argc != 5){
