@@ -66,14 +66,14 @@ int parse(char* json){
 		else{
 			if(start == -1){ //Mexri na vrethei h arxh(start)
 				if( c != ':' && c != ' '){
-					if( (c == '"' && prev != '\\') || c == '{' || c == '[')
+					if( (c == '"'  || c == '{' || c == '[') && prev != '\\')
 						push(&stack,c);
 					start = count;
 				}
 			}
 			else{
 				if(!empty(&stack)){
-					if( c == '[' || c == '{'|| (c == '"' && prev != '\\') || c == ']' || c == '}')
+					if((c == '[' || c == '{'|| c == '"'  || c == ']' || c == '}') && prev != '\\')
 						check(&stack,c);
 				}
 				else{
