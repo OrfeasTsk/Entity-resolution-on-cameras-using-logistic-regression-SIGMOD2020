@@ -1,3 +1,13 @@
+#define RED 0
+#define BLACK 1
+
+typedef struct STnode* Link;
+extern Link z;
+Link z;
+
+
+
+
 /*##################                  Start Generic Queue                                        ##########################*/
 
 struct QueueNode{
@@ -49,3 +59,17 @@ void check(Stack * stack, char c);
 int empty(Stack * stack);
 
 /*##################                  End Stack                           ##########################*/
+
+typedef struct{ //Antikeimeno komvou tou red-black tree
+	int id;
+	Queue queue;
+}RBItem;
+
+struct STnode{ 
+	RBItem* rbitem; 
+	Link l, r; 
+	int color; 
+};
+
+
+
