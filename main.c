@@ -6,9 +6,11 @@
 #include "structs.h"
 
 
+// JSON ARRAYS OBJECTS BOOLEANS NUMBERS
+
 int parse(char* json){
-	char* tmp,c,prev = ' ';
-	int i, start=0,flag=0,count=0,isValue = 0;
+	char* tmp, c, prev = ' ';
+	int i, j, start=0, flag=0, count=0, isValue = 0;
 	FILE* fd;
 	Item* item;
 	SpecNode* sp;
@@ -19,9 +21,25 @@ int parse(char* json){
 		return 1;
 		
 	item =(Item*) malloc(sizeof(Item)); //Dhmiourgia antikeimenou
-	QueueInit(&(item->specs)); //Arxikopoihsh listas antikeimenou
+	QueueInit(&(item->specs)); //Arxikopoihsh listas stoixeiwn antikeimenou
+	
+	for( i = 0; json[i] != '/'; i++) //Megethos arxikou katalogou
+		count++;
+	
+	item->id = (char*) malloc(strlen(json) - count - 4 ); //Megethos xwris thn katalhksh .json kai to onoma tou arxikou katalogou
+	item->id[strlen(json) - count - 4] = '\0';
+	
+	for( i = count + 1 , j = 0; i < strlen(json) - 5 ; i++ ){  //Xwris thn katalhksh .json kai to onoma tou arxikou katalogou
+		(item->id)[j++] = json[i];
+		if(json[i] == '/')
+			(item->id)[j++] = '/'; //Diplo slash
+	}
+	
+	printf("%s\n",item->id);	
+	
 		
-		
+	
+	count = 0;
 	while(!feof(fd)){
 		
 		c = fgetc(fd);
@@ -37,7 +55,7 @@ int parse(char* json){
 				tmp[i] = fgetc(fd);
 			tmp[count - start - 1] = '\0';
 			fseek(fd,count + 1,SEEK_SET); //Diavasma meta to eisagwgiko kleisimatos
-			printf("%s\n",tmp);
+			//printf("%s\n",tmp);
 			if(!isValue){ // An den einai h seira tou diavasmatos ths timhs(dhladh einai to onoma tou spec)
 				sp = (SpecNode*)malloc(sizeof(SpecNode)); //Dhmiourgia neou spec
 				sp->name = tmp; // Prosthikh onomatos
@@ -105,9 +123,9 @@ int main(int argc, char* argv[]){
 					strcpy(json,tmpdir1);
 					strcat(json,"/");
 					strcat(json,dirent_ptr->d_name); 
-					printf("%s\n",json);
+					//printf("%s\n",json);
 					parse(json);
-					
+					free(json);
 				}
 			free(tmpdir1);
 			closedir(dir_ptr2);
