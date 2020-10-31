@@ -128,3 +128,159 @@ void ListDestroyLN(List * list){//Katastrofh ths listas
 /*##################              End Stack                            ##########################*/
 
 
+
+
+
+
+
+//RED-BLACK
+
+
+
+
+
+void treeprint(Link p, int indent,int type,Link head) /* Pretty print tree */
+{ int i;
+if (p != z) { /* If tree is not empty */
+treeprint(p->r, indent+4,1,head);
+/* Print right subtree 4 places right of root node */
+for (i=0 ; i < indent ; i++)
+printf(" "); /* Take care for indentation */
+if(type==1 && p!=head)
+printf("/");
+if (type==2)
+printf("\\");
+printf("%d\n", p->rbitem->id); /* Print root node */
+treeprint(p->l, indent+4,2,head);
+/* Print left subtree 4 places right of root node */
+}
+} 
+
+
+Link rotR(Link h) //Deksia peristrofh
+  { Link x = h->l; h->l = x->r; x->r = h;
+    return x; }
+
+Link rotL(Link h) //Aristerh peristrofh
+  { Link x = h->r; h->r = x->l; x->l = h;
+    return x; }
+
+
+Link NEW(int id,Item** item, Link l, Link r, int color){ 
+	Link x =(Link)malloc(sizeof(struct STnode));
+  	x->l = l; x->r = r; 
+	x->color=color;
+	x->rbitem = (RBItem*)malloc(sizeof(RBItem));
+    QueueInit(&(x->rbitem->queue)); //Arxikopoihsh ths ouras
+	QueueInsert(&(x->rbitem->queue),(void **)item);	//Eisagwgh sthn lista tou komvou
+	x->rbitem->id=id;
+    return x;
+  }
+
+ 
+void RBinit() //Arxikopoihsh tou kenou komvou
+	{ z = NEW( -1 ,NULL, NULL, NULL, BLACK); }
+  
+void RBdestr()
+{
+	free(z);
+}
+  
+void STinit(Link* head)//Arxikopoihsh tou deikth tou dentrou
+  { *head = z; }
+
+/*void STdestr(Link* head)//Katastrofh tou dentrou
+{
+    if (*head==z)
+		return;
+    STdestr(&((*head)->l));
+    STdestr(&((*head)->r));
+    free((*head)->rbitem->date);
+    ListDestroyLN(&((*head)->rbitem->list));
+    free((*head)->rbitem);
+	free(*head);
+}*/
+
+
+Link MakeRBTree(Link h,Link head){  //Synarthsh pou ftiaxnei to red-black tree 
+Link leftchild=h->l , rightchild=h->r ;
+if(leftchild->color==RED && rightchild->color==RED) //Periptwsh pou to deksi kai to aristero paidi einai kokkina
+		if(rightchild->l->color != BLACK || rightchild->r->color != BLACK  || leftchild->l->color != BLACK || leftchild->r->color != BLACK){ //An yparxei kokkino eggoni
+			if(h!=head)//Kanoume recoloring ektos ths rizas
+				h->color=RED;
+				leftchild->color=BLACK;
+				rightchild->color=BLACK;
+				return h;
+}
+			
+if(leftchild->color==BLACK && rightchild->color==RED){ //Periptwsh pou to aristero paidi einai mauro kai to deksi kokkino
+	if( rightchild->r->color == RED ){ //Periptwsh pou to aristero eggoni apo ta deksia einai mauro kai to deksi eggoni apo deksia kokkino 
+		h->color=RED; //Allagh xrwmatos
+		rightchild->color=BLACK; //Allagh xrwmatos
+		h=rotL(h); //Peristrofh ston patera
+		return h;
+		}
+	if(rightchild->l->color == RED){ //Periptwsh pou to aristero eggoni apo ta deskia einai kokkino kai to deksi eggoni apo deksia mauro
+		h->color=RED; //Allagh xrwmatos
+		rightchild->l->color=BLACK; //Allagh xrwmatos
+		h->r=rotR(rightchild); // Peristrofh sto paidi
+		h=rotL(h); //Peristrofh ston patera
+		return h;
+		}
+}
+
+
+if(leftchild->color==RED && rightchild->color==BLACK){ //Periptwsh pou to deksi paidi einai mauro kai to aristero kokkino
+	if(leftchild->l->color == RED /*&& leftchild->r->color == BLACK*/ ){//Periptwsh pou to aristero eggoni apo ta aristera einai kokkino kai to deksi eggoni apo aristera mauro
+		h->color=RED; //Allagh xrwmatos
+		leftchild->color=BLACK; //Allagh xrwmatos
+		h=rotR(h); //Peristrofh ston patera
+		return h;
+		}
+	if( leftchild->r->color == RED ){ //Periptwsh pou to aristero eggoni apo ta aristera einai mauro kai to deksi eggoni apo deksia kokkino
+		h->color=RED; //Allagh xrwmatos
+		leftchild->r->color=BLACK; //Allagh xrwmatos
+		h->l=rotL(leftchild); //Peristrofh sto paidi
+		h=rotR(h); // Peristrofh ston patera
+		return h;
+		}
+}
+
+return h;
+
+}
+
+Link insertR(Link h, int id,Item** item ,Link head)
+{   int v = id;
+    RBItem* t = h->rbitem;
+    if (h == z) //Base case
+	    if(h != head)
+	    	return NEW(id,item, z, z, RED);  //Kathe neos komvos prepei na einai kokkinos
+	    else 
+			return NEW(id,item, z , z , BLACK); // Ektos apo thn riza pou einai maurh
+    if(v < t->id){ //Psaxnoume thn thesh gia na valoume ton neo komvo
+        h->l = insertR(h->l, id,item,head);
+        if(h->color==BLACK) //Kathe fora pou vriskoume mauro komvo pou exei toulaxiston ena "eggoni" apo aristera (afou to paidi exei bei aristera)
+	    	h=MakeRBTree(h,head);
+	}
+    else if(t->id < v) {
+		h->r = insertR(h->r, id,item,head);
+		if(h->color==BLACK) //Kathe fora pou vriskoume mauro komvo pou exei toulaxiston ena "eggoni" apo deksia (afou to paidi exei bei deksia)
+			h=MakeRBTree(h,head);
+	}
+	else
+		QueueInsert(&(h->rbitem->queue),(void **)item);	//Eisagwgh sthn oura tou komvou
+		
+	return h;
+  }
+  
+Link STinsertR(Link head,int id,Item** item)
+{ head = insertR(head,id,item,head);
+  return head; 
+}
+
+
+
+
+
+
