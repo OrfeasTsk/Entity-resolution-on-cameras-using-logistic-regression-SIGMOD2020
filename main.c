@@ -10,7 +10,7 @@
 
 int parse(char* json){
 	char* tmp, c, prev = ' ';
-	int i, j, start=0, flag=0, count=0, isValue = 0;
+	int i, j, start=0, flag=0, count=0, isValue = 0 ,isPrim = 0;
 	FILE* fd;
 	Item* item;
 	SpecNode* sp;
@@ -66,8 +66,12 @@ int parse(char* json){
 		else{
 			if(start == -1){ //Mexri na vrethei h arxh(start)
 				if( c != ':' && c != ' '){
-					if( (c == '"'  || c == '{' || c == '[') && prev != '\\')
+					if( (c == '"'  || c == '{' || c == '[') && prev != '\\'){
 						push(&stack,c);
+						isPrim = 0;
+					}
+					else
+						isPrim=1;
 					start = count;
 				}
 			}
@@ -76,7 +80,7 @@ int parse(char* json){
 					if((c == '[' || c == '{'|| c == '"'  || c == ']' || c == '}') && prev != '\\')
 						check(&stack,c);
 				}
-				else{
+				else if(isPrim == 0){
 					tmp = (char*)malloc((count - start)*sizeof(char) + 1); //Desmeush xwrou gia thn timh
 					fseek(fd,start,SEEK_SET); //Arxh diavasmatos apo to start
 					for( i = 0; i < count - start; i++)
@@ -87,6 +91,23 @@ int parse(char* json){
 					sp->value = tmp; // Prosthikh timhs
 					QueueInsert(&(item->specs),(void**)&sp);
 					isValue = 0; //Seira tou onomatos
+				}
+				else{
+					if( c == ',' || c ==' '){
+						tmp = (char*)malloc((count - start)*sizeof(char) + 3);
+						fseek(fd,start,SEEK_SET); //Arxh diavasmatos apo to start
+						tmp[0] = '"';
+						for( i = 1 ; i < count - start + 1 ; i++)
+							tmp[i] = fgetc(fd);
+						tmp[count - start + 1] = '"';
+						tmp[count - start + 2] = '\0';
+						fseek(fd,count + 1,SEEK_SET); //Diavasma apo ekei pou stamathse o elegxos
+						printf("%s\n",tmp);
+						sp->value = tmp; // Prosthikh timhs
+						QueueInsert(&(item->specs),(void**)&sp);
+						isValue = 0; //Seira tou onomatos
+						
+					}	
 				}	
 			}
 		}
