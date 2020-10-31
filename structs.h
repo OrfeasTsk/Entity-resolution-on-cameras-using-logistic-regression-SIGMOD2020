@@ -43,9 +43,9 @@ typedef struct LinkedStack{ //Domh listas
 	int count;
 }Stack;
 
-StackInit(Stack * stack);
-struct StackNode * push(,Stack * stack, char data);
+void StackInit(Stack * stack);
+struct StackNode * push(Stack * stack, char data);
 void check(Stack * stack, char c);
-boolean empty(Stack * stack);
+int empty(Stack * stack);
 
 /*##################                  End Stack                           ##########################*/
