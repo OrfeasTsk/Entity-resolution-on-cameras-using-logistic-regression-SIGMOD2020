@@ -123,6 +123,31 @@ int parse(char* json){
 }
 
 
+void read_csv(char* datasetW){
+	
+	FILE * csv_file= fopen(datasetW,"r"); 
+	if(csv_file==NULL)
+		printf("\nCsv file is empty!\n");
+
+		
+	char line[400];
+	while(fgets(line, sizeof(line), csv_file)){
+		char *token;
+		
+		token=strtok(line,",");
+		
+		while(token!=NULL){
+			printf("%s ", token);
+			token= strtok(NULL, ",");			// continue to tokenize the string we passed first
+		}
+		printf("\n");
+	}
+
+	fclose(csv_file);
+	
+}
+
+
 
 
 int main(int argc, char* argv[]){
@@ -150,7 +175,6 @@ int main(int argc, char* argv[]){
 	}
 	
 
-	
 	dir_ptr1 = opendir(datasetX);
 	while(dirent_ptr = readdir(dir_ptr1)) //Diavasma twn katalogwn
 		if(strcmp(dirent_ptr->d_name,".") && strcmp(dirent_ptr->d_name,"..")){
@@ -174,6 +198,11 @@ int main(int argc, char* argv[]){
 		}
 			
 	closedir(dir_ptr1);
+	
+	
+	// CSV READ
+	
+	read_csv(datasetW);
 
 	return 0;
 	

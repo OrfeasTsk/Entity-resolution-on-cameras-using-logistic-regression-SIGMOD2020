@@ -53,6 +53,7 @@ typedef struct LinkedStack{ //Domh listas
 	int count;
 }Stack;
 
+
 void StackInit(Stack * stack);
 struct StackNode * push(Stack * stack, char data);
 void check(Stack * stack, char c);
