@@ -17,7 +17,7 @@ typedef struct{			// each node has the name of the spec and it's value
 }SpecNode; 
 
 typedef struct{
-	int id;
+	char* id;
 	Queue specs;
 	
 }Item;
