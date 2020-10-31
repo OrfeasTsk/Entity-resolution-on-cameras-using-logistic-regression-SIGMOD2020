@@ -166,13 +166,13 @@ Link rotL(Link h) //Aristerh peristrofh
     return x; }
 
 
-Link NEW(int id,Item** item, Link l, Link r, int color){ 
+Link NEW(int id,Pair** pair, Link l, Link r, int color){ 
 	Link x =(Link)malloc(sizeof(struct STnode));
   	x->l = l; x->r = r; 
 	x->color=color;
 	x->rbitem = (RBItem*)malloc(sizeof(RBItem));
     QueueInit(&(x->rbitem->queue)); //Arxikopoihsh ths ouras
-	QueueInsert(&(x->rbitem->queue),(void **)item);	//Eisagwgh sthn lista tou komvou
+	QueueInsert(&(x->rbitem->queue),(void **)pair);	//Eisagwgh sthn lista tou komvou
 	x->rbitem->id=id;
     return x;
   }
@@ -250,32 +250,32 @@ return h;
 
 }
 
-Link insertR(Link h, int id,Item** item ,Link head)
+Link insertR(Link h, int id,Pair** pair ,Link head)
 {   int v = id;
     RBItem* t = h->rbitem;
     if (h == z) //Base case
 	    if(h != head)
-	    	return NEW(id,item, z, z, RED);  //Kathe neos komvos prepei na einai kokkinos
+	    	return NEW(id,pair, z, z, RED);  //Kathe neos komvos prepei na einai kokkinos
 	    else 
-			return NEW(id,item, z , z , BLACK); // Ektos apo thn riza pou einai maurh
+			return NEW(id,pair, z , z , BLACK); // Ektos apo thn riza pou einai maurh
     if(v < t->id){ //Psaxnoume thn thesh gia na valoume ton neo komvo
-        h->l = insertR(h->l, id,item,head);
+        h->l = insertR(h->l, id,pair,head);
         if(h->color==BLACK) //Kathe fora pou vriskoume mauro komvo pou exei toulaxiston ena "eggoni" apo aristera (afou to paidi exei bei aristera)
 	    	h=MakeRBTree(h,head);
 	}
     else if(t->id < v) {
-		h->r = insertR(h->r, id,item,head);
+		h->r = insertR(h->r, id,pair,head);
 		if(h->color==BLACK) //Kathe fora pou vriskoume mauro komvo pou exei toulaxiston ena "eggoni" apo deksia (afou to paidi exei bei deksia)
 			h=MakeRBTree(h,head);
 	}
 	else
-		QueueInsert(&(h->rbitem->queue),(void **)item);	//Eisagwgh sthn oura tou komvou
+		QueueInsert(&(h->rbitem->queue),(void **)pair);	//Eisagwgh sthn oura tou komvou
 		
 	return h;
   }
   
-Link STinsertR(Link head,int id,Item** item)
-{ head = insertR(head,id,item,head);
+Link STinsertR(Link head,int id,Pair** pair)
+{ head = insertR(head,id,pair,head);
   return head; 
 }
 

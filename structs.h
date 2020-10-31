@@ -75,6 +75,19 @@ struct STnode{
 	int color; 
 };
 
+void treeprint(Link , int,int,Link);
+Link rotR(Link);
+Link rotL(Link);
+Link NEW(int ,Pair** ,Link, Link, int);
+void RBinit();
+void RBdestr();
+void STinit(Link*);
+//void STdestr(Link*);
+Link MakeRBTree(Link,Link);
+Link insertR(Link,int,Pair**,Link);
+Link STinsertR(Link,int,Pair** );
+
+
 /*##################                  End of red-black trees                           ##########################*/
 
 
