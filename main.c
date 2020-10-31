@@ -14,11 +14,13 @@ int parse(char* json){
 	FILE* fd;
 	Item* item;
 	SpecNode* sp;
+	Stack stack;
 	
 	
 	fd=fopen(json,"r");	//Anoigma tou json
 	if(fd == NULL) 
 		return 1;
+		
 		
 	item =(Item*) malloc(sizeof(Item)); //Dhmiourgia antikeimenou
 	QueueInit(&(item->specs)); //Arxikopoihsh listas stoixeiwn antikeimenou
@@ -34,41 +36,60 @@ int parse(char* json){
 		if(json[i] == '/')
 			(item->id)[j++] = '/'; //Diplo slash
 	}
-	
-	printf("%s\n",item->id);	
-	
 		
-	
 	count = 0;
+	StackInit(&stack);
 	while(!feof(fd)){
 		
 		c = fgetc(fd);
 		
-		if( c == '"' && flag == 0){ //Otan vrethei to arxiko eisagwgiko(")
-			start = count; //Apothikeush ths theshs
-			flag = 1 ; //To eisagwgiko den exei kleisei
-		}
-		else if ( c == '"' && prev != '\\' && flag == 1){ //An einai to eisagwgiko(") kleisimatos
-			tmp = (char*)malloc((count - start - 1)*sizeof(char) + 1); //Desmeush xwrou gia thn leksh anamesa sta eisagwgika
-			fseek(fd,start + 1,SEEK_SET); //Arxh diavasmatos meta to arxiko eisagwgiko
-			for( i = 0; i < count - start - 1; i++)
-				tmp[i] = fgetc(fd);
-			tmp[count - start - 1] = '\0';
-			fseek(fd,count + 1,SEEK_SET); //Diavasma meta to eisagwgiko kleisimatos
-			//printf("%s\n",tmp);
-			if(!isValue){ // An den einai h seira tou diavasmatos ths timhs(dhladh einai to onoma tou spec)
+		if(!isValue){ // An den einai h seira tou diavasmatos ths timhs(dhladh einai to onoma tou spec)
+			if( c == '"' && flag == 0){ //Otan vrethei to arxiko eisagwgiko(")
+				start = count; //Apothikeush ths theshs
+				flag = 1 ; //To eisagwgiko den exei kleisei
+			}
+			else if ( c == '"' && prev != '\\' && flag == 1){ //An einai to eisagwgiko(") kleisimatos
+				tmp = (char*)malloc((count - start - 1)*sizeof(char) + 1); //Desmeush xwrou gia thn leksh anamesa sta eisagwgika
+				fseek(fd,start + 1,SEEK_SET); //Arxh diavasmatos meta to arxiko eisagwgiko
+				for( i = 0; i < count - start - 1; i++)
+					tmp[i] = fgetc(fd);
+				tmp[count - start - 1] = '\0';
+				fseek(fd,count + 1,SEEK_SET); //Diavasma meta to eisagwgiko kleisimatos
 				sp = (SpecNode*)malloc(sizeof(SpecNode)); //Dhmiourgia neou spec
 				sp->name = tmp; // Prosthikh onomatos
 				isValue = 1; // Seira ths timhs
+				start = -1;
+				
+				flag = 0; //To eisagwgiko exei kleisei
+			} 
+		}
+		else{
+			if(start == -1){ //Mexri na vrethei h arxh(start)
+				if( c != ':' && c != ' '){
+					if( c == '"' || c == '{' || c == '[')
+						push(&stack,c);
+					start = count;
+				}
 			}
 			else{
-				sp->value = tmp; // Prosthikh timhs
-				QueueInsert(&(item->specs),(void**)&sp);
-				isValue = 0; //Seira tou onomatos
+				if(!empty(&stack)){
+					if( c == '[' || c == '{'|| c == '"' || c == ']' || c == '}')
+						check(&stack,c);
+				}
+				else{
+					tmp = (char*)malloc((count - start)*sizeof(char) + 1); //Desmeush xwrou gia thn timh
+					fseek(fd,start,SEEK_SET); //Arxh diavasmatos apo to start
+					for( i = 0; i < count - start; i++)
+						tmp[i] = fgetc(fd);
+					tmp[count - start] = '\0';
+					fseek(fd,count + 1,SEEK_SET); //Diavasma apo ekei pou stamathse o elegxos
+					printf("%s\n",tmp);
+					sp->value = tmp; // Prosthikh timhs
+					QueueInsert(&(item->specs),(void**)&sp);
+					isValue = 0; //Seira tou onomatos
+				}	
 			}
-			
-			flag = 0; //To eisagwgiko exei kleisei
-		}  
+		}
 			
 		count++;
 		prev = c;
