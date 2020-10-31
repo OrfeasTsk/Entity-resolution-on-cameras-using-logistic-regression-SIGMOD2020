@@ -8,7 +8,7 @@
 
 // JSON ARRAYS OBJECTS BOOLEANS NUMBERS
 
-int parse(char* json){
+Item* parse(char* json){
 	char* tmp, c, prev = ' ';
 	int i, j, start=0, flag=0, count=0, isValue = 0 ,isPrim = 0;
 	FILE* fd;
@@ -19,7 +19,7 @@ int parse(char* json){
 	
 	fd=fopen(json,"r");	//Anoigma tou json
 	if(fd == NULL) 
-		return 1;
+		return NULL;
 		
 		
 	item =(Item*) malloc(sizeof(Item)); //Dhmiourgia antikeimenou
@@ -87,7 +87,7 @@ int parse(char* json){
 						tmp[i] = fgetc(fd);
 					tmp[count - start] = '\0';
 					fseek(fd,count + 1,SEEK_SET); //Diavasma apo ekei pou stamathse o elegxos
-					printf("%s\n",tmp);
+				//	printf("%s\n",tmp);
 					sp->value = tmp; // Prosthikh timhs
 					QueueInsert(&(item->specs),(void**)&sp);
 					isValue = 0; //Seira tou onomatos
@@ -102,7 +102,7 @@ int parse(char* json){
 						tmp[count - start + 1] = '"';
 						tmp[count - start + 2] = '\0';
 						fseek(fd,count + 1,SEEK_SET); //Diavasma apo ekei pou stamathse o elegxos
-						printf("%s\n",tmp);
+					//	printf("%s\n",tmp);
 						sp->value = tmp; // Prosthikh timhs
 						QueueInsert(&(item->specs),(void**)&sp);
 						isValue = 0; //Seira tou onomatos
@@ -116,8 +116,9 @@ int parse(char* json){
 		prev = c;
 	}
 	
+	
 	fclose(fd);
-	return 0;
+	return item;
 	
 		
 }
@@ -151,10 +152,13 @@ void read_csv(char* datasetW){
 
 
 int main(int argc, char* argv[]){
-	int i;
-	char* datasetX=NULL,*datasetW=NULL,*tmpdir1,*json;
+	int i,count=0;
+	char* datasetX=NULL,*datasetW=NULL,*tmpdir1,*json,*tmp;
 	DIR* dir_ptr1,*dir_ptr2;
 	struct dirent* dirent_ptr;
+	Item* item;
+	Pair *pair;
+	
 	
 	
 	if(argc != 5){
@@ -189,8 +193,22 @@ int main(int argc, char* argv[]){
 					strcpy(json,tmpdir1);
 					strcat(json,"/");
 					strcat(json,dirent_ptr->d_name); 
-					//printf("%s\n",json);
-					parse(json);
+					printf("%s\n",json);
+					
+					if( item = parse(json) ){						// an epistrefetai to item dhmiourgeitai to pair (to opoio prepei na bei sthn domh apothikeushs twn pairs)
+						
+						for( tmp = item->id, count=0; count<2 ; tmp++)		//to kanoyme gia na krathsoyme mono ton arithmo
+							if(*tmp == '/')
+								count++;
+						printf("\n%d\n",atoi(tmp));			
+						
+						pair = (Pair*)malloc(sizeof(Pair));
+						pair->item = item;
+						QueueInit(&(pair->related));
+						QueueInsert(&(pair->related), (void**)&item); // sthn arxh h related oura exei mono to idio to item 
+												
+					}
+						
 					free(json);
 				}
 			free(tmpdir1);
@@ -202,7 +220,7 @@ int main(int argc, char* argv[]){
 	
 	// CSV READ
 	
-	read_csv(datasetW);
+//	read_csv(datasetW);
 
 	return 0;
 	

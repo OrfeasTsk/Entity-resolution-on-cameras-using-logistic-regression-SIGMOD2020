@@ -61,6 +61,9 @@ int empty(Stack * stack);
 
 /*##################                  End Stack                           ##########################*/
 
+/*##################                  Start of red-black trees                           ##########################*/
+
+
 typedef struct{ //Antikeimeno komvou tou red-black tree
 	int id;
 	Queue queue;
@@ -72,5 +75,10 @@ struct STnode{
 	int color; 
 };
 
+/*##################                  End of red-black trees                           ##########################*/
 
 
+typedef struct{
+	Item* item;
+	Queue related; 
+}Pair;
