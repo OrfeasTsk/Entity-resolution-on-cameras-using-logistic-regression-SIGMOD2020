@@ -1,3 +1,5 @@
+/*##################                  Start Generic Queue                                        ##########################*/
+
 struct QueueNode{
         void* data;
         struct QueueNode* next;
@@ -24,3 +26,26 @@ typedef struct{
 
 void QueueInit(Queue* queue);
 void QueueInsert(Queue* queue,void ** data);
+
+/*##################                  End Generic Queue                                        ##########################*/
+
+/*##################               Start Stack For only one char !! Used in Json Parse !!                        ##########################*/
+
+
+
+struct StackNode{ //Komvos listas
+	char data;
+	struct StackNode* next;
+};
+
+typedef struct LinkedStack{ //Domh listas
+	struct StackNode* head;
+	int count;
+}Stack;
+
+StackInit(Stack * stack);
+struct StackNode * push(,Stack * stack, char data);
+void check(Stack * stack, char c);
+boolean empty(Stack * stack);
+
+/*##################                  End Stack                           ##########################*/
