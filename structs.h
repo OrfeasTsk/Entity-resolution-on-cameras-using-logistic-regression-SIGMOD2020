@@ -1,10 +1,9 @@
 #define RED 0
 #define BLACK 1
 
-typedef struct STnode* Link;
+typedef struct RBnode* Link;
 extern Link z;
 Link z;
-
 
 
 
@@ -61,15 +60,22 @@ int empty(Stack * stack);
 
 /*##################                  End Stack                           ##########################*/
 
+
+typedef struct{
+	Item* item;
+	Queue* related;  //Na ginetai free
+}Pair;
+
+
 /*##################                  Start of red-black trees                           ##########################*/
 
 
 typedef struct{ //Antikeimeno komvou tou red-black tree
 	int id;
-	Queue queue;
+	Queue pairs;
 }RBItem;
 
-struct STnode{ 
+struct RBnode{ 
 	RBItem* rbitem; 
 	Link l, r; 
 	int color; 
@@ -81,17 +87,14 @@ Link rotL(Link);
 Link NEW(int ,Pair** ,Link, Link, int);
 void RBinit();
 void RBdestr();
-void STinit(Link*);
-//void STdestr(Link*);
+void RBTinit(Link*);
+//void RBTdestr(Link*);
 Link MakeRBTree(Link,Link);
 Link insertR(Link,int,Pair**,Link);
-Link STinsertR(Link,int,Pair** );
+Link RBTinsertR(Link,int,Pair** );
 
 
 /*##################                  End of red-black trees                           ##########################*/
 
 
-typedef struct{
-	Item* item;
-	Queue related; 
-}Pair;
+

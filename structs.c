@@ -167,12 +167,12 @@ Link rotL(Link h) //Aristerh peristrofh
 
 
 Link NEW(int id,Pair** pair, Link l, Link r, int color){ 
-	Link x =(Link)malloc(sizeof(struct STnode));
+	Link x =(Link)malloc(sizeof(struct RBnode));
   	x->l = l; x->r = r; 
 	x->color=color;
 	x->rbitem = (RBItem*)malloc(sizeof(RBItem));
-    QueueInit(&(x->rbitem->queue)); //Arxikopoihsh ths ouras
-	QueueInsert(&(x->rbitem->queue),(void **)pair);	//Eisagwgh sthn lista tou komvou
+    QueueInit(&(x->rbitem->pairs)); //Arxikopoihsh ths ouras
+	QueueInsert(&(x->rbitem->pairs),(void **)pair);	//Eisagwgh sthn lista tou komvou
 	x->rbitem->id=id;
     return x;
   }
@@ -186,15 +186,15 @@ void RBdestr()
 	free(z);
 }
   
-void STinit(Link* head)//Arxikopoihsh tou deikth tou dentrou
+void RBTinit(Link* head)//Arxikopoihsh tou deikth tou dentrou
   { *head = z; }
 
-/*void STdestr(Link* head)//Katastrofh tou dentrou
+/*void RBTdestr(Link* head)//Katastrofh tou dentrou
 {
     if (*head==z)
 		return;
-    STdestr(&((*head)->l));
-    STdestr(&((*head)->r));
+    RBTdestr(&((*head)->l));
+    RBTdestr(&((*head)->r));
     free((*head)->rbitem->date);
     ListDestroyLN(&((*head)->rbitem->list));
     free((*head)->rbitem);
@@ -269,15 +269,41 @@ Link insertR(Link h, int id,Pair** pair ,Link head)
 			h=MakeRBTree(h,head);
 	}
 	else
-		QueueInsert(&(h->rbitem->queue),(void **)pair);	//Eisagwgh sthn oura tou komvou
+		QueueInsert(&(h->rbitem->pairs),(void **)pair);	//Eisagwgh sthn oura tou komvou
 		
 	return h;
   }
   
-Link STinsertR(Link head,int id,Pair** pair)
+Link RBTinsertR(Link head,int id,Pair** pair)
 { head = insertR(head,id,pair,head);
   return head; 
 }
+
+
+Pair* findPair(Link h, int id, char* fullId){
+   
+    RBItem* t = h->rbitem;
+    struct QueueNode* curr;
+    Pair* pair;
+    
+    if( id < t->id )
+		return findPair(h->l, id, fullId);
+	else if (t->id < id)
+		return findPair(h->r, id, fullId);
+	else{
+		for( curr = t->pairs->head ; curr != NULL ; curr = curr->next){
+			pair  = (Pair*)curr->data;
+			if(!strcmp(fullId,pair->item->id))
+				return pair;
+		}
+		
+		return NULL;
+	}
+    
+    
+	
+}
+
 
 
 

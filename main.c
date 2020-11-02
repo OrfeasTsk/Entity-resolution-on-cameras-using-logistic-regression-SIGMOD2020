@@ -158,6 +158,8 @@ int main(int argc, char* argv[]){
 	struct dirent* dirent_ptr;
 	Item* item;
 	Pair *pair;
+	Link* treeptr;
+	
 	
 	
 	
@@ -178,6 +180,9 @@ int main(int argc, char* argv[]){
 		}
 	}
 	
+	RBinit();
+	RBTinit(treeptr);
+
 
 	dir_ptr1 = opendir(datasetX);
 	while(dirent_ptr = readdir(dir_ptr1)) //Diavasma twn katalogwn
@@ -197,16 +202,18 @@ int main(int argc, char* argv[]){
 					
 					if( item = parse(json) ){						// an epistrefetai to item dhmiourgeitai to pair (to opoio prepei na bei sthn domh apothikeushs twn pairs)
 						
-						for( tmp = item->id, count=0; count<2 ; tmp++)		//to kanoyme gia na krathsoyme mono ton arithmo
+						for( tmp = item->id, count = 0; count < 2 ; tmp++)		//to kanoyme gia na krathsoyme mono ton arithmo
 							if(*tmp == '/')
-								count++;
-						printf("\n%d\n",atoi(tmp));			
+								count++;			
 						
 						pair = (Pair*)malloc(sizeof(Pair));
 						pair->item = item;
-						QueueInit(&(pair->related));
-						QueueInsert(&(pair->related), (void**)&item); // sthn arxh h related oura exei mono to idio to item 
-												
+						
+						pair->related = (Queue*)malloc(sizeof(Queue));
+						
+						QueueInit(pair->related);
+						QueueInsert(pair->related, (void**)&item); // sthn arxh h related oura exei mono to idio to item 
+						RBTinsertR(treeptr,atoi(tmp),&pair);						
 					}
 						
 					free(json);
@@ -220,8 +227,12 @@ int main(int argc, char* argv[]){
 	
 	// CSV READ
 	
-//	read_csv(datasetW);
+	
+	
+	read_csv(datasetW);
 
+
+	RBdestr();
 	return 0;
 	
 }
