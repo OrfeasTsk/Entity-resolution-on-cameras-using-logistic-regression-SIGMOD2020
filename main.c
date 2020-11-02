@@ -6,23 +6,33 @@
 #include "structs.h"
 
 
-// JSON ARRAYS OBJECTS BOOLEANS NUMBERS
+int getNumId(char* fullId){
+	int count;
+	
+	for( count = 0; count < 2 ; fullId++)		// Mono o arithmos
+		if(*fullId == '/')
+			count++;			
+						
+	return atoi(fullId);
+	
+}
+
 
 Item* parse(char* json){
 	char* tmp, c, prev = ' ';
-	int i, j, start=0, flag=0, count=0, isValue = 0 ,isPrim = 0;
+	int i, j, start = 0, flag = 0, count = 0, isValue = 0 ,isPrim = 0;
 	FILE* fd;
 	Item* item;
 	SpecNode* sp;
 	Stack stack;
 	
 	
-	fd=fopen(json,"r");	//Anoigma tou json
+	fd = fopen(json,"r");	//Anoigma tou json
 	if(fd == NULL) 
 		return NULL;
 		
 		
-	item =(Item*) malloc(sizeof(Item)); //Dhmiourgia antikeimenou
+	item = (Item*) malloc(sizeof(Item)); //Dhmiourgia antikeimenou
 	QueueInit(&(item->specs)); //Arxikopoihsh listas stoixeiwn antikeimenou
 	
 	for( i = 0; json[i] != '/'; i++) //Megethos arxikou katalogou
@@ -124,24 +134,35 @@ Item* parse(char* json){
 }
 
 
-void read_csv(char* datasetW){
+void read_csv(Link treeptr,char* datasetW){
 	
-	FILE * csv_file= fopen(datasetW,"r"); 
-	if(csv_file==NULL)
-		printf("\nCsv file is empty!\n");
-
-		
+	FILE * csv_file = fopen(datasetW,"r"); 
+	char* token;
 	char line[400];
+	Pair* pairA,* pairB;
+	
+	if(csv_file == NULL)
+		printf("Csv file is empty!\n");
+
+			
 	while(fgets(line, sizeof(line), csv_file)){
-		char *token;
 		
-		token=strtok(line,",");
+		pairA = NULL;
+		pairB = NULL;
+		token = strtok(line,",");
 		
-		while(token!=NULL){
-			printf("%s ", token);
-			token= strtok(NULL, ",");			// continue to tokenize the string we passed first
+		while(token != NULL){
+			if(pairA == NULL)
+				pairA = findPair(treeptr,getNumId(token),token); //Euresh tou left item	
+			else if(pairB == NULL)
+				pairB = findPair(treeptr,getNumId(token),token); //Euresh tou right item
+			else if(atoi(token) == 1) //An tairiazoun 
+					if(pairA->related != pairB->related) //An den exoun enwthei ksana
+						QueueConcat(pairA->related,pairB->related);
+			
+			
+			token = strtok(NULL, ",");			// continue to tokenize the string we passed first
 		}
-		printf("\n");
 	}
 
 	fclose(csv_file);
@@ -152,13 +173,13 @@ void read_csv(char* datasetW){
 
 
 int main(int argc, char* argv[]){
-	int i,count=0;
-	char* datasetX=NULL,*datasetW=NULL,*tmpdir1,*json,*tmp;
+	int i;
+	char* datasetX=NULL,*datasetW=NULL,*tmpdir1,*json;
 	DIR* dir_ptr1,*dir_ptr2;
 	struct dirent* dirent_ptr;
 	Item* item;
 	Pair *pair;
-	Link* treeptr;
+	Link treeptr;
 	
 	
 	
@@ -181,7 +202,7 @@ int main(int argc, char* argv[]){
 	}
 	
 	RBinit();
-	RBTinit(treeptr);
+	RBTinit(&treeptr);
 
 
 	dir_ptr1 = opendir(datasetX);
@@ -198,22 +219,18 @@ int main(int argc, char* argv[]){
 					strcpy(json,tmpdir1);
 					strcat(json,"/");
 					strcat(json,dirent_ptr->d_name); 
-					printf("%s\n",json);
+					//printf("%s\n",json);
 					
 					if( item = parse(json) ){						// an epistrefetai to item dhmiourgeitai to pair (to opoio prepei na bei sthn domh apothikeushs twn pairs)
-						
-						for( tmp = item->id, count = 0; count < 2 ; tmp++)		//to kanoyme gia na krathsoyme mono ton arithmo
-							if(*tmp == '/')
-								count++;			
-						
+									
 						pair = (Pair*)malloc(sizeof(Pair));
 						pair->item = item;
 						
 						pair->related = (Queue*)malloc(sizeof(Queue));
 						
 						QueueInit(pair->related);
-						QueueInsert(pair->related, (void**)&item); // sthn arxh h related oura exei mono to idio to item 
-						RBTinsertR(treeptr,atoi(tmp),&pair);						
+						QueueInsert(pair->related, (void**)&pair); // Sthn arxh h related oura exei mono to idio to pair 
+						RBTinsertR(treeptr,getNumId(item->id),&pair);						
 					}
 						
 					free(json);
@@ -229,7 +246,7 @@ int main(int argc, char* argv[]){
 	
 	
 	
-	read_csv(datasetW);
+	read_csv(treeptr,datasetW);
 
 
 	RBdestr();
