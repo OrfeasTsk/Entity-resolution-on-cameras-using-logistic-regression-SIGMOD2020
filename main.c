@@ -144,6 +144,8 @@ void read_csv(Link treeptr,char* datasetW){
 	if(csv_file == NULL)
 		printf("Csv file is empty!\n");
 
+	fgets(line, sizeof(line), csv_file); //Diavasma twn etiketwn tou csv
+
 			
 	while(fgets(line, sizeof(line), csv_file)){
 		
@@ -230,7 +232,7 @@ int main(int argc, char* argv[]){
 						
 						QueueInit(pair->related);
 						QueueInsert(pair->related, (void**)&pair); // Sthn arxh h related oura exei mono to idio to pair 
-						RBTinsertR(treeptr,getNumId(item->id),&pair);						
+						treeptr = RBTinsertR(treeptr,getNumId(item->id),&pair);						
 					}
 						
 					free(json);
