@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "structs.h"
 
 /*##################                  Start Generic Queue                                        ##########################*/
@@ -27,6 +28,24 @@ void QueueInsert(Queue* queue,void ** data){ //Eisagwgh sthn oura
         
         queue->count++;
 }
+
+void QueueConcat(Queue* q1 , Queue* q2){
+	struct QueueNode* curr = q2->head,*prev;
+	Pair* pair;
+	
+	while( curr != NULL ){
+		pair = (Pair*)(curr->data);
+		pair->related = q1; //Ola ta items exoun ws related oura thn q1
+		QueueInsert(q1,(void**)&pair); //Eisagwgh tous apo thn q2 sthn q1
+		prev = curr;
+		curr = curr->next;
+		free(prev); //Apodesmeush tou komvou ouras ths q2
+	}
+	
+	free(q2); //Apodesmeush ths q2
+	
+}
+
 
 
 /*void QueuePrint(Queue* queue){ 				//Ektypwsh ouras
@@ -170,10 +189,12 @@ Link NEW(int id,Pair** pair, Link l, Link r, int color){
 	Link x =(Link)malloc(sizeof(struct RBnode));
   	x->l = l; x->r = r; 
 	x->color=color;
-	x->rbitem = (RBItem*)malloc(sizeof(RBItem));
-    QueueInit(&(x->rbitem->pairs)); //Arxikopoihsh ths ouras
-	QueueInsert(&(x->rbitem->pairs),(void **)pair);	//Eisagwgh sthn lista tou komvou
-	x->rbitem->id=id;
+	if( id != -1 && pair != NULL){
+		x->rbitem = (RBItem*)malloc(sizeof(RBItem));
+    	QueueInit(&(x->rbitem->pairs)); //Arxikopoihsh ths ouras
+		QueueInsert(&(x->rbitem->pairs),(void **)pair);	//Eisagwgh sthn lista tou komvou
+		x->rbitem->id=id;
+	}
     return x;
   }
 
@@ -291,8 +312,8 @@ Pair* findPair(Link h, int id, char* fullId){
 	else if (t->id < id)
 		return findPair(h->r, id, fullId);
 	else{
-		for( curr = t->pairs->head ; curr != NULL ; curr = curr->next){
-			pair  = (Pair*)curr->data;
+		for( curr = t->pairs.head ; curr != NULL ; curr = curr->next){
+			pair  = (Pair*)(curr->data);
 			if(!strcmp(fullId,pair->item->id))
 				return pair;
 		}
