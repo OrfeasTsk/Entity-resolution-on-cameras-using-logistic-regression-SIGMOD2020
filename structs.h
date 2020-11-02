@@ -33,8 +33,9 @@ typedef struct{
 	
 }Item;
 
-void QueueInit(Queue* queue);
-void QueueInsert(Queue* queue,void ** data);
+void QueueInit(Queue*);
+void QueueInsert(Queue*,void **);
+void QueueConcat(Queue*, Queue*);
 
 /*##################                  End Generic Queue                                        ##########################*/
 
@@ -53,10 +54,10 @@ typedef struct LinkedStack{ //Domh listas
 }Stack;
 
 
-void StackInit(Stack * stack);
-struct StackNode * push(Stack * stack, char data);
-void check(Stack * stack, char c);
-int empty(Stack * stack);
+void StackInit(Stack*);
+struct StackNode * push(Stack *, char);
+void check(Stack *, char);
+int empty(Stack *);
 
 /*##################                  End Stack                           ##########################*/
 
@@ -92,7 +93,7 @@ void RBTinit(Link*);
 Link MakeRBTree(Link,Link);
 Link insertR(Link,int,Pair**,Link);
 Link RBTinsertR(Link,int,Pair** );
-
+Pair* findPair(Link , int , char* );
 
 /*##################                  End of red-black trees                           ##########################*/
 
