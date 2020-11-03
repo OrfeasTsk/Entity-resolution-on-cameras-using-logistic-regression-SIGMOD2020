@@ -375,11 +375,11 @@ void printOutput(Link h){
 				}
 				
 			}
-			else																						// an den einai ta ektypwnoume
+			else{																						// an den einai ta ektypwnoume
 				printf("%s , %s \n", pair->item->id , rel_pair->item->id );			
-				
+				prev = curr;
+			}
 			
-			prev = curr;	
 		}
 	
 	}

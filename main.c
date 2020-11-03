@@ -39,7 +39,7 @@ Item* parse(char* json){
 		count++;
 	
 	item->id = (char*) malloc(strlen(json) - count - 4 ); //Megethos xwris thn katalhksh .json kai to onoma tou arxikou katalogou
-	item->id[strlen(json) - count - 4] = '\0';
+	item->id[strlen(json) - count - 5] = '\0';
 	
 	for( i = count + 1 , j = 0; i < strlen(json) - 5 ; i++ ){  //Xwris thn katalhksh .json kai to onoma tou arxikou katalogou
 		(item->id)[j++] = json[i];
@@ -208,6 +208,7 @@ int main(int argc, char* argv[]){
 	RBTinit(&treeptr);
 
 
+
 	dir_ptr1 = opendir(datasetX);
 	while(dirent_ptr = readdir(dir_ptr1)) //Diavasma twn katalogwn
 		if(strcmp(dirent_ptr->d_name,".") && strcmp(dirent_ptr->d_name,"..")){
@@ -223,7 +224,6 @@ int main(int argc, char* argv[]){
 					strcat(json,"/");
 					strcat(json,dirent_ptr->d_name); 
 					//printf("%s\n",json);
-					
 					if( item = parse(json) ){						// an epistrefetai to item dhmiourgeitai to pair (to opoio prepei na bei sthn domh apothikeushs twn pairs)
 									
 						pair = (Pair*)malloc(sizeof(Pair));
