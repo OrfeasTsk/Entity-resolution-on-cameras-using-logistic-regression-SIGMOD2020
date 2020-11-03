@@ -136,6 +136,7 @@ Item* parse(char* json){
 
 void read_csv(Link treeptr,char* datasetW){
 	
+	int i;
 	FILE * csv_file = fopen(datasetW,"r"); 
 	char* token;
 	char line[400];
@@ -149,18 +150,18 @@ void read_csv(Link treeptr,char* datasetW){
 			
 	while(fgets(line, sizeof(line), csv_file)){
 		
-		pairA = NULL;
-		pairB = NULL;
 		token = strtok(line,",");
 		
-		while(token != NULL){
-			if(pairA == NULL)
+		for(i = 0; (i < 3 && token != NULL) ; i++ ){
+			if( i == 0 )
 				pairA = findPair(treeptr,getNumId(token),token); //Euresh tou left item	
-			else if(pairB == NULL)
+			if(i == 1)
 				pairB = findPair(treeptr,getNumId(token),token); //Euresh tou right item
-			else if(atoi(token) == 1) //An tairiazoun 
-					if(pairA->related != pairB->related) //An den exoun enwthei ksana
-						QueueConcat(pairA->related,pairB->related);
+			if( i == 2)
+				if(atoi(token) == 1) //An tairiazoun 
+					if(pairA != NULL && pairB != NULL)
+						if(pairA->related != pairB->related) //An den exoun enwthei ksana
+							QueueConcat(pairA->related,pairB->related);
 			
 			
 			token = strtok(NULL, ",");			// continue to tokenize the string we passed first
