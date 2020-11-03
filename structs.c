@@ -331,7 +331,7 @@ Pair* findPair(Link h, int id, char* fullId){
 void printOutput(Link h){			
 	
 	RBItem* t = h->rbitem;
-    struct QueueNode* qnptr, *curr, *prev=NULL;
+    struct QueueNode* qnptr, *curr, *prev=NULL, *temp;
  	
 		
     Pair* pair;	
@@ -345,8 +345,8 @@ void printOutput(Link h){
 	for( qnptr = t->pairs.head ; qnptr != NULL ; qnptr = qnptr->next){									// diasxizoume  thn oura twn pairs
 	
 		pair  = (Pair*)(qnptr->data);
-		
-		for(curr = pair->related->head; curr != NULL ; curr = curr->next ){								// diasxizoume thn related 
+		curr = pair->related->head;
+		while( curr != NULL ){								// diasxizoume thn related 
 			rel_pair  = (Pair*)(curr->data);															// related_pairs	
 			if( !strcmp( pair->item->id , rel_pair->item->id ) ){										// an einai to idio item
 			
@@ -355,29 +355,39 @@ void printOutput(Link h){
 						pair->related->head=NULL;														// diagrafh tou komvou
 						pair->related->tail=NULL;
 						pair->related->count--;
-						free(curr);
+						temp=curr;
+						curr = curr->next; 
+						free(temp);
 					}
 					else{																				// diaforetika o head tha deiksei ston epomeno komvo
 						pair->related->head=curr->next;
 						pair->related->count--;
-						free(curr);
+						temp=curr;
+						curr = curr->next; 
+						free(temp);
 					}
 				}
 				else if(curr == pair->related->tail){													// an einai to teleutaio item
 					pair->related->tail = prev;															// tha metakinithei enan komvo pisw
+					prev->next = NULL;
 					pair->related->count--;
-					free(curr);
+					temp = curr;
+					curr = curr->next;
+					free(temp);
 				}
 				else{																					// se opoiadhpote allh periptwsh
 					prev->next=curr->next;
 					pair->related->count--;
-					free(curr);
+					temp = curr;
+					curr = curr->next;
+					free(temp);
 				}
 				
 			}
 			else{																						// an den einai ta ektypwnoume
 				printf("%s , %s \n", pair->item->id , rel_pair->item->id );			
 				prev = curr;
+				curr = curr->next;
 			}
 			
 		}
