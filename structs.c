@@ -334,6 +334,7 @@ void printOutput(Link h){
 						temp=curr;
 						curr = curr->next; 
 						free(temp);
+						free(pair->related); //To teleutaio pair katastrefei thn oura
 					}
 					else{																				// diaforetika o head tha deiksei ston epomeno komvo
 						pair->related->head=curr->next;
@@ -416,7 +417,6 @@ void PairDestroy(Pair* pair){
 	
 	
 	ItemDestroy(pair->item);
-	free(pair->related);
 	free(pair);
 	
 	
