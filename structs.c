@@ -307,6 +307,9 @@ Pair* findPair(Link h, int id, char* fullId){
     struct QueueNode* curr;
     Pair* pair;
     
+    if(h == z)
+		return NULL;
+    
     if( id < t->id )
 		return findPair(h->l, id, fullId);
 	else if (t->id < id)
