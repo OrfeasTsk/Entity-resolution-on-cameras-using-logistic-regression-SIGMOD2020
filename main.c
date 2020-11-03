@@ -250,6 +250,8 @@ int main(int argc, char* argv[]){
 	
 	
 	read_csv(treeptr,datasetW);
+	
+	printOutput(treeptr);
 
 
 	RBdestr();

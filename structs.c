@@ -307,14 +307,14 @@ Pair* findPair(Link h, int id, char* fullId){
     struct QueueNode* curr;
     Pair* pair;
     
-    if(h == z)
+    if(h == z)								// an den brethei timi 
 		return NULL;
     
-    if( id < t->id )
+    if( id < t->id )						// diasxizoume to dentro gia na broume thn timi
 		return findPair(h->l, id, fullId);
 	else if (t->id < id)
 		return findPair(h->r, id, fullId);
-	else{
+	else{									// otan tin broume elegxoume thn oura twn pairs
 		for( curr = t->pairs.head ; curr != NULL ; curr = curr->next){
 			pair  = (Pair*)(curr->data);
 			if(!strcmp(fullId,pair->item->id))
@@ -325,6 +325,70 @@ Pair* findPair(Link h, int id, char* fullId){
 	}
     
     
+	
+}
+
+void printOutput(Link h){			
+	
+	RBItem* t = h->rbitem;
+    struct QueueNode* qnptr, *curr, *prev=NULL;
+ 	
+		
+    Pair* pair;	
+	Pair* rel_pair;	
+	
+	if(h == z)			// base-case
+		return;
+		
+	printOutput(h->l);	// anadromika phgainoume aristera
+	
+	for( qnptr = t->pairs.head ; qnptr != NULL ; qnptr = qnptr->next){									// diasxizoume  thn oura twn pairs
+	
+		pair  = (Pair*)(qnptr->data);
+		
+		for(curr = pair->related->head; curr != NULL ; curr = curr->next ){								// diasxizoume thn related 
+			rel_pair  = (Pair*)(curr->data);															// related_pairs	
+			if( !strcmp( pair->item->id , rel_pair->item->id ) ){										// an einai to idio item
+			
+				if (curr == pair->related->head ){														// an einai o head
+					if( curr == pair->related->tail ){													// an einai to monadiko antikeimeno
+						pair->related->head=NULL;														// diagrafh tou komvou
+						pair->related->tail=NULL;
+						pair->related->count--;
+						free(curr);
+					}
+					else{																				// diaforetika o head tha deiksei ston epomeno komvo
+						pair->related->head=curr->next;
+						pair->related->count--;
+						free(curr);
+					}
+				}
+				else if(curr == pair->related->tail){													// an einai to teleutaio item
+					pair->related->tail = prev;															// tha metakinithei enan komvo pisw
+					pair->related->count--;
+					free(curr);
+				}
+				else{																					// se opoiadhpote allh periptwsh
+					prev->next=curr->next;
+					pair->related->count--;
+					free(curr);
+				}
+				
+			}
+			else																						// an den einai ta ektypwnoume
+				printf("%s , %s \n", pair->item->id , rel_pair->item->id );			
+				
+			
+			prev = curr;	
+		}
+	
+	}
+	
+	
+	printOutput(h->r);	// anadromika phgainoume deksia
+	
+	
+	
 	
 }
 

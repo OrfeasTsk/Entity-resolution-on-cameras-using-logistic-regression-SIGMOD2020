@@ -94,6 +94,7 @@ Link MakeRBTree(Link,Link);
 Link insertR(Link,int,Pair**,Link);
 Link RBTinsertR(Link,int,Pair** );
 Pair* findPair(Link , int , char* );
+void printOutput(Link );
 
 /*##################                  End of red-black trees                           ##########################*/
 
