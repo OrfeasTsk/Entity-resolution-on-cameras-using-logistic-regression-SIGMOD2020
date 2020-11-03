@@ -23,7 +23,7 @@ Item* parse(char* json){
 	int i, j, start = 0, flag = 0, count = 0, isValue = 0 ,isPrim = 0;
 	FILE* fd;
 	Item* item;
-	SpecNode* sp;
+	Spec* sp;
 	Stack stack;
 	
 	
@@ -65,7 +65,7 @@ Item* parse(char* json){
 					tmp[i] = fgetc(fd);
 				tmp[count - start - 1] = '\0';
 				fseek(fd,count + 1,SEEK_SET); //Diavasma meta to eisagwgiko kleisimatos
-				sp = (SpecNode*)malloc(sizeof(SpecNode)); //Dhmiourgia neou spec
+				sp = (Spec*)malloc(sizeof(Spec)); //Dhmiourgia neou spec
 				sp->name = tmp; // Prosthikh onomatos
 				isValue = 1; // Seira ths timhs
 				start = -1;
@@ -252,7 +252,7 @@ int main(int argc, char* argv[]){
 	read_csv(treeptr,datasetW);
 	
 	printOutput(treeptr);
-
+	RBTdestr(&treeptr);
 
 	RBdestr();
 	return 0;

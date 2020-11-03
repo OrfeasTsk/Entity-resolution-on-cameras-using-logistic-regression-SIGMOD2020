@@ -131,19 +131,7 @@ int empty(Stack * stack){
 }
 
 
-/*
-void ListDestroyLN(List * list){//Katastrofh ths listas
 
-	struct ListNode * Temp;
-	
-	while(list->head != NULL){
-       Temp=list->head;
-       list->head=list->head->next;
-       free(Temp);
-    }
-
-}
-*/
 /*##################              End Stack                            ##########################*/
 
 
@@ -209,18 +197,6 @@ void RBdestr()
   
 void RBTinit(Link* head)//Arxikopoihsh tou deikth tou dentrou
   { *head = z; }
-
-/*void RBTdestr(Link* head)//Katastrofh tou dentrou
-{
-    if (*head==z)
-		return;
-    RBTdestr(&((*head)->l));
-    RBTdestr(&((*head)->r));
-    free((*head)->rbitem->date);
-    ListDestroyLN(&((*head)->rbitem->list));
-    free((*head)->rbitem);
-	free(*head);
-}*/
 
 
 Link MakeRBTree(Link h,Link head){  //Synarthsh pou ftiaxnei to red-black tree 
@@ -405,6 +381,90 @@ void printOutput(Link h){
 
 
 
+
+void ItemDestroy(Item* item){
+	Spec* spec;
+	struct QueueNode* curr = item->specs.head,*Temp;
+	
+	
+	while( curr != NULL ){
+		spec = (Spec*)(curr->data);
+		free(spec->name);
+		free(spec->value);
+		free(spec);
+		Temp = curr;
+		curr = curr->next;
+		free(Temp);
+	}
+	
+	free(item->id);
+	free(item);
+}
+
+
+void PairDestroy(Pair* pair){
+	
+	/*Pair* p;
+	struct QueueNode* curr = pair->related->head,*Temp;
+	
+	
+	while( curr != NULL ){
+		Temp = curr;
+		curr = curr->next;
+		free(Temp);
+	}*/
+	
+	
+	ItemDestroy(pair->item);
+	free(pair->related);
+	free(pair);
+	
+	
+}
+
+
+
+void RBTdestr(Link* head)//Katastrofh tou dentrou
+{
+	struct QueueNode* curr,*Temp;
+	Pair* pair;
+	
+    if (*head == z)
+		return;
+		
+    RBTdestr(&((*head)->l));
+    RBTdestr(&((*head)->r));
+    
+    curr = (*head)->rbitem->pairs.head;
+    
+    while( curr != NULL){
+    	pair = (Pair*)(curr->data);
+		PairDestroy(pair);
+		Temp = curr;
+		curr = curr->next;
+		free(Temp);
+	}
+    
+    
+    free((*head)->rbitem);
+	free(*head);
+	
+}
+
+
+
+
+/*void QueueDestroy(Queue * queue){//Katastrofh ths listas
+
+	struct ListNode * Temp;
+	
+	while(list->head != NULL){
+       Temp=list->head;
+       list->head=list->head->next;
+       free(Temp);
+    }
+
+}*/
 
 
 

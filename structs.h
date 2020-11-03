@@ -25,7 +25,7 @@ typedef struct{
 typedef struct{			// each node has the name of the spec and it's value
 	char* name;
 	char* value;
-}SpecNode; 
+}Spec; 
 
 typedef struct{
 	char* id;
@@ -83,15 +83,10 @@ struct RBnode{
 };
 
 void treeprint(Link , int,int,Link);
-Link rotR(Link);
-Link rotL(Link);
-Link NEW(int ,Pair** ,Link, Link, int);
 void RBinit();
 void RBdestr();
 void RBTinit(Link*);
-//void RBTdestr(Link*);
-Link MakeRBTree(Link,Link);
-Link insertR(Link,int,Pair**,Link);
+void RBTdestr(Link*);
 Link RBTinsertR(Link,int,Pair** );
 Pair* findPair(Link , int , char* );
 void printOutput(Link );
