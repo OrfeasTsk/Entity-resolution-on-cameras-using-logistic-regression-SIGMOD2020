@@ -76,6 +76,7 @@ void test_stcheck(void){
 		}
 		
 	}
+	TEST_ASSERT(StackEmpty(&stack));
 
 	
 }
