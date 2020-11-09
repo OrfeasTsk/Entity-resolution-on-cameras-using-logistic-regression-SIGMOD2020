@@ -142,8 +142,10 @@ void read_csv(Link treeptr,char* datasetW){
 	char line[400];
 	Pair* pairA,* pairB;
 	
-	if(csv_file == NULL)
+	if(csv_file == NULL){
 		printf("Csv file is empty!\n");
+		return;
+	}
 
 	fgets(line, sizeof(line), csv_file); //Diavasma twn etiketwn tou csv
 
