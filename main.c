@@ -180,7 +180,9 @@ void read_csv(Link treeptr,char* datasetW){
 int main(int argc, char* argv[]){
 	int i;
 	char* datasetX=NULL,*datasetW=NULL,*tmpdir1,*json;
+	char buff[200];
 	DIR* dir_ptr1,*dir_ptr2;
+	FILE* output;
 	struct dirent* dirent_ptr;
 	Item* item;
 	Pair *pair;
@@ -253,10 +255,15 @@ int main(int argc, char* argv[]){
 	
 	read_csv(treeptr,datasetW);
 	
-	printOutput(treeptr);
+	output = fopen("output.csv","w");
+	sprintf(buff,"left_item , right_item\n");
+	fwrite(buff,sizeof(char),strlen(buff),output);
+	
+	printOutput(treeptr,output,buff);
 	RBTdestr(&treeptr);
 
 	RBdestr();
+	fclose(output);
 	return 0;
 	
 }

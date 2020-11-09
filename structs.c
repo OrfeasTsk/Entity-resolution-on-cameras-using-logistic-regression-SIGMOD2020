@@ -306,7 +306,7 @@ Pair* findPair(Link h, int id, char* fullId){
 	
 }
 
-void printOutput(Link h){			
+void printOutput(Link h,FILE* output,char* buff){			
 	
 	RBItem* t = h->rbitem;
     struct QueueNode* qnptr, *curr, *prev=NULL, *temp;
@@ -318,7 +318,7 @@ void printOutput(Link h){
 	if(h == z)			// base-case
 		return;
 		
-	printOutput(h->l);	// anadromika phgainoume aristera
+	printOutput(h->l,output,buff);	// anadromika phgainoume aristera
 	
 	for( qnptr = t->pairs.head ; qnptr != NULL ; qnptr = qnptr->next){									// diasxizoume  thn oura twn pairs
 	
@@ -364,7 +364,8 @@ void printOutput(Link h){
 				
 			}
 			else{																						// an den einai ta ektypwnoume
-				printf("%s , %s \n", pair->item->id , rel_pair->item->id );			
+				sprintf(buff,"%s , %s \n", pair->item->id , rel_pair->item->id );			
+				fwrite(buff,sizeof(char),strlen(buff),output);
 				prev = curr;
 				curr = curr->next;
 			}
@@ -374,7 +375,7 @@ void printOutput(Link h){
 	}
 	
 	
-	printOutput(h->r);	// anadromika phgainoume deksia
+	printOutput(h->r,output,buff);	// anadromika phgainoume deksia
 	
 	
 	

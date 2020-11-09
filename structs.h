@@ -1,6 +1,7 @@
 #define RED 0
 #define BLACK 1
 
+
 typedef struct RBnode* Link;
 extern Link z;
 Link z;
@@ -90,7 +91,7 @@ void RBTinit(Link*);
 void RBTdestr(Link*);
 Link RBTinsertR(Link,int,Pair** );
 Pair* findPair(Link , int , char* );
-void printOutput(Link );
+void printOutput(Link, FILE*, char* );
 
 /*##################                  End of red-black trees                           ##########################*/
 
