@@ -3,7 +3,7 @@
 
 
 
-void test_qcreate(void){					// elegxoume an h QueueInit douleuei kai arxikopoiei swsta ta values
+void test_qcreate(void){	// elegxoume an h QueueInit douleuei kai arxikopoiei swsta ta values
 
 	Queue queue;
 	QueueInit( &queue );
@@ -20,7 +20,7 @@ void test_qinsert(void){
 	Queue queue;
 	QueueInit( &queue );
 	
-	struct QueueNode* temp,curr;
+	struct QueueNode* temp,*curr;
 	
 	//tha eleksoume an h queue douleuei me thn xrhsh integer
 	int **array=(int**)malloc(100*sizeof(int*));

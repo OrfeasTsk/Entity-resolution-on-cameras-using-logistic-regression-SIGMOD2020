@@ -58,7 +58,7 @@ typedef struct LinkedStack{ //Domh listas
 void StackInit(Stack*);
 struct StackNode * push(Stack *, char);
 void check(Stack *, char);
-int empty(Stack *);
+int StackEmpty(Stack *);
 
 /*##################                  End Stack                           ##########################*/
 

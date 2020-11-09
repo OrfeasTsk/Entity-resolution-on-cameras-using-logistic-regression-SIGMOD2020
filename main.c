@@ -86,7 +86,7 @@ Item* parse(char* json){
 				}
 			}
 			else{
-				if(!empty(&stack)){
+				if(!StackEmpty(&stack)){
 					if((c == '[' || c == '{'|| c == '"'  || c == ']' || c == '}') && prev != '\\')
 						check(&stack,c);
 				}
