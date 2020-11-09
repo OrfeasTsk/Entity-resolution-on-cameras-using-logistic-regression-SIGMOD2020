@@ -42,16 +42,20 @@ void test_qinsert(void){
 	}
 	
 	//diagrafh komvwn
-	for( i=0, curr=queue.head ; (i<100 && curr!=NULL) ; i++ ){
-		temp=curr;
-		free(curr->data);
-		curr=curr->next;
+	for( i = 0 ; (i < 100 && queue.head != NULL) ; i++ ){
+		temp=queue.head;
+		free(temp->data);
+		if(queue.head == queue.tail)
+			queue.tail = queue.head->next;
+		queue.head=queue.head->next;
 		free(temp);
 		queue.count--;
 	}
 	
 	//elegxoume an diagrafthke h lista
 	TEST_ASSERT(QueueEmpty(&queue));
+	TEST_ASSERT(queue.head==NULL);
+	TEST_ASSERT(queue.tail==NULL);
 	free(array);
 	
 }
