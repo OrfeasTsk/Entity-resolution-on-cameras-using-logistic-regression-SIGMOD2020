@@ -29,6 +29,11 @@ void QueueInsert(Queue* queue,void ** data){ //Eisagwgh sthn oura
         queue->count++;
 }
 
+int QueueEmpty(Queue* queue){
+	
+	return queue->count == 0;
+}
+
 void QueueConcat(Queue* q1 , Queue* q2){
 	struct QueueNode* curr = q2->head,*prev;
 	Pair* pair;

@@ -35,6 +35,7 @@ typedef struct{
 
 void QueueInit(Queue*);
 void QueueInsert(Queue*,void **);
+int QueueEmpty(Queue* );
 void QueueConcat(Queue*, Queue*);
 
 /*##################                  End Generic Queue                                        ##########################*/
