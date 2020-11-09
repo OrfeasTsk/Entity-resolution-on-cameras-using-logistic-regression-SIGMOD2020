@@ -89,7 +89,7 @@ struct StackNode * push(Stack * stack, char data){//Eisagwgh sthn arxh
 	
 }
 
-void check(Stack * stack, char c ){ // Diagrafh prwtou item elegxontas an prepei na diagraftei(auto to blepoume apo ta analoga tou [ me ], { me } kai " me " ), alliws push tou item
+void check(Stack * stack, char c ){ // Diagrafh prwtou item elegxontas an prepei na diagraftei(auto to blepoume apo ta analoga tou [ me ], { me } kai " me " ), alliws push tou char
 	
 /*	if(stack->count == 0){
 		printf("\nStack is empty!!\n");
