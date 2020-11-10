@@ -195,6 +195,7 @@ void RBinit() //Arxikopoihsh tou kenou komvou
 void RBdestr()
 {
 	free(z);
+	z = NULL;
 }
   
 void RBTinit(Link* head)//Arxikopoihsh tou deikth tou dentrou
@@ -408,16 +409,6 @@ void ItemDestroy(Item* item){
 
 void PairDestroy(Pair* pair){
 	
-	/*Pair* p;
-	struct QueueNode* curr = pair->related->head,*Temp;
-	
-	
-	while( curr != NULL ){
-		Temp = curr;
-		curr = curr->next;
-		free(Temp);
-	}*/
-	
 	
 	ItemDestroy(pair->item);
 	free(pair);
@@ -432,8 +423,10 @@ void RBTdestr(Link* head)//Katastrofh tou dentrou
 	struct QueueNode* curr,*Temp;
 	Pair* pair;
 	
-    if (*head == z)
+    if (*head == z){
+		*head = NULL;
 		return;
+	}
 		
     RBTdestr(&((*head)->l));
     RBTdestr(&((*head)->r));
@@ -451,7 +444,7 @@ void RBTdestr(Link* head)//Katastrofh tou dentrou
     
     free((*head)->rbitem);
 	free(*head);
-	
+	*head = NULL;
 }
 
 
