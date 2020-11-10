@@ -2,7 +2,7 @@
 #include "structs.h"
 
 
-void test_stcreate(void){	// elegxoume an h StackInit douleuei kai arxikopoiei swsta ta values
+void test_stcreate(void){	// Elegxoume an h StackInit douleuei kai arxikopoiei swsta ta values
 
 	Stack stack;
 	StackInit( &stack );
@@ -20,15 +20,15 @@ void test_stpush(void){
 	int i;
 	struct StackNode* temp;
 	
-	//Tha eleksoume an h stack douleuei me thn xrhsh char
+	//Elegxos me thn xrhsh char
 	for( i=0 ; str[i]!='\0' ;  i++){
 		
 		push( &stack , str[i] );
 		
-		// Tha elegksoyme an auksithike to megethos ths stack
+		//Auksithike to megethos ths stoivas?
 		TEST_ASSERT(stack.count == (i + 1));
 		
-		//Elegxoume an sthn arxh mpainei to swsto value
+		//Sthn arxh mpainei to swsto value?
 		TEST_ASSERT(str[i] == stack.head->data);
 	}
 	
@@ -40,7 +40,7 @@ void test_stpush(void){
 		stack.count--;
 	}
 	
-	//Elegxoume an diagrafthke h lista
+	//Diagrafthke h lista?
 	TEST_ASSERT(StackEmpty(&stack));
 	TEST_ASSERT(stack.head == NULL);
 
@@ -56,11 +56,10 @@ void test_stcheck(void){
 	
 	struct StackNode* temp;
 	
-	//Tha eleksoume an h stack douleuei me thn xrhsh char
 	for( i=0 ; str[i]!='\0' ;  i++){
 		
 		
-		// Tha elegksoyme an auksithike to megethos ths stack otan prepei kai an meiwthike otan ekleisan oi antistoixes paretheseis
+		// Auksithike to megethos ths stoivas otan prepei kai an meiwthike otan ekleisan oi antistoixes paretheseis?
 		
 		if(str[i]==']' || str[i]=='}' || (str[i]=='"' && flag==1)){
 			check( &stack , str[i] );
@@ -69,7 +68,7 @@ void test_stcheck(void){
 		else if (str[i]=='[' || str[i]=='{' || (str[i]=='"' && flag==0)){
 			check( &stack , str[i] );
 			TEST_ASSERT(stack.count == ++count);
-			//Elegxoume an sthn arxh mpainei to swsto value
+			//Sthn arxh mpainei to swsto value?
 			TEST_ASSERT(str[i] == stack.head->data);
 			if(str[i]=='"' && flag==0 )
 				flag=1;
@@ -77,7 +76,7 @@ void test_stcheck(void){
 		}
 		
 	}
-	//Elegxoume an h stoiva einai kenh
+	//H stoiva einai kenh?
 	TEST_ASSERT(StackEmpty(&stack));
 	TEST_ASSERT(stack.head == NULL);
 

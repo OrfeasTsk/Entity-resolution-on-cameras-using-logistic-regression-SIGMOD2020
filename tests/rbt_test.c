@@ -11,7 +11,7 @@ void test_rbtcreate(void){
 	RBinit();
 	TEST_ASSERT( z != NULL ); //Elegxos gia arxikopoihsh tou dummy komvou
 	RBTinit(&treeptr);
-	TEST_ASSERT( treeptr == z ); //An o deikths deixnei ston dummy komvo
+	TEST_ASSERT( treeptr == z ); //O deikths deixnei ston dummy komvo?
 	RBTdestr(&treeptr);
 	TEST_ASSERT( treeptr == NULL );	
 	RBdestr();

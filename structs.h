@@ -90,10 +90,11 @@ void RBdestr();
 void RBTinit(Link*);
 void RBTdestr(Link*);
 Link RBTinsertR(Link,int,Pair** );
-Pair* findPair(Link , int , char* );
-void printOutput(Link, FILE*, char* );
+
 
 /*##################                  End of red-black trees                           ##########################*/
 
-
+Pair* findPair(Link , int , char* );
+void printOutput(Link, FILE*, char* );
+void PairDestroy(Pair*);
 
