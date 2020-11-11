@@ -1,5 +1,4 @@
 inc = -I ./include/
-VPATH=./tests/
 
 
 all: findSameItems queue_test stack_test rbt_test
