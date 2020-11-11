@@ -84,7 +84,7 @@ struct RBnode{
 	int color; 
 };
 
-void treeprint(Link , int,int,Link);
+void treeprint(Link, int, int, Link);
 void RBinit();
 void RBdestr();
 void RBTinit(Link*);
