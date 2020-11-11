@@ -123,7 +123,7 @@ void check(Stack * stack, char c ){ // Diagrafh prwtou item elegxontas an prepei
 		else						// Giati tha exei elegxtei hdh to " 
 			push(stack,c);
 	}
-	else							// diaforetika kanoume push to stoixeio
+	else if(c == '[' || c == '{')							// diaforetika kanoume push to stoixeio
 		push(stack,c);
 	
 }
