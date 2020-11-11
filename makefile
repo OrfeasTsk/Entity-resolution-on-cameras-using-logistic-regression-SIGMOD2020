@@ -1,3 +1,7 @@
+inc = -I ./include/
+VPATH=./tests/
+
+
 all: findSameItems queue_test stack_test rbt_test
 
 findSameItems : main.o structs.o
@@ -13,21 +17,21 @@ rbt_test : rbt_test.o structs.o
 	gcc rbt_test.o structs.o -o rbt_test
 	
 	
-queue_test.o : queue_test.c structs.h acutest.h
-	gcc -c queue_test.c
+queue_test.o : ./tests/queue_test.c ./include/structs.h ./include/acutest.h
+	gcc -c ./tests/queue_test.c $(inc)
 	
-stack_test.o : stack_test.c structs.h acutest.h
-	gcc -c stack_test.c
+stack_test.o : ./tests/stack_test.c ./include/structs.h ./include/acutest.h
+	gcc -c ./tests/stack_test.c $(inc)
 	
 	
-rbt_test.o : rbt_test.c structs.h acutest.h
-	gcc -c rbt_test.c
+rbt_test.o : ./tests/rbt_test.c ./include/structs.h ./include/acutest.h
+	gcc -c ./tests/rbt_test.c $(inc)
 
-main.o : main.c structs.h
-	gcc -c main.c
+main.o : main.c ./include/structs.h
+	gcc -c main.c $(inc)
 
-structs.o : structs.c structs.h
-	gcc -c structs.c
+structs.o : structs.c ./include/structs.h
+	gcc -c structs.c $(inc)
 
 
 

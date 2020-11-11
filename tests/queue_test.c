@@ -1,5 +1,5 @@
-#include "acutest.h"
-#include "structs.h"
+#include "../include/acutest.h"
+#include "../include/structs.h"
 
 
 

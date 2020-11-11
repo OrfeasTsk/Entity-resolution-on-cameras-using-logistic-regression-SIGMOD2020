@@ -3,7 +3,7 @@
 #include <dirent.h>
 #include <fcntl.h>
 #include <string.h>
-#include "structs.h"
+#include "./include/structs.h"
 
 
 int getNumId(char* fullId){

@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "acutest.h"
-#include "structs.h"
+#include "../include/acutest.h"
+#include "../include/structs.h"
+
 
 
 void test_rbtcreate(void){

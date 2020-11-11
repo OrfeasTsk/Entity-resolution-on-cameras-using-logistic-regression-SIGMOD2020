@@ -1,5 +1,6 @@
-#include "acutest.h"
-#include "structs.h"
+#include "../include/acutest.h"
+#include "../include/structs.h"
+
 
 
 void test_stcreate(void){	// Elegxoume an h StackInit douleuei kai arxikopoiei swsta ta values
