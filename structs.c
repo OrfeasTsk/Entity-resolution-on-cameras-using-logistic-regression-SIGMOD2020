@@ -450,9 +450,16 @@ void RBTdestr(Link* head)//Katastrofh tou dentrou
 }
 
 
-void CliqueConcat(Clique* cliq1 , Clique* cliq2){
-	QueueConcat(cliq1->related,cliq2->related,cliq1);
-	free(cliq2);	
+void CliqueConcat(Clique* cliq1 , Clique* cliq2, int choice){
+	if(choice == 1){	// dld an tairiazoun
+		QueueConcat(cliq1->related,cliq2->related,cliq1);
+		free(cliq2);
+		}
+	else{				// dld den tairiazoun
+		cliq1->unrelated = RBTinsertR(cliq1->unrelated,cliq2->id,(void**)&cliq2);	
+		cliq2->unrelated = RBTinsertR(cliq2->unrelated,cliq1->id,(void**)&cliq1);
+	}
+	
 }
 
 /*void QueueDestroy(Queue * queue){//Katastrofh ths listas

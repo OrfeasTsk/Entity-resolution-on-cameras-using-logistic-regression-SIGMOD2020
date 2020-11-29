@@ -64,6 +64,7 @@ int StackEmpty(Stack *);
 typedef struct{
 	int id;
 	Queue* related;
+	Link unrelated;
 }Clique;
 
 
@@ -115,6 +116,6 @@ void QueueConcat(Queue*, Queue*,Clique*);
 
 
 
-void CliqueConcat(Clique*, Clique*);
+void CliqueConcat(Clique*, Clique*, int );
 
 

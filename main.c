@@ -160,10 +160,14 @@ void read_csv(Link treeptr,char* datasetW){
 			if(i == 1)
 				pairB = findPair(treeptr,getNumId(token),token); //Euresh tou right item
 			if( i == 2)
-				if(atoi(token) == 1) //An tairiazoun 
-					if(pairA != NULL && pairB != NULL)
+				if(pairA != NULL && pairB != NULL)
+					if(atoi(token) == 1){ //An tairiazoun 
 						if(pairA->cliq->related != pairB->cliq->related) //An den exoun enwthei ksana
-							CliqueConcat(pairA->cliq,pairB->cliq);
+							CliqueConcat(pairA->cliq, pairB->cliq, 1);
+					}
+					else{				// alliws sthn periptwsh tou 0 (dld dn tairiazoun)
+						CliqueConcat(pairA->cliq, pairB->cliq, 0);
+					}
 			
 			
 			token = strtok(NULL, ",");			// continue to tokenize the string we passed first
@@ -187,6 +191,7 @@ int main(int argc, char* argv[]){
 	Item* item;
 	Pair *pair;
 	Link treeptr;
+	int id=0;
 	
 	
 	
@@ -234,7 +239,9 @@ int main(int argc, char* argv[]){
 						pair->item = item;
 						
 						pair->cliq = (Clique*) malloc(sizeof(Clique));
+						pair->cliq->id = id++;
 						pair->cliq->related = (Queue*)malloc(sizeof(Queue));
+						RBTinit(&(pair->cliq->unrelated));
 						
 						QueueInit(pair->cliq->related);
 						QueueInsert(pair->cliq->related, (void**)&pair); // Sthn arxh h related oura exei mono to idio to pair 
@@ -251,8 +258,6 @@ int main(int argc, char* argv[]){
 	
 	
 	// CSV READ
-	
-	
 	
 	read_csv(treeptr,datasetW);
 	
