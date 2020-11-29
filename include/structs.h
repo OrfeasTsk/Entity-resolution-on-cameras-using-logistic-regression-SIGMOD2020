@@ -34,10 +34,7 @@ typedef struct{
 	
 }Item;
 
-void QueueInit(Queue*);
-void QueueInsert(Queue*,void **);
-int QueueEmpty(Queue* );
-void QueueConcat(Queue*, Queue*);
+
 
 /*##################                  End Generic Queue                                        ##########################*/
 
@@ -62,6 +59,12 @@ void check(Stack *, char);
 int StackEmpty(Stack *);
 
 /*##################                  End Stack                           ##########################*/
+
+
+typedef struct{
+	int id;
+	Queue* related;
+}Clique;
 
 
 typedef struct{
@@ -99,7 +102,10 @@ void printOutput(Link, FILE*, char* );
 void PairDestroy(Pair*);
 
 
-typedef struct{
-	int id
-	Queue* related;
-}Clique;
+
+void QueueInit(Queue*);
+void QueueInsert(Queue*,void **);
+int QueueEmpty(Queue* );
+void QueueConcat(Queue*, Queue*,Clique*);
+
+
