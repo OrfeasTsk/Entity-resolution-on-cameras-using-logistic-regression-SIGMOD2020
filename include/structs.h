@@ -109,3 +109,12 @@ int QueueEmpty(Queue* );
 void QueueConcat(Queue*, Queue*,Clique*);
 
 
+
+
+
+
+
+
+void CliqueConcat(Clique*, Clique*);
+
+
