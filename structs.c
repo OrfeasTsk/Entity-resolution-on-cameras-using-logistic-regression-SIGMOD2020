@@ -34,13 +34,13 @@ int QueueEmpty(Queue* queue){
 	return queue->count == 0;
 }
 
-void QueueConcat(Queue* q1 , Queue* q2){
+void QueueConcat(Queue* q1 , Queue* q2,Clique* cliq){
 	struct QueueNode* curr = q2->head,*prev;
 	Pair* pair;
 	
 	while( curr != NULL ){
 		pair = (Pair*)(curr->data);
-		pair->cliq->related = q1; //Ola ta items exoun ws related oura thn q1
+		pair->cliq = cliq; //Ola ta items exoun ws related oura thn q1
 		QueueInsert(q1,(void**)&pair); //Eisagwgh tous apo thn q2 sthn q1
 		prev = curr;
 		curr = curr->next;
@@ -337,8 +337,9 @@ void printOutput(Link h,FILE* output,char* buff){
 						temp=curr;
 						curr = curr->next; 
 						free(temp);
-						free(pair->cliq);
 						free(pair->cliq->related); //To teleutaio pair katastrefei thn oura
+						free(pair->cliq);
+
 					}
 					else{																				// diaforetika o head tha deiksei ston epomeno komvo
 						pair->cliq->related->head=curr->next;
@@ -450,7 +451,7 @@ void RBTdestr(Link* head)//Katastrofh tou dentrou
 
 
 void CliqueConcat(Clique* cliq1 , Clique* cliq2){
-	QueueConcat(cliq1->related,cliq2->related);
+	QueueConcat(cliq1->related,cliq2->related,cliq1);
 	free(cliq2);	
 }
 
