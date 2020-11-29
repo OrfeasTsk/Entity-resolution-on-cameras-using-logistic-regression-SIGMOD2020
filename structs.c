@@ -175,14 +175,14 @@ Link rotL(Link h) //Aristerh peristrofh
     return x; }
 
 
-Link NEW(int id,Pair** pair, Link l, Link r, int color){ 
+Link NEW(int id,void** obj, Link l, Link r, int color){ 
 	Link x =(Link)malloc(sizeof(struct RBnode));
   	x->l = l; x->r = r; 
 	x->color=color;
-	if( id != -1 && pair != NULL){
+	if( id != -1 && obj != NULL){
 		x->rbitem = (RBItem*)malloc(sizeof(RBItem));
-    	QueueInit(&(x->rbitem->pairs)); //Arxikopoihsh ths ouras
-		QueueInsert(&(x->rbitem->pairs),(void **)pair);	//Eisagwgh sthn lista tou komvou
+    	QueueInit(&(x->rbitem->objs)); //Arxikopoihsh ths ouras
+		QueueInsert(&(x->rbitem->objs),obj);	//Eisagwgh sthn lista tou komvou
 		x->rbitem->id=id;
 	}
     return x;
@@ -250,32 +250,32 @@ return h;
 
 }
 
-Link insertR(Link h, int id,Pair** pair ,Link head)
+Link insertR(Link h, int id,void** obj ,Link head)
 {   int v = id;
     RBItem* t = h->rbitem;
     if (h == z) //Base case
 	    if(h != head)
-	    	return NEW(id,pair, z, z, RED);  //Kathe neos komvos prepei na einai kokkinos
+	    	return NEW(id,obj, z, z, RED);  //Kathe neos komvos prepei na einai kokkinos
 	    else 
-			return NEW(id,pair, z , z , BLACK); // Ektos apo thn riza pou einai maurh
+			return NEW(id,obj, z , z , BLACK); // Ektos apo thn riza pou einai maurh
     if(v < t->id){ //Psaxnoume thn thesh gia na valoume ton neo komvo
-        h->l = insertR(h->l, id,pair,head);
+        h->l = insertR(h->l, id,obj,head);
         if(h->color==BLACK) //Kathe fora pou vriskoume mauro komvo pou exei toulaxiston ena "eggoni" apo aristera (afou to paidi exei bei aristera)
 	    	h=MakeRBTree(h,head);
 	}
     else if(t->id < v) {
-		h->r = insertR(h->r, id,pair,head);
+		h->r = insertR(h->r, id,obj,head);
 		if(h->color==BLACK) //Kathe fora pou vriskoume mauro komvo pou exei toulaxiston ena "eggoni" apo deksia (afou to paidi exei bei deksia)
 			h=MakeRBTree(h,head);
 	}
 	else
-		QueueInsert(&(h->rbitem->pairs),(void **)pair);	//Eisagwgh sthn oura tou komvou
+		QueueInsert(&(h->rbitem->objs),obj);	//Eisagwgh sthn oura tou komvou
 		
 	return h;
   }
   
-Link RBTinsertR(Link head,int id,Pair** pair)
-{ head = insertR(head,id,pair,head);
+Link RBTinsertR(Link head,int id,void** obj)
+{ head = insertR(head,id,obj,head);
   return head; 
 }
 
@@ -294,7 +294,7 @@ Pair* findPair(Link h, int id, char* fullId){
 	else if (t->id < id)
 		return findPair(h->r, id, fullId);
 	else{									// otan tin broume elegxoume thn oura twn pairs
-		for( curr = t->pairs.head ; curr != NULL ; curr = curr->next){
+		for( curr = t->objs.head ; curr != NULL ; curr = curr->next){
 			pair  = (Pair*)(curr->data);
 			if(!strcmp(fullId,pair->item->id))
 				return pair;
@@ -321,7 +321,7 @@ void printOutput(Link h,FILE* output,char* buff){
 		
 	printOutput(h->l,output,buff);	// anadromika phgainoume aristera
 	
-	for( qnptr = t->pairs.head ; qnptr != NULL ; qnptr = qnptr->next){									// diasxizoume  thn oura twn pairs
+	for( qnptr = t->objs.head ; qnptr != NULL ; qnptr = qnptr->next){									// diasxizoume  thn oura twn pairs
 	
 		pair  = (Pair*)(qnptr->data);
 		curr = pair->cliq->related->head;
@@ -433,7 +433,7 @@ void RBTdestr(Link* head)//Katastrofh tou dentrou
     RBTdestr(&((*head)->l));
     RBTdestr(&((*head)->r));
     
-    curr = (*head)->rbitem->pairs.head;
+    curr = (*head)->rbitem->objs.head;
     
     while( curr != NULL){
     	pair = (Pair*)(curr->data);

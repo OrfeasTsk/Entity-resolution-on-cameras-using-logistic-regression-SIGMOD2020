@@ -78,7 +78,7 @@ typedef struct{
 
 typedef struct{ //Antikeimeno komvou tou red-black tree
 	int id;
-	Queue pairs;
+	Queue objs;
 }RBItem;
 
 struct RBnode{ 
@@ -92,7 +92,7 @@ void RBinit();
 void RBdestr();
 void RBTinit(Link*);
 void RBTdestr(Link*);
-Link RBTinsertR(Link,int,Pair** );
+Link RBTinsertR(Link,int,void** );
 
 
 /*##################                  End of red-black trees                           ##########################*/
