@@ -66,7 +66,7 @@ int StackEmpty(Stack *);
 
 typedef struct{
 	Item* item;
-	Queue* related;  //Na ginetai free
+	Clique* cliq;
 }Pair;
 
 
@@ -98,3 +98,8 @@ Pair* findPair(Link , int , char* );
 void printOutput(Link, FILE*, char* );
 void PairDestroy(Pair*);
 
+
+typedef struct{
+	int id
+	Queue* related;
+}Clique;

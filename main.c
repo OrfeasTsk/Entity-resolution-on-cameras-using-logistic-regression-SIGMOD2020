@@ -162,8 +162,8 @@ void read_csv(Link treeptr,char* datasetW){
 			if( i == 2)
 				if(atoi(token) == 1) //An tairiazoun 
 					if(pairA != NULL && pairB != NULL)
-						if(pairA->related != pairB->related) //An den exoun enwthei ksana
-							QueueConcat(pairA->related,pairB->related);
+						if(pairA->cliq->related != pairB->cliq->related) //An den exoun enwthei ksana
+							CliqueConcat(pairA->cliq,pairB->cliq);
 			
 			
 			token = strtok(NULL, ",");			// continue to tokenize the string we passed first
@@ -233,10 +233,11 @@ int main(int argc, char* argv[]){
 						pair = (Pair*)malloc(sizeof(Pair));
 						pair->item = item;
 						
-						pair->related = (Queue*)malloc(sizeof(Queue));
+						pair->cliq = (Clique*) malloc(sizeof(Clique));
+						pair->cliq->related = (Queue*)malloc(sizeof(Queue));
 						
-						QueueInit(pair->related);
-						QueueInsert(pair->related, (void**)&pair); // Sthn arxh h related oura exei mono to idio to pair 
+						QueueInit(pair->cliq->related);
+						QueueInsert(pair->cliq->related, (void**)&pair); // Sthn arxh h related oura exei mono to idio to pair 
 						treeptr = RBTinsertR(treeptr,getNumId(item->id),&pair);						
 					}
 						

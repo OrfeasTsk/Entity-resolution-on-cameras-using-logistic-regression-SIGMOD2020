@@ -82,9 +82,10 @@ void test_qconcat(void){
 		pair = (Pair*)malloc(sizeof(Pair)); //Dhmiourgia pair
 		pair->item = (Item*)malloc(sizeof(Item)); // Dhmiourgia item
 		pair->item->id = (char*)malloc(strlen(buff) + 1);
+		pair->cliq = (Clique*)malloc(sizeof(Clique));
 		strcpy(pair->item->id,buff);
 		QueueInit(&(pair->item->specs));
-		pair->related = q1;
+		pair->cliq->related = q1;
 		QueueInsert(q1,(void**)&pair);
 	}
 	
@@ -95,9 +96,10 @@ void test_qconcat(void){
 		pair = (Pair*)malloc(sizeof(Pair)); //Dhmiourgia pair
 		pair->item = (Item*)malloc(sizeof(Item)); // Dhmiourgia item
 		pair->item->id = (char*)malloc(strlen(buff) + 1);
+		pair->cliq = (Clique*)malloc(sizeof(Clique));
 		strcpy(pair->item->id,buff);
 		QueueInit(&(pair->item->specs));
-		pair->related = q2;
+		pair->cliq->related = q2;
 		QueueInsert(q2,(void**)&pair);
 	}
 	
@@ -106,7 +108,8 @@ void test_qconcat(void){
 	for(i = 0 ; (i < 100 && q1->head != NULL) ; i++ ){
 		temp = q1->head;
 		pair = (Pair*)(temp->data);
-		TEST_ASSERT(pair->related == q1); //Deixnoun ola ta pairs sthn q1?
+		TEST_ASSERT(pair->cliq->related == q1); //Deixnoun ola ta pairs sthn q1?
+		free(pair->cliq);
 		PairDestroy(pair);
 		if(q1->head == q1->tail)
 			q1->tail = q1->head->next;

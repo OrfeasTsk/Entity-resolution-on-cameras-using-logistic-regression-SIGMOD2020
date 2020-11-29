@@ -40,7 +40,7 @@ void QueueConcat(Queue* q1 , Queue* q2){
 	
 	while( curr != NULL ){
 		pair = (Pair*)(curr->data);
-		pair->related = q1; //Ola ta items exoun ws related oura thn q1
+		pair->cliq->related = q1; //Ola ta items exoun ws related oura thn q1
 		QueueInsert(q1,(void**)&pair); //Eisagwgh tous apo thn q2 sthn q1
 		prev = curr;
 		curr = curr->next;
@@ -324,40 +324,41 @@ void printOutput(Link h,FILE* output,char* buff){
 	for( qnptr = t->pairs.head ; qnptr != NULL ; qnptr = qnptr->next){									// diasxizoume  thn oura twn pairs
 	
 		pair  = (Pair*)(qnptr->data);
-		curr = pair->related->head;
+		curr = pair->cliq->related->head;
 		while( curr != NULL ){								// diasxizoume thn related 
 			rel_pair  = (Pair*)(curr->data);															// related_pairs	
 			if( !strcmp( pair->item->id , rel_pair->item->id ) ){										// an einai to idio item
 			
-				if (curr == pair->related->head ){														// an einai o head
-					if( curr == pair->related->tail ){													// an einai to monadiko antikeimeno
-						pair->related->head=NULL;														// diagrafh tou komvou
-						pair->related->tail=NULL;
-						pair->related->count--;
+				if (curr == pair->cliq->related->head ){														// an einai o head
+					if( curr == pair->cliq->related->tail ){													// an einai to monadiko antikeimeno
+						pair->cliq->related->head=NULL;														// diagrafh tou komvou
+						pair->cliq->related->tail=NULL;
+						pair->cliq->related->count--;
 						temp=curr;
 						curr = curr->next; 
 						free(temp);
-						free(pair->related); //To teleutaio pair katastrefei thn oura
+						free(pair->cliq);
+						free(pair->cliq->related); //To teleutaio pair katastrefei thn oura
 					}
 					else{																				// diaforetika o head tha deiksei ston epomeno komvo
-						pair->related->head=curr->next;
-						pair->related->count--;
+						pair->cliq->related->head=curr->next;
+						pair->cliq->related->count--;
 						temp=curr;
 						curr = curr->next; 
 						free(temp);
 					}
 				}
-				else if(curr == pair->related->tail){													// an einai to teleutaio item
-					pair->related->tail = prev;															// tha metakinithei enan komvo pisw
+				else if(curr == pair->cliq->related->tail){													// an einai to teleutaio item
+					pair->cliq->related->tail = prev;															// tha metakinithei enan komvo pisw
 					prev->next = NULL;
-					pair->related->count--;
+					pair->cliq->related->count--;
 					temp = curr;
 					curr = curr->next;
 					free(temp);
 				}
 				else{																					// se opoiadhpote allh periptwsh
 					prev->next=curr->next;
-					pair->related->count--;
+					pair->cliq->related->count--;
 					temp = curr;
 					curr = curr->next;
 					free(temp);
@@ -448,7 +449,10 @@ void RBTdestr(Link* head)//Katastrofh tou dentrou
 }
 
 
-
+void CliqueConcat(Clique* cliq1 , Clique* cliq2){
+	QueueConcat(cliq1->related,cliq2->related);
+	free(cliq2);	
+}
 
 /*void QueueDestroy(Queue * queue){//Katastrofh ths listas
 
