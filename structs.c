@@ -520,30 +520,30 @@ void RBTmerge(Link* head1,Link* head2)				//Merge duo dentrwn
 	struct QueueNode* curr,*Temp;
 	Pair* pair;
 	
-    if (*head1 == z){
-		*head1 = NULL;
+    if (*head2 == z){
+		*head2 = NULL;
 		return;
 	}
 		
-    RBTmerge(&((*head1)->l),head2);
-    RBTmerge(&((*head1)->r),head2);
+    RBTmerge(head1,&((*head2)->l));
+    RBTmerge(head1,&((*head2)->r));
     
-    curr = (*head1)->rbitem->objs.head;
+    curr = (*head2)->rbitem->objs.head;
     
     while( curr != NULL){
     	pair = (Pair*)(curr->data);
     	
-    	*head2 = RBTinsertR(*head2,(*head1)->rbitem->id,(void**)&pair,0);
-		PairDestroy(pair);
+    	*head1 = RBTinsertR(*head1,(*head2)->rbitem->id,(void**)&pair,0);
+
 		Temp = curr;
 		curr = curr->next;
 		free(Temp);
 	}
     
     
-    free((*head1)->rbitem);
-	free(*head1);
-	*head1 = NULL;
+    free((*head2)->rbitem);
+	free(*head2);
+	*head2 = NULL;
 }
 
 
