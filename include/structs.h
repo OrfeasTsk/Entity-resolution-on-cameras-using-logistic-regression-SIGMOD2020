@@ -93,7 +93,7 @@ void RBinit();
 void RBdestr();
 void RBTinit(Link*);
 void RBTdestr(Link*);
-Link RBTinsertR(Link,int,void** );
+Link RBTinsertR(Link,int,void**,int );
 
 
 /*##################                  End of red-black trees                           ##########################*/

@@ -266,7 +266,7 @@ return h;
 
 }
 
-Link insertR(Link h, int id,void** obj ,Link head)
+Link insertR(Link h, int id,void** obj ,Link head, int allowDupl)
 {   int v = id;
     RBItem* t = h->rbitem;
     if (h == z) //Base case
@@ -284,14 +284,14 @@ Link insertR(Link h, int id,void** obj ,Link head)
 		if(h->color==BLACK) //Kathe fora pou vriskoume mauro komvo pou exei toulaxiston ena "eggoni" apo deksia (afou to paidi exei bei deksia)
 			h=MakeRBTree(h,head);
 	}
-	else
-		QueueInsert(&(h->rbitem->objs),obj);	//Eisagwgh sthn oura tou komvou
+	else if(allowDupl)
+			QueueInsert(&(h->rbitem->objs),obj);	//Eisagwgh sthn oura tou komvou
 		
 	return h;
   }
   
-Link RBTinsertR(Link head,int id,void** obj)
-{ head = insertR(head,id,obj,head);
+Link RBTinsertR(Link head,int id,void** obj,int allowDupl)
+{ head = insertR(head,id,obj,head,allowDupl);
   return head; 
 }
 
