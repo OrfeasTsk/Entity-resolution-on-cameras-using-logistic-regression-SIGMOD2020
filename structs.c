@@ -548,11 +548,15 @@ void RBTmerge(Link* head1,Link* head2)				//Merge duo dentrwn
 
 
 void CliqueConcat(Pair* pair1 , Pair* pair2, int choice){
+	Clique* temp;
+	
+	
 	if(choice == 1){	// dld an tairiazoun
-		QueueConcat(pair1->cliq->related,pair2->cliq->related,pair1->cliq);
+		temp = pair2->cliq;
 		RBTmerge(&(pair1->cliq->unrelated),&(pair2->cliq->unrelated));
+		QueueConcat(pair1->cliq->related,pair2->cliq->related,pair1->cliq);
 		//QueueDelete(&cliques,pair2->cliq->id);
-		free(pair2->cliq);
+		free(temp);
 		}
 	else{				// dld den tairiazoun
 		pair1->cliq->unrelated = RBTinsertR(pair1->cliq->unrelated,getNumId2(pair2->item->id),(void**)&pair2,0);	
