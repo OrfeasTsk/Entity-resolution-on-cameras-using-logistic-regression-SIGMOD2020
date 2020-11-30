@@ -4,8 +4,7 @@
 #include "./include/structs.h"
 
 
-//NA BEI SE .C
-int getNumId(char* fullId){
+int getNumId2(char* fullId){
 	int count;
 	
 	for( count = 0; count < 2 ; fullId++)		// Mono o arithmos
@@ -15,8 +14,6 @@ int getNumId(char* fullId){
 	return atoi(fullId);
 	
 }
-
-
 
 
 /*##################                  Start Generic Queue                                        ##########################*/
@@ -67,7 +64,7 @@ void QueueConcat(Queue* q1 , Queue* q2,Clique* cliq){
 	
 }
 
-void QueueDelete(Queue* queue, int id){
+/*void QueueDelete(Queue* queue, int id){
 	
 	QueueNode* curr = queue->head,*temp,*prev = NULL;
 	Clique* clique;
@@ -122,7 +119,7 @@ void QueueDelete(Queue* queue, int id){
 }
 
 
-/*void QueuePrint(Queue* queue){ 				//Ektypwsh ouras
+void QueuePrint(Queue* queue){ 				//Ektypwsh ouras
         struct QueueNode *Temp;
 
         if(queue->head == NULL)
@@ -328,12 +325,12 @@ Link insertR(Link h, int id,void** obj ,Link head, int allowDupl)
 	    else 
 			return NEW(id,obj, z , z , BLACK); // Ektos apo thn riza pou einai maurh
     if(v < t->id){ //Psaxnoume thn thesh gia na valoume ton neo komvo
-        h->l = insertR(h->l, id,obj,head);
+        h->l = insertR(h->l, id,obj,head,allowDupl);
         if(h->color==BLACK) //Kathe fora pou vriskoume mauro komvo pou exei toulaxiston ena "eggoni" apo aristera (afou to paidi exei bei aristera)
 	    	h=MakeRBTree(h,head);
 	}
     else if(t->id < v) {
-		h->r = insertR(h->r, id,obj,head);
+		h->r = insertR(h->r, id,obj,head,allowDupl);
 		if(h->color==BLACK) //Kathe fora pou vriskoume mauro komvo pou exei toulaxiston ena "eggoni" apo deksia (afou to paidi exei bei deksia)
 			h=MakeRBTree(h,head);
 	}
@@ -550,16 +547,16 @@ void RBTmerge(Link* head1,Link* head2)				//Merge duo dentrwn
 }
 
 
-void CliqueConcat(Pair* pair1 , Pair* pair2, int choice, Queue * cliques){
+void CliqueConcat(Pair* pair1 , Pair* pair2, int choice){
 	if(choice == 1){	// dld an tairiazoun
 		QueueConcat(pair1->cliq->related,pair2->cliq->related,pair1->cliq);
 		RBTmerge(&(pair1->cliq->unrelated),&(pair2->cliq->unrelated));
-		QueueDelete(&cliques,pair2->cliq->id);
-		
+		//QueueDelete(&cliques,pair2->cliq->id);
+		free(pair2->cliq);
 		}
 	else{				// dld den tairiazoun
-		cliq1->unrelated = RBTinsertR(pair1->cliq->unrelated,getNumId(pair2->item->id),(void**)&pair2,0);	
-		cliq2->unrelated = RBTinsertR(pair2->cliq->unrelated,getNumId(pair1->item->id),(void**)&pair1,0);
+		pair1->cliq->unrelated = RBTinsertR(pair1->cliq->unrelated,getNumId2(pair2->item->id),(void**)&pair2,0);	
+		pair2->cliq->unrelated = RBTinsertR(pair2->cliq->unrelated,getNumId2(pair1->item->id),(void**)&pair1,0);
 	}
 	
 }
@@ -575,6 +572,27 @@ void CliqueConcat(Pair* pair1 , Pair* pair2, int choice, Queue * cliques){
     }
 
 }*/
+void MakeCliqueTree(Link pairTree, Link* cliqueTree){
+	
+	RBItem* t = pairTree->rbitem;
+    struct QueueNode* qnptr;
+ 			
+    Pair* pair;	
 
+	
+	if(pairTree == z)			// base-case
+		return;
+		
+	MakeCliqueTree(pairTree->l,cliqueTree);	// anadromika phgainoume aristera
+	
+	for( qnptr = t->objs.head ; qnptr != NULL ; qnptr = qnptr->next){									// diasxizoume  thn oura twn pairs
+	
+		pair  = (Pair*)(qnptr->data);
+		*cliqueTree = RBTinsertR(*cliqueTree,pair->cliq->id,(void**)&(pair->cliq),0);
+	
+	}
 
+	MakeCliqueTree(pairTree->r,cliqueTree);	// anadromika phgainoume deksia
+
+}
 

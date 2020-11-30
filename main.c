@@ -191,8 +191,8 @@ int main(int argc, char* argv[]){
 	Item* item;
 	Pair *pair;
 	Link treeptr;
-	Queue cliques;
-	int id=0;
+	Link cliques;
+	int id = 0;
 	
 	
 	
@@ -217,7 +217,7 @@ int main(int argc, char* argv[]){
 	RBinit();
 	RBTinit(&treeptr);
 	
-	QueueInit(&cliques);
+	RBTinit(&cliques);
 
 
 
@@ -249,7 +249,7 @@ int main(int argc, char* argv[]){
 						QueueInit(pair->cliq->related);
 						QueueInsert(pair->cliq->related, (void**)&pair); // Sthn arxh h related oura exei mono to idio to pair 
 						treeptr = RBTinsertR(treeptr,getNumId(item->id),(void**)&pair,1);	
-						QueueInsert(&cliques, (void**)&(pair->cliq)); 
+						//QueueInsert(&cliques, (void**)&(pair->cliq)); 
 					}
 						
 					free(json);
@@ -264,6 +264,7 @@ int main(int argc, char* argv[]){
 	// CSV READ
 	
 	read_csv(treeptr,datasetW);
+	MakeCliqueTree(treeptr,&cliques);
 	
 	output = fopen("output.csv","w");
 	sprintf(buff,"left_item , right_item\n");

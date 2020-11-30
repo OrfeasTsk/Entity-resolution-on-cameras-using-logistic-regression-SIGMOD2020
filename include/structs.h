@@ -108,15 +108,13 @@ void QueueInit(Queue*);
 void QueueInsert(Queue*,void **);
 int QueueEmpty(Queue* );
 void QueueConcat(Queue*, Queue*,Clique*);
-void QueueDelete(Queue*, int);
+//void QueueDelete(Queue*, int);
 
 void RBTmerge(Link* ,Link* );
 
 
 
-
-
-
+void MakeCliqueTree(Link, Link*);
 void CliqueConcat(Pair*, Pair*, int );
 
 
