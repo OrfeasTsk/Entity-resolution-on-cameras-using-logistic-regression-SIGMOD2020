@@ -163,10 +163,10 @@ void read_csv(Link treeptr,char* datasetW){
 				if(pairA != NULL && pairB != NULL)
 					if(atoi(token) == 1){ //An tairiazoun 
 						if(pairA->cliq->related != pairB->cliq->related) //An den exoun enwthei ksana
-							CliqueConcat(pairA->cliq, pairB->cliq, 1);
+							CliqueConcat(pairA, pairB, 1);
 					}
 					else{				// alliws sthn periptwsh tou 0 (dld dn tairiazoun)
-						CliqueConcat(pairA->cliq, pairB->cliq, 0);
+						CliqueConcat(pairA, pairB, 0);
 					}
 			
 			

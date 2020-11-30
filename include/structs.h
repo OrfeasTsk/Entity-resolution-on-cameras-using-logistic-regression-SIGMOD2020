@@ -116,6 +116,6 @@ void QueueConcat(Queue*, Queue*,Clique*);
 
 
 
-void CliqueConcat(Clique*, Clique*, int );
+void CliqueConcat(Pair*, Pair*, int );
 
 

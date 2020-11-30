@@ -3,6 +3,22 @@
 #include <string.h>
 #include "./include/structs.h"
 
+
+//NA BEI SE .C
+int getNumId(char* fullId){
+	int count;
+	
+	for( count = 0; count < 2 ; fullId++)		// Mono o arithmos
+		if(*fullId == '/')
+			count++;			
+						
+	return atoi(fullId);
+	
+}
+
+
+
+
 /*##################                  Start Generic Queue                                        ##########################*/
 
 void QueueInit(Queue* queue){ 			//Arxikopoihsh ouras
@@ -450,14 +466,14 @@ void RBTdestr(Link* head)//Katastrofh tou dentrou
 }
 
 
-void CliqueConcat(Clique* cliq1 , Clique* cliq2, int choice){
+void CliqueConcat(Pair* pair1 , Pair* pair2, int choice){
 	if(choice == 1){	// dld an tairiazoun
-		QueueConcat(cliq1->related,cliq2->related,cliq1);
+		QueueConcat(pair1->cliq->related,pair2->cliq->related,pair1->cliq);
 		free(cliq2);
 		}
 	else{				// dld den tairiazoun
-		cliq1->unrelated = RBTinsertR(cliq1->unrelated,cliq2->id,(void**)&cliq2);	
-		cliq2->unrelated = RBTinsertR(cliq2->unrelated,cliq1->id,(void**)&cliq1);
+		cliq1->unrelated = RBTinsertR(pair1->cliq->unrelated,getNumId(pair2->item->id),(void**)&pair2);	
+		cliq2->unrelated = RBTinsertR(pair2->cliq->unrelated,getNumId(pair1->item->id),(void**)&pair1);
 	}
 	
 }
