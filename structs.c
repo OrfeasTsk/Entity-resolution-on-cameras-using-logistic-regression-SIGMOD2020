@@ -525,8 +525,8 @@ void RBTmerge(Link* head1,Link* head2)				//Merge duo dentrwn
 		return;
 	}
 		
-    RBTdestr(&((*head1)->l));
-    RBTdestr(&((*head1)->r));
+    RBTmerge(&((*head1)->l),head2);
+    RBTmerge(&((*head1)->r),head2);
     
     curr = (*head1)->rbitem->objs.head;
     
