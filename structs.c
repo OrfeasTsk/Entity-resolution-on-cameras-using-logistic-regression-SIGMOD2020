@@ -465,6 +465,37 @@ void RBTdestr(Link* head)//Katastrofh tou dentrou
 	*head = NULL;
 }
 
+void RBTmerge(Link* head1,Link* head2)				//Merge duo dentrwn
+{
+	struct QueueNode* curr,*Temp;
+	Pair* pair;
+	
+    if (*head1 == z){
+		*head1 = NULL;
+		return;
+	}
+		
+    RBTdestr(&((*head1)->l));
+    RBTdestr(&((*head1)->r));
+    
+    curr = (*head1)->rbitem->objs.head;
+    
+    while( curr != NULL){
+    	pair = (Pair*)(curr->data);
+    	
+    	*head2 = RBTinsertR(*head2,(*head1)->rbitem->id,(void**)&pair,0);
+		PairDestroy(pair);
+		Temp = curr;
+		curr = curr->next;
+		free(Temp);
+	}
+    
+    
+    free((*head1)->rbitem);
+	free(*head1);
+	*head1 = NULL;
+}
+
 
 void CliqueConcat(Pair* pair1 , Pair* pair2, int choice){
 	if(choice == 1){	// dld an tairiazoun
@@ -472,8 +503,8 @@ void CliqueConcat(Pair* pair1 , Pair* pair2, int choice){
 		free(cliq2);
 		}
 	else{				// dld den tairiazoun
-		cliq1->unrelated = RBTinsertR(pair1->cliq->unrelated,getNumId(pair2->item->id),(void**)&pair2);	
-		cliq2->unrelated = RBTinsertR(pair2->cliq->unrelated,getNumId(pair1->item->id),(void**)&pair1);
+		cliq1->unrelated = RBTinsertR(pair1->cliq->unrelated,getNumId(pair2->item->id),(void**)&pair2,0);	
+		cliq2->unrelated = RBTinsertR(pair2->cliq->unrelated,getNumId(pair1->item->id),(void**)&pair1,0);
 	}
 	
 }

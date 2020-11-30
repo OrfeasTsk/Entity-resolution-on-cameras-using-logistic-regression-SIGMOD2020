@@ -43,7 +43,7 @@ void test_rbtinsert(void){
 		QueueInit(&(pair->item->specs));
 		strcpy(pair->item->id,buff);
 		
-		treeptr = RBTinsertR(treeptr, i , (void**)&pair); //Eisagwgh tou pair
+		treeptr = RBTinsertR(treeptr, i , (void**)&pair,1); //Eisagwgh tou pair
  		
 		newpair = findPair(treeptr, i , buff );
 		
@@ -63,7 +63,7 @@ void test_rbtinsert(void){
 		QueueInit(&(pair->item->specs));
 		strcpy(pair->item->id,buff);
 		
-		treeptr = RBTinsertR(treeptr, i , (void**)&pair); //Eisagwgh tou pair
+		treeptr = RBTinsertR(treeptr, i , (void**)&pair,1); //Eisagwgh tou pair
  		
 		newpair = findPair(treeptr, i , buff );
 		

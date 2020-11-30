@@ -109,7 +109,7 @@ void QueueInsert(Queue*,void **);
 int QueueEmpty(Queue* );
 void QueueConcat(Queue*, Queue*,Clique*);
 
-
+void RBTmerge(Link* ,Link* );
 
 
 
