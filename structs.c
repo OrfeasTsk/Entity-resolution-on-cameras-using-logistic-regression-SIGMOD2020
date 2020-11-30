@@ -67,6 +67,59 @@ void QueueConcat(Queue* q1 , Queue* q2,Clique* cliq){
 	
 }
 
+void QueueDelete(Queue* queue, int id){
+	
+	QueueNode* curr = queue->head,*temp,*prev = NULL;
+	Clique* clique;
+								
+	while( curr != NULL ){								// diasxizoume thn oura 
+		clique  = (Clique*)(curr->data);														// related_pairs	
+		if( clique->id == id){										// an einai to idio item
+		
+			if (curr == queue->head ){														// an einai o head
+				if( curr == queue->tail ){													// an einai to monadiko antikeimeno
+					queue->head=NULL;														// diagrafh tou komvou
+					queue->tail=NULL;
+					queue->count--;
+					temp=curr;
+					curr = curr->next; 
+					free(temp);
+					free(clique);
+				}
+				else{																				// diaforetika o head tha deiksei ston epomeno komvo
+					queue->head=curr->next;
+					queue->count--;
+					temp=curr;
+					curr = curr->next; 
+					free(temp);
+					free(clique);
+				}
+			}
+			else if(curr == queue->tail){													// an einai to teleutaio item
+				queue->tail = prev;															// tha metakinithei enan komvo pisw
+				prev->next = NULL;
+				queue->count--;
+				temp = curr;
+				curr = curr->next;
+				free(temp);
+				free(clique);
+			}
+			else{																					// se opoiadhpote allh periptwsh
+				prev->next=curr->next;
+				queue->count--;
+				temp = curr;
+				curr = curr->next;
+				free(temp);
+				free(clique)
+			}
+			
+		}
+		prev = curr;
+		curr = curr->next;
+		
+	}
+	
+}
 
 
 /*void QueuePrint(Queue* queue){ 				//Ektypwsh ouras
@@ -501,8 +554,7 @@ void CliqueConcat(Pair* pair1 , Pair* pair2, int choice, Queue * cliques){
 	if(choice == 1){	// dld an tairiazoun
 		QueueConcat(pair1->cliq->related,pair2->cliq->related,pair1->cliq);
 		RBTmerge(&(pair1->cliq->unrelated),&(pair2->cliq->unrelated));
-		
-		free(cliq2);
+		QueueDelete(&cliques,pair2->cliq->id);
 		
 		}
 	else{				// dld den tairiazoun
