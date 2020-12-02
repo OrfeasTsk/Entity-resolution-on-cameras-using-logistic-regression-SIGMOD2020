@@ -671,7 +671,7 @@ void RemoveUnrelated(Link h , int id){
     Clique* cliq;
     
     if(h == z)								// an den brethei timi 
-		return NULL;
+		return;
     
     if( id < t->id )						// diasxizoume to dentro gia na broume thn timi
 		return RemoveUnrelated(h->l, id);
@@ -747,7 +747,7 @@ void printUnrelated(Link h,FILE* output,char* buff){
 	if(h == z)			// base-case
 		return;
 	
-	printUnrelated(h->l);	// anadromika phgainoume aristera
+	printUnrelated(h->l,output,buff);	// anadromika phgainoume aristera
 	
 	
 	for( qnptr = t->objs.head ; qnptr != NULL ; qnptr = qnptr->next){									// diasxizoume  thn oura twn pairs
@@ -760,7 +760,7 @@ void printUnrelated(Link h,FILE* output,char* buff){
 	}
 	
 	
-	printUnrelated(h->r);	// anadromika phgainoume aristera
+	printUnrelated(h->r,output,buff);	// anadromika phgainoume aristera
 	
 }
 
