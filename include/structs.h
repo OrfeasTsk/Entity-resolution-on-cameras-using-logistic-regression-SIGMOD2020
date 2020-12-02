@@ -92,8 +92,10 @@ void treeprint(Link, int, int, Link);
 void RBinit();
 void RBdestr();
 void RBTinit(Link*);
-void RBTdestr(Link*);
+void RBTdestrP(Link*);
+void RBTdestrC(Link*);
 Link RBTinsertR(Link,int,void**,int );
+void RBTmerge(Link* ,Link* );
 
 
 /*##################                  End of red-black trees                           ##########################*/
@@ -110,7 +112,7 @@ int QueueEmpty(Queue* );
 void QueueConcat(Queue*, Queue*,Clique*);
 //void QueueDelete(Queue*, int);
 
-void RBTmerge(Link* ,Link* );
+
 
 
 

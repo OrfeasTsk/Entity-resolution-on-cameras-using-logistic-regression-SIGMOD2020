@@ -249,7 +249,7 @@ int main(int argc, char* argv[]){
 						QueueInit(pair->cliq->related);
 						QueueInsert(pair->cliq->related, (void**)&pair); // Sthn arxh h related oura exei mono to idio to pair 
 						treeptr = RBTinsertR(treeptr,getNumId(item->id),(void**)&pair,1);	
-						//QueueInsert(&cliques, (void**)&(pair->cliq)); 
+	 
 					}
 						
 					free(json);
@@ -272,15 +272,16 @@ int main(int argc, char* argv[]){
 	printUnrelated(cliques,output,buff);
 	fclose(output);
 	
-	output = fopen("output.csv","w");
+	output = fopen("related.csv","w");
 	sprintf(buff,"left_item , right_item\n");
 	fwrite(buff,sizeof(char),strlen(buff),output);
-	
 	printOutput(treeptr,output,buff);
-	RBTdestr(&treeptr);
-
-	RBdestr();
 	fclose(output);
+	
+	RBTdestrC(&cliques);
+	RBTdestrP(&treeptr);
+	RBdestr();
+	
 	return 0;
 	
 }
