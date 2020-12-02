@@ -116,5 +116,7 @@ void RBTmerge(Link* ,Link* );
 
 void MakeCliqueTree(Link, Link*);
 void CliqueConcat(Pair*, Pair*, int );
+void ChangeUnrelated(Link );
+void printUnrelated(Link ,FILE* ,char* );
 
 
