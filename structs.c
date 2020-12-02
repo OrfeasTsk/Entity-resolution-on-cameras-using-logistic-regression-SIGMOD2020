@@ -600,3 +600,173 @@ void MakeCliqueTree(Link pairTree, Link* cliqueTree){
 
 }
 
+
+void MakeCliqueUnrelated(Link* oldTree, Link* newTree){
+	
+	RBItem* t = (*oldTree)->rbitem;
+    struct QueueNode* qnptr;
+ 			
+    Pair* pair;	
+
+	
+	if(*oldTree == z)			// base-case
+		return;
+		
+	MakeCliqueUnrelated(&((*oldTree)->l),newTree);	// anadromika phgainoume aristera
+	
+	for( qnptr = t->objs.head ; qnptr != NULL ; qnptr = qnptr->next){									// diasxizoume  thn oura twn pairs
+	
+		pair  = (Pair*)(qnptr->data);
+		*newTree = RBTinsertR(*newTree,pair->cliq->id,(void**)&(pair->cliq),0);
+	
+	}
+
+	MakeCliqueUnrelated(&((*oldTree)->r),newTree);	// anadromika phgainoume deksia
+
+	free((*oldTree)->rbitem);
+	free(*oldTree);
+	*oldTree = NULL;
+	
+	
+
+}
+
+
+
+void ChangeUnrelated(Link h){
+	
+	RBItem* t = h->rbitem;
+    struct QueueNode* qnptr;		
+    Clique* cliq;	
+	Link unrelated;
+	
+	
+	if(h == z)			// base-case
+		return;
+	
+	ChangeUnrelated(h->l);	// anadromika phgainoume aristera
+	
+	RBTinit(&unrelated);
+	
+	for( qnptr = t->objs.head ; qnptr != NULL ; qnptr = qnptr->next){									// diasxizoume  thn oura twn pairs
+	
+		cliq  = (Clique*)(qnptr->data);
+		MakeCliqueUnrelated(&(cliq->unrelated),&unrelated);
+		cliq->unrelated = unrelated;
+	
+	}
+	
+	
+	ChangeUnrelated(h->r);	// anadromika phgainoume aristera
+	
+}
+
+
+
+
+void RemoveUnrelated(Link h , int id){
+	
+	
+	RBItem* t = h->rbitem;
+    Clique* cliq;
+    
+    if(h == z)								// an den brethei timi 
+		return NULL;
+    
+    if( id < t->id )						// diasxizoume to dentro gia na broume thn timi
+		return RemoveUnrelated(h->l, id);
+	else if (t->id < id)
+		return RemoveUnrelated(h->r, id);
+	else{									// otan tin broume elegxoume thn oura twn pairs
+			if(t->objs.head != NULL){
+				cliq  = (Clique*)(t->objs.head->data);
+				if(id == cliq->id){
+					free(t->objs.head);
+					t->objs.head = NULL;
+					t->objs.tail = NULL;
+					t->objs.count = 0;	
+				}
+			}
+
+	
+	}
+	
+}
+
+
+
+
+
+
+void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff){
+	
+	RBItem* t = h->rbitem;
+    struct QueueNode* qnptr,*ptr,*unrelptr;		
+    Clique* unrelc;
+	Pair* pair, *unrelp;	
+	
+	if(h == z)			// base-case
+		return;
+	
+	VisitUnrelated(h->l,cliq,output,buff);	// anadromika phgainoume aristera
+	
+	
+	for( qnptr = t->objs.head ; qnptr != NULL ; qnptr = qnptr->next){									// diasxizoume  thn oura twn pairs
+	
+		unrelc  = (Clique*)(qnptr->data);
+		
+		for( ptr = cliq->related->head ; ptr != NULL ; ptr = ptr->next ){
+			pair = (Pair*)(ptr->data);
+			for( unrelptr = unrelc->related->head ; unrelptr != NULL ; unrelptr = unrelptr->next){
+				unrelp = (Pair*)(unrelptr->data);
+				sprintf(buff,"%s , %s \n", pair->item->id , unrelp->item->id );
+				fwrite(buff,sizeof(char),strlen(buff),output);
+			}	
+		}
+		
+		RemoveUnrelated(unrelc->unrelated, cliq->id);
+		
+	
+	}
+	
+	
+	VisitUnrelated(h->r,cliq,output,buff);	// anadromika phgainoume aristera
+	
+}
+
+
+
+
+
+void printUnrelated(Link h,FILE* output,char* buff){
+	
+	RBItem* t = h->rbitem;
+    struct QueueNode* qnptr;		
+    Clique* cliq;	
+	
+	if(h == z)			// base-case
+		return;
+	
+	printUnrelated(h->l);	// anadromika phgainoume aristera
+	
+	
+	for( qnptr = t->objs.head ; qnptr != NULL ; qnptr = qnptr->next){									// diasxizoume  thn oura twn pairs
+	
+		cliq  = (Clique*)(qnptr->data);
+		VisitUnrelated(cliq->unrelated,cliq,output,buff);
+		
+		
+	
+	}
+	
+	
+	printUnrelated(h->r);	// anadromika phgainoume aristera
+	
+}
+
+
+
+
+
+
+

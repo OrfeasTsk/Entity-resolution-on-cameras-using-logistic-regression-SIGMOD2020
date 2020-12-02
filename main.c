@@ -265,6 +265,12 @@ int main(int argc, char* argv[]){
 	
 	read_csv(treeptr,datasetW);
 	MakeCliqueTree(treeptr,&cliques);
+	ChangeUnrelated(cliques);
+	
+	
+	output = fopen("unrelated.csv","w");
+	printUnrelated(cliques,output,buff);
+	fclose(output);
 	
 	output = fopen("output.csv","w");
 	sprintf(buff,"left_item , right_item\n");
