@@ -134,9 +134,9 @@ Item* parse(char* json){
 }
 
 
-void read_csv(Link treeptr,char* datasetW){
+void read_csv(HashTable* ht,char* datasetW,int numBuckets){
 	
-	int i;
+	int i,hashnum;
 	FILE * csv_file = fopen(datasetW,"r"); 
 	char* token;
 	char line[400];
@@ -155,18 +155,20 @@ void read_csv(Link treeptr,char* datasetW){
 		token = strtok(line,",");
 		
 		for(i = 0; (i < 3 && token != NULL) ; i++ ){
-			if( i == 0 )
-				pairA = findPair(treeptr,getNumId(token),token); //Euresh tou left item	
-			if(i == 1)
-				pairB = findPair(treeptr,getNumId(token),token); //Euresh tou right item
+			if( i == 0 ){
+				pairA = HTfindPair(ht,numBuckets,token); //Euresh tou left item	
+			}
+			if(i == 1){
+				pairB = HTfindPair(ht,numBuckets,token);  //Euresh tou right item
+			}
 			if( i == 2)
 				if(pairA != NULL && pairB != NULL)
 					if(atoi(token) == 1){ //An tairiazoun 
 						if(pairA->cliq->related != pairB->cliq->related) //An den exoun enwthei ksana
-							CliqueConcat(pairA, pairB, 1);
+							CliqueConcat(pairA, pairB, 1,numBuckets);
 					}
 					else{				// alliws sthn periptwsh tou 0 (dld dn tairiazoun)
-						CliqueConcat(pairA, pairB, 0);
+						CliqueConcat(pairA, pairB, 0,numBuckets);
 					}
 			
 			
@@ -182,22 +184,19 @@ void read_csv(Link treeptr,char* datasetW){
 
 
 int main(int argc, char* argv[]){
-	int i;
-	char* datasetX=NULL,*datasetW=NULL,*tmpdir1,*json;
+	int i, id = 0 , numBuckets = -1;
+	char* datasetX=NULL,*datasetW=NULL,*tmpdir1,*json,*tmp;
 	char buff[200];
 	DIR* dir_ptr1,*dir_ptr2;
 	FILE* output;
 	struct dirent* dirent_ptr;
 	Item* item;
 	Pair *pair;
-	Link treeptr;
-	Link cliques;
-	int id = 0;
 	HashTable pairs;
 	HashTable cliques;
 	
 	
-	if(argc != 5){
+	if(argc != 7){
 		printf("Argument error\n");
 			return 1;
 	}
@@ -208,6 +207,8 @@ int main(int argc, char* argv[]){
 			datasetX=argv[i+1];
 		else if(!strcmp("-w",argv[i]) && datasetW == NULL)
 			datasetW=argv[i+1];
+		else if(!strcmp("-b",argv[i]) && numBuckets == -1)
+			numBuckets = atoi(argv[i+1]);
 		else{
 			printf("Argument error\n");
 			return 1;
@@ -216,11 +217,10 @@ int main(int argc, char* argv[]){
 	
 	// Trees initialise
 	RBinit();
-	RBTinit(&treeptr);
-	RBTinit(&cliques);
 
 	//Hash Table initialise
 	HTinit( &cliques, numBuckets );
+	HTinit(&pairs,numBuckets);
 	
 
 
@@ -247,14 +247,22 @@ int main(int argc, char* argv[]){
 						pair->item = item;
 						
 						pair->cliq = (Clique*) malloc(sizeof(Clique));
-						pair->cliq->id = id++;
+						sprintf(buff,"%d",id);
+						tmp = (char*)malloc(strlen(buff) + 1 );
+						strcpy(tmp,buff);
+						pair->cliq->id = tmp;
+						id++;
+						
 						pair->cliq->related = (Queue*)malloc(sizeof(Queue));
-						RBTinit(&(pair->cliq->unrelated));
+						HTinit(&(pair->cliq->unrelated),numBuckets);
 						
 						QueueInit(pair->cliq->related);
 						QueueInsert(pair->cliq->related, (void**)&pair); // Sthn arxh h related oura exei mono to idio to pair 
-						treeptr = RBTinsertR(treeptr,getNumId(item->id),(void**)&pair,1);	
-	 
+						
+							
+	 					HTinsert(&pairs,numBuckets,item->id,(void*)pair);
+	 					
+	 					
 					}
 						
 					free(json);
@@ -268,23 +276,29 @@ int main(int argc, char* argv[]){
 	
 	// CSV READ
 	
-	read_csv(treeptr,datasetW);
-	MakeCliqueTree(treeptr,&cliques);
-	ChangeUnrelated(cliques);
+	read_csv(&pairs,datasetW,numBuckets);
+	
+	for( i = 0; i < numBuckets; i++)
+		MakeCliqueHT(pairs.buckets[i],&cliques,numBuckets);
+	
+	for( i = 0; i < numBuckets; i++)
+		ChangeUnrelated(cliques.buckets[i],&cliques,numBuckets);
 	
 	
 	output = fopen("unrelated.csv","w");
-	printUnrelated(cliques,output,buff);
+	for( i = 0; i < numBuckets; i++)
+		printUnrelated(cliques.buckets[i],output,buff,numBuckets);
 	fclose(output);
 	
 	output = fopen("related.csv","w");
 	sprintf(buff,"left_item , right_item\n");
 	fwrite(buff,sizeof(char),strlen(buff),output);
-	printOutput(treeptr,output,buff);
+	for( i = 0; i < numBuckets; i++)
+		printOutput(pairs.buckets[i],output,buff,numBuckets);
 	fclose(output);
 	
-	RBTdestrC(&cliques);
-	RBTdestrP(&treeptr);
+	HTdestr(&cliques,numBuckets,&RBTdestrC);
+	HTdestr(&pairs,numBuckets,&RBTdestrP);
 	RBdestr();
 	
 	return 0;

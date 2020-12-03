@@ -60,11 +60,19 @@ int StackEmpty(Stack *);
 
 /*##################                  End Stack                           ##########################*/
 
+typedef struct{
+	Link * buckets;
+} HashTable;
+
+
+
+/*##################                  End of hash tables                               ##########################*/
+
 
 typedef struct{
-	int id;
+	char* id;
 	Queue* related;
-	Link unrelated;
+	HashTable unrelated;
 }Clique;
 
 
@@ -78,8 +86,8 @@ typedef struct{
 
 
 typedef struct{ //Antikeimeno komvou tou red-black tree
-	void* id;
-	Queue objs;
+	char* id;
+	void* obj;
 }RBItem;
 
 struct RBnode{ 
@@ -94,26 +102,18 @@ void RBdestr();
 void RBTinit(Link*);
 void RBTdestrP(Link*);
 void RBTdestrC(Link*);
-Link RBTinsertR(Link,int,void**,int, int );
-void RBTmerge(Link* ,Link* );
+Link RBTinsertR(Link,char*,void*);
 
 
 /*##################                  End of red-black trees                           ##########################*/
 
 /*##################                  Start of hash tables                             ##########################*/
 
-typedef struct{
-	Link * buckets;
-} HashTable;
-
-void HTinit( HashTable* , int );
-void HTinsert( HashTable* , int , void* , void** , int , int );
-
-/*##################                  End of hash tables                               ##########################*/
 
 
-Pair* findPair(Link , int , char* );
-void printOutput(Link, FILE*, char* );
+
+
+void printOutput(Link, FILE*, char*,int );
 void PairDestroy(Pair*);
 
 
@@ -122,15 +122,23 @@ void QueueInit(Queue*);
 void QueueInsert(Queue*,void **);
 int QueueEmpty(Queue* );
 void QueueConcat(Queue*, Queue*,Clique*);
-//void QueueDelete(Queue*, int);
+
+
+void HTinit( HashTable* , int );
+void HTinsert( HashTable* , int , char* , void* );
+Pair* HTfindPair(HashTable* , int , char* );
+void HTmerge( HashTable* , HashTable* , int );
+void HTdestr(HashTable* ,int ,void (*del_fun)(Link*));
 
 
 
 
+void MakeCliqueHT(Link, HashTable*, int );
+void CliqueConcat(Pair*, Pair*, int,int );
+void ChangeUnrelated(Link, HashTable*, int );
+void printUnrelated(Link ,FILE* ,char*,int );
 
-void MakeCliqueTree(Link, Link*);
-void CliqueConcat(Pair*, Pair*, int );
-void ChangeUnrelated(Link );
-void printUnrelated(Link ,FILE* ,char* );
+
+
 
 

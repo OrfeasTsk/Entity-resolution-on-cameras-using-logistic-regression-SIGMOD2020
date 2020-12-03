@@ -4,17 +4,6 @@
 #include "./include/structs.h"
 
 
-int getNumId2(char* fullId){
-	int count;
-	
-	for( count = 0; count < 2 ; fullId++)		// Mono o arithmos
-		if(*fullId == '/')
-			count++;			
-						
-	return atoi(fullId);
-	
-}
-
 
 /*##################                  Start Generic Queue                                        ##########################*/
 
@@ -64,71 +53,6 @@ void QueueConcat(Queue* q1 , Queue* q2,Clique* cliq){
 	
 }
 
-/*void QueueDelete(Queue* queue, int id){
-	
-	QueueNode* curr = queue->head,*temp,*prev = NULL;
-	Clique* clique;
-								
-	while( curr != NULL ){								// diasxizoume thn oura 
-		clique  = (Clique*)(curr->data);														// related_pairs	
-		if( clique->id == id){										// an einai to idio item
-		
-			if (curr == queue->head ){														// an einai o head
-				if( curr == queue->tail ){													// an einai to monadiko antikeimeno
-					queue->head=NULL;														// diagrafh tou komvou
-					queue->tail=NULL;
-					queue->count--;
-					temp=curr;
-					curr = curr->next; 
-					free(temp);
-					free(clique);
-				}
-				else{																				// diaforetika o head tha deiksei ston epomeno komvo
-					queue->head=curr->next;
-					queue->count--;
-					temp=curr;
-					curr = curr->next; 
-					free(temp);
-					free(clique);
-				}
-			}
-			else if(curr == queue->tail){													// an einai to teleutaio item
-				queue->tail = prev;															// tha metakinithei enan komvo pisw
-				prev->next = NULL;
-				queue->count--;
-				temp = curr;
-				curr = curr->next;
-				free(temp);
-				free(clique);
-			}
-			else{																					// se opoiadhpote allh periptwsh
-				prev->next=curr->next;
-				queue->count--;
-				temp = curr;
-				curr = curr->next;
-				free(temp);
-				free(clique)
-			}
-			
-		}
-		prev = curr;
-		curr = curr->next;
-		
-	}
-	
-}
-
-
-void QueuePrint(Queue* queue){ 				//Ektypwsh ouras
-        struct QueueNode *Temp;
-
-        if(queue->head == NULL)
-                return;
-        
-        for(Temp = queue->head ; Temp != NULL ; Temp = Temp->next)
-                printf("%s",Temp->data);
-        
-}*/
 
 /*##################                  End Generic Queue                                        ##########################*/
 
@@ -225,7 +149,7 @@ if(type==1 && p!=head)
 printf("/");
 if (type==2)
 printf("\\");
-printf("%d\n", p->rbitem->id); /* Print root node */
+printf("%s\n", p->rbitem->id); /* Print root node */
 treeprint(p->l, indent+4,2,head);
 /* Print left subtree 4 places right of root node */
 }
@@ -241,22 +165,21 @@ Link rotL(Link h) //Aristerh peristrofh
     return x; }
 
 
-Link NEW(void* id,void** obj, Link l, Link r, int color){ 
+Link NEW(char* id,void* obj, Link l, Link r, int color){ 
 	Link x =(Link)malloc(sizeof(struct RBnode));
   	x->l = l; x->r = r; 
 	x->color=color;
-	if( obj != NULL){
+	if( id != NULL && obj != NULL){
 		x->rbitem = (RBItem*)malloc(sizeof(RBItem));
-    	QueueInit(&(x->rbitem->objs)); //Arxikopoihsh ths ouras
-		QueueInsert(&(x->rbitem->objs),obj);	//Eisagwgh sthn lista tou komvou
-		x->rbitem->id=id;
+    	x->rbitem->obj = obj;
+		x->rbitem->id = id;
 	}
     return x;
-  }
+}
 
  
 void RBinit() //Arxikopoihsh tou kenou komvou
-	{ z = NEW( -1 ,NULL, NULL, NULL, BLACK); }
+	{ z = NEW( NULL ,NULL, NULL, NULL, BLACK); }
   
 void RBdestr()
 {
@@ -316,68 +239,40 @@ return h;
 
 }
 
-Link insertRnum(Link h, int* id,void** obj ,Link head, int allowDupl)
-{   int v = *id;
-    RBItem* t = h->rbitem;
-    if (h == z) //Base case
-	    if(h != head)
-	    	return NEW((void*)id,obj, z, z, RED);  //Kathe neos komvos prepei na einai kokkinos
-	    else 
-			return NEW((void*)id,obj, z , z , BLACK); // Ektos apo thn riza pou einai maurh
-    if( v < *(int *)(t->id) ){ //Psaxnoume thn thesh gia na valoume ton neo komvo
-        h->l = insertRnum(h->l, id,obj,head,allowDupl);
-        if(h->color==BLACK) //Kathe fora pou vriskoume mauro komvo pou exei toulaxiston ena "eggoni" apo aristera (afou to paidi exei bei aristera)
-	    	h=MakeRBTree(h,head);
-	}
-    else if( *(int *)(t->id) < v ) {
-		h->r = insertRnum(h->r, id,obj,head,allowDupl);
-		if(h->color==BLACK) //Kathe fora pou vriskoume mauro komvo pou exei toulaxiston ena "eggoni" apo deksia (afou to paidi exei bei deksia)
-			h=MakeRBTree(h,head);
-	}
-	else if(allowDupl)
-			QueueInsert(&(h->rbitem->objs),obj);	//Eisagwgh sthn oura tou komvou
-		
-	return h;
-  }
-  
-  
-  Link insertRstr(Link h, char* id,void** obj ,Link head, int allowDupl)
+Link insertR(Link h, char* id,void* obj ,Link head)
 {   
 	char* v = id;
     RBItem* t = h->rbitem;
    
     if (h == z) //Base case
 	    if(h != head)
-	    	return NEW((void*)id,obj, z, z, RED);  //Kathe neos komvos prepei na einai kokkinos
+	    	return NEW(id,obj, z, z, RED);  //Kathe neos komvos prepei na einai kokkinos
 	    else 
-			return NEW((void*)id,obj, z , z , BLACK); // Ektos apo thn riza pou einai maurh
-    if( strcmp(v,(char*)(t->id)) < 0 ){ //Psaxnoume thn thesh gia na valoume ton neo komvo
-        h->l = insertRstr(h->l, id,obj,head,allowDupl);
+			return NEW(id,obj, z , z , BLACK); // Ektos apo thn riza pou einai maurh
+    if( strcmp(v,t->id) < 0 ){ //Psaxnoume thn thesh gia na valoume ton neo komvo
+        h->l = insertR(h->l, id,obj,head);
         if(h->color==BLACK) //Kathe fora pou vriskoume mauro komvo pou exei toulaxiston ena "eggoni" apo aristera (afou to paidi exei bei aristera)
 	    	h=MakeRBTree(h,head);
 	}
-    else if( strcmp((char*)(t->id),v) < 0 ) {
-		h->r = insertRstr(h->r, id,obj,head,allowDupl);
+    else if( strcmp(t->id,v) < 0 ) {
+		h->r = insertR(h->r, id,obj,head);
 		if(h->color==BLACK) //Kathe fora pou vriskoume mauro komvo pou exei toulaxiston ena "eggoni" apo deksia (afou to paidi exei bei deksia)
 			h=MakeRBTree(h,head);
 	}
-	else if(allowDupl)
-			QueueInsert(&(h->rbitem->objs),obj);	//Eisagwgh sthn oura tou komvou
+	else if( t->obj == NULL)
+		t->obj = obj;
 		
 	return h;
   }
   
-Link RBTinsertR( Link head , void* id , void** obj , int type , int allowDupl ){ 
+Link RBTinsertR( Link head , char* id , void* obj ){ 
 
-	if(type==0)			// numbers
-		head = insertRnum( head , (int*)id , obj , head , allowDupl );
-	else if(type==1)	//strings
-		head = insertRstr( head , (char*)id , obj , head , allowDupl );
+	head = insertR( head , id , obj , head );
   	return head; 
 }
 
 
-Pair* findPair(Link h, int id, char* fullId){
+Pair* RBTfindPair(Link h,char* id){
    
     RBItem* t = h->rbitem;
     struct QueueNode* curr;
@@ -386,28 +281,23 @@ Pair* findPair(Link h, int id, char* fullId){
     if(h == z)								// an den brethei timi 
 		return NULL;
     
-    if( id < t->id )						// diasxizoume to dentro gia na broume thn timi
-		return findPair(h->l, id, fullId);
-	else if (t->id < id)
-		return findPair(h->r, id, fullId);
+    if( strcmp(id , t->id) < 0 )						// diasxizoume to dentro gia na broume thn timi
+		return RBTfindPair(h->l,id);
+	else if ( strcmp(t->id , id) < 0)
+		return RBTfindPair(h->r, id);
 	else{									// otan tin broume elegxoume thn oura twn pairs
-		for( curr = t->objs.head ; curr != NULL ; curr = curr->next){
-			pair  = (Pair*)(curr->data);
-			if(!strcmp(fullId,pair->item->id))
-				return pair;
-		}
-		
-		return NULL;
+			pair  = (Pair*)(t->obj);
+			return pair;
 	}
     
     
 	
 }
 
-void printOutput(Link h,FILE* output,char* buff){			
+void printOutput(Link h,FILE* output,char* buff,int numBuckets){			
 	
 	RBItem* t = h->rbitem;
-    struct QueueNode* qnptr, *curr, *prev=NULL, *temp;
+    struct QueueNode *curr, *prev=NULL, *temp;
  	
 		
     Pair* pair;	
@@ -416,67 +306,66 @@ void printOutput(Link h,FILE* output,char* buff){
 	if(h == z)			// base-case
 		return;
 		
-	printOutput(h->l,output,buff);	// anadromika phgainoume aristera
+	printOutput(h->l,output,buff,numBuckets);	// anadromika phgainoume aristera
 	
-	for( qnptr = t->objs.head ; qnptr != NULL ; qnptr = qnptr->next){									// diasxizoume  thn oura twn pairs
 	
-		pair  = (Pair*)(qnptr->data);
-		curr = pair->cliq->related->head;
-		while( curr != NULL ){								// diasxizoume thn related 
-			rel_pair  = (Pair*)(curr->data);															// related_pairs	
-			if( !strcmp( pair->item->id , rel_pair->item->id ) ){										// an einai to idio item
-			
-				if (curr == pair->cliq->related->head ){														// an einai o head
-					if( curr == pair->cliq->related->tail ){													// an einai to monadiko antikeimeno
-						pair->cliq->related->head=NULL;														// diagrafh tou komvou
-						pair->cliq->related->tail=NULL;
-						pair->cliq->related->count--;
-						temp=curr;
-						curr = curr->next; 
-						free(temp);
-						free(pair->cliq->related); //To teleutaio pair katastrefei thn oura
-						RBTdestrC(&(pair->cliq->unrelated)); //To teleutaio pair katastrefei to dentro
-						free(pair->cliq);
+	pair  = (Pair*)(t->obj);
+	curr = pair->cliq->related->head;
+	while( curr != NULL ){								// diasxizoume thn related 
+		rel_pair  = (Pair*)(curr->data);															// related_pairs	
+		if( !strcmp( pair->item->id , rel_pair->item->id ) ){										// an einai to idio item
+		
+			if (curr == pair->cliq->related->head ){														// an einai o head
+				if( curr == pair->cliq->related->tail ){													// an einai to monadiko antikeimeno
+					pair->cliq->related->head=NULL;														// diagrafh tou komvou
+					pair->cliq->related->tail=NULL;
+					pair->cliq->related->count--;
+					temp=curr;
+					curr = curr->next; 
+					free(temp);
+					free(pair->cliq->related); //To teleutaio pair katastrefei thn oura
+					HTdestr(&(pair->cliq->unrelated),numBuckets,&RBTdestrC); //To teleutaio pair katastrefei to dentro
+					free(pair->cliq->id);
+					free(pair->cliq);
 
-					}
-					else{																				// diaforetika o head tha deiksei ston epomeno komvo
-						pair->cliq->related->head=curr->next;
-						pair->cliq->related->count--;
-						temp=curr;
-						curr = curr->next; 
-						free(temp);
-					}
 				}
-				else if(curr == pair->cliq->related->tail){													// an einai to teleutaio item
-					pair->cliq->related->tail = prev;															// tha metakinithei enan komvo pisw
-					prev->next = NULL;
+				else{																				// diaforetika o head tha deiksei ston epomeno komvo
+					pair->cliq->related->head=curr->next;
 					pair->cliq->related->count--;
-					temp = curr;
-					curr = curr->next;
+					temp=curr;
+					curr = curr->next; 
 					free(temp);
 				}
-				else{																					// se opoiadhpote allh periptwsh
-					prev->next=curr->next;
-					pair->cliq->related->count--;
-					temp = curr;
-					curr = curr->next;
-					free(temp);
-				}
-				
 			}
-			else{																						// an den einai ta ektypwnoume
-				sprintf(buff,"%s , %s \n", pair->item->id , rel_pair->item->id );			
-				fwrite(buff,sizeof(char),strlen(buff),output);
-				prev = curr;
+			else if(curr == pair->cliq->related->tail){													// an einai to teleutaio item
+				pair->cliq->related->tail = prev;															// tha metakinithei enan komvo pisw
+				prev->next = NULL;
+				pair->cliq->related->count--;
+				temp = curr;
 				curr = curr->next;
+				free(temp);
+			}
+			else{																					// se opoiadhpote allh periptwsh
+				prev->next=curr->next;
+				pair->cliq->related->count--;
+				temp = curr;
+				curr = curr->next;
+				free(temp);
 			}
 			
 		}
-	
+		else{																						// an den einai ta ektypwnoume
+			sprintf(buff,"%s , %s \n", pair->item->id , rel_pair->item->id );			
+			fwrite(buff,sizeof(char),strlen(buff),output);
+			prev = curr;
+			curr = curr->next;
+		}
+		
 	}
+
 	
 	
-	printOutput(h->r,output,buff);	// anadromika phgainoume deksia
+	printOutput(h->r,output,buff,numBuckets);	// anadromika phgainoume deksia
 	
 	
 	
@@ -520,7 +409,7 @@ void PairDestroy(Pair* pair){
 
 void RBTdestrP(Link* head)//Katastrofh tou dentrou zeugariwn
 {
-	struct QueueNode* curr,*Temp;
+
 	Pair* pair;
 	
     if (*head == z){
@@ -531,16 +420,9 @@ void RBTdestrP(Link* head)//Katastrofh tou dentrou zeugariwn
     RBTdestrP(&((*head)->l));
     RBTdestrP(&((*head)->r));
     
-    curr = (*head)->rbitem->objs.head;
     
-    while( curr != NULL){
-    	pair = (Pair*)(curr->data);
-		PairDestroy(pair);
-		Temp = curr;
-		curr = curr->next;
-		free(Temp);
-	}
-    
+	pair = (Pair*)((*head)->rbitem->obj);
+	PairDestroy(pair);
     
     free((*head)->rbitem);
 	free(*head);
@@ -562,10 +444,7 @@ void RBTdestrC(Link* head)//Katastrofh tou dentrou klikwn
     RBTdestrC(&((*head)->l));
     RBTdestrC(&((*head)->r));
     
-    
-    if( (*head)->rbitem->objs.head != NULL) //Den yparxoun diplotypa
-		free((*head)->rbitem->objs.head );
-    
+       
     
     free((*head)->rbitem);
 	free(*head);
@@ -577,70 +456,53 @@ void RBTdestrC(Link* head)//Katastrofh tou dentrou klikwn
 
 
 
-void RBTmerge(Link* head1,Link* head2)				//Merge duo dentrwn
+void RBTmergeHT(Link* head,HashTable* ht, int numBuckets)				//Merge duo dentrwn
 {
-	struct QueueNode* curr,*Temp;
 	Pair* pair;
 	
-    if (*head2 == z){
-		*head2 = NULL;
+    if (*head == z){
+		*head = NULL;
 		return;
 	}
 		
-    RBTmerge(head1,&((*head2)->l));
-    RBTmerge(head1,&((*head2)->r));
+    RBTmergeHT(&((*head)->l),ht,numBuckets);
+    RBTmergeHT(&((*head)->r),ht,numBuckets);
     
-    curr = (*head2)->rbitem->objs.head;
-    
-    while( curr != NULL){
-    	pair = (Pair*)(curr->data);
-    	
-    	*head1 = RBTinsertR(*head1,(*head2)->rbitem->id,(void**)&pair,0);
 
-		Temp = curr;
-		curr = curr->next;
-		free(Temp);
+    if((*head)->rbitem->obj != NULL){
+		pair = (Pair*)((*head)->rbitem->obj);
+		HTinsert(ht,numBuckets,pair->item->id,(void*)pair);
 	}
     
-    
-    free((*head2)->rbitem);
-	free(*head2);
-	*head2 = NULL;
+    free((*head)->rbitem);
+	free(*head);
+	*head = NULL;
 }
 
 
-void CliqueConcat(Pair* pair1 , Pair* pair2, int choice){
+
+
+void CliqueConcat(Pair* pair1 , Pair* pair2, int choice, int numBuckets){
 	Clique* temp;
 	
 	
 	if(choice == 1){	// dld an tairiazoun
 		temp = pair2->cliq;
-		RBTmerge(&(pair1->cliq->unrelated),&(pair2->cliq->unrelated));
+		HTmerge(&(pair1->cliq->unrelated),&(pair2->cliq->unrelated),numBuckets);
 		QueueConcat(pair1->cliq->related,pair2->cliq->related,pair1->cliq);
 		free(temp);
 		}
 	else{				// dld den tairiazoun
-		pair1->cliq->unrelated = RBTinsertR(pair1->cliq->unrelated,getNumId2(pair2->item->id),(void**)&pair2,0);	
-		pair2->cliq->unrelated = RBTinsertR(pair2->cliq->unrelated,getNumId2(pair1->item->id),(void**)&pair1,0);
+		HTinsert(&(pair1->cliq->unrelated),numBuckets,pair2->item->id,(void*)pair2);
+		HTinsert(&(pair2->cliq->unrelated),numBuckets,pair1->item->id,(void*)pair1);
 	}
 	
 }
 
-/*void QueueDestroy(Queue * queue){//Katastrofh ths listas
 
-	struct ListNode * Temp;
-	
-	while(list->head != NULL){
-       Temp=list->head;
-       list->head=list->head->next;
-       free(Temp);
-    }
-
-}*/
-void MakeCliqueTree(Link pairTree, Link* cliqueTree){
+void MakeCliqueHT(Link pairTree, HashTable* ht, int numBuckets){
 	
 	RBItem* t = pairTree->rbitem;
-    struct QueueNode* qnptr;
  			
     Pair* pair;	
 
@@ -648,21 +510,19 @@ void MakeCliqueTree(Link pairTree, Link* cliqueTree){
 	if(pairTree == z)			// base-case
 		return;
 		
-	MakeCliqueTree(pairTree->l,cliqueTree);	// anadromika phgainoume aristera
+	MakeCliqueHT(pairTree->l,ht,numBuckets);	// anadromika phgainoume aristera
 	
-	for( qnptr = t->objs.head ; qnptr != NULL ; qnptr = qnptr->next){									// diasxizoume  thn oura twn pairs
-	
-		pair  = (Pair*)(qnptr->data);
-		*cliqueTree = RBTinsertR(*cliqueTree,pair->cliq->id,(void**)&(pair->cliq),0);
-	
+	if(t->obj != NULL){	
+		pair  = (Pair*)(t->obj);
+		HTinsert(ht,numBuckets,pair->cliq->id,(void*)(pair->cliq));
 	}
 
-	MakeCliqueTree(pairTree->r,cliqueTree);	// anadromika phgainoume deksia
+	MakeCliqueHT(pairTree->r,ht,numBuckets);	// anadromika phgainoume deksia
 
 }
 
 
-void MakeCliqueUnrelated(Link* oldTree, Link* newTree){
+void MakeCliqueUnrelated(Link* oldTree, HashTable* ht, int numBuckets){
 	
 	RBItem* t = (*oldTree)->rbitem;
  			
@@ -672,15 +532,14 @@ void MakeCliqueUnrelated(Link* oldTree, Link* newTree){
 	if(*oldTree == z)			// base-case
 		return;
 		
-	MakeCliqueUnrelated(&((*oldTree)->l),newTree);	// anadromika phgainoume aristera
-	MakeCliqueUnrelated(&((*oldTree)->r),newTree);	// anadromika phgainoume deksia
+	MakeCliqueUnrelated(&((*oldTree)->l),ht,numBuckets);	// anadromika phgainoume aristera
+	MakeCliqueUnrelated(&((*oldTree)->r),ht,numBuckets);	// anadromika phgainoume deksia
 
 	
-	if(t->objs.head != NULL){									// Den yparxoun diplotypa
+	if(t->obj != NULL){									// Den yparxoun diplotypa
 	
-		pair  = (Pair*)(t->objs.head->data);
-		*newTree = RBTinsertR(*newTree,pair->cliq->id,(void**)&(pair->cliq),0);
-		free(t->objs.head);
+		pair  = (Pair*)(t->obj);
+		HTinsert(ht,numBuckets,pair->cliq->id,(void*)(pair->cliq));
 	}
 
 
@@ -693,38 +552,50 @@ void MakeCliqueUnrelated(Link* oldTree, Link* newTree){
 
 
 
-void ChangeUnrelated(Link h){
+void ChangeUnrelated(Link h, HashTable* ht,int numBuckets){
 	
 	RBItem* t = h->rbitem;
-    struct QueueNode* qnptr;		
+    int i;		
     Clique* cliq;	
-	Link unrelated;
+	HashTable* unrelated;
 	
 	
 	if(h == z)			// base-case
 		return;
 	
-	ChangeUnrelated(h->l);	// anadromika phgainoume aristera
+	ChangeUnrelated(h->l,ht,numBuckets);	// anadromika phgainoume aristera
 	
-	RBTinit(&unrelated);
 	
-	if(t->objs.head != NULL){									// Den yparxoun diplotypa
+	if(t->obj != NULL){									// Den yparxoun diplotypa
 	
-		cliq  = (Clique*)(t->objs.head->data);
-		MakeCliqueUnrelated(&(cliq->unrelated),&unrelated);
-		cliq->unrelated = unrelated;
+	
+		unrelated =(HashTable*)malloc(sizeof(HashTable));
+		HTinit(unrelated,numBuckets);
+		
+		cliq  = (Clique*)(t->obj);
+		
+		for( i = 0; i < numBuckets; i++)
+			MakeCliqueUnrelated(&(cliq->unrelated.buckets[i]),unrelated,numBuckets);
+		
+		for( i = 0; i < numBuckets; i++)	
+			cliq->unrelated.buckets[i] = unrelated->buckets[i];
+		
+		free(unrelated->buckets);
+		free(unrelated);
 	
 	}
 	
 	
-	ChangeUnrelated(h->r);	// anadromika phgainoume aristera
+	ChangeUnrelated(h->r,ht,numBuckets);	// anadromika phgainoume aristera
 	
 }
 
 
 
 
-void RemoveUnrelated(Link h , int id){
+
+
+void RemoveUnrelated(Link h , char* id){
 	
 	
 	RBItem* t = h->rbitem;
@@ -733,20 +604,13 @@ void RemoveUnrelated(Link h , int id){
     if(h == z)								// an den brethei timi 
 		return;
     
-    if( id < t->id )						// diasxizoume to dentro gia na broume thn timi
+    if( strcmp(id , t->id) < 0 )						// diasxizoume to dentro gia na broume thn timi
 		return RemoveUnrelated(h->l, id);
-	else if (t->id < id)
+	else if (strcmp(t->id , id ) < 0)
 		return RemoveUnrelated(h->r, id);
 	else{									// otan tin broume elegxoume thn oura twn pairs
-			if(t->objs.head != NULL){
-				cliq  = (Clique*)(t->objs.head->data);
-				if(id == cliq->id){
-					free(t->objs.head);
-					t->objs.head = NULL;
-					t->objs.tail = NULL;
-					t->objs.count = 0;	
-				}
-			}
+			if(t->obj != NULL)
+				t->obj = NULL;
 
 	
 	}
@@ -758,9 +622,10 @@ void RemoveUnrelated(Link h , int id){
 
 
 
-void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff){
+void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff, int numBuckets){
 	
 	RBItem* t = h->rbitem;
+	int hashnum;
     struct QueueNode* ptr,*unrelptr;		
     Clique* unrelc;
 	Pair* pair, *unrelp;	
@@ -768,12 +633,12 @@ void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff){
 	if(h == z)			// base-case
 		return;
 	
-	VisitUnrelated(h->l,cliq,output,buff);	// anadromika phgainoume aristera
+	VisitUnrelated(h->l,cliq,output,buff,numBuckets);	// anadromika phgainoume aristera
 	
 	
-	if(t->objs.head != NULL){									// Den yparxoun diplotypa
+	if(t->obj != NULL){									// Den yparxoun diplotypa
 	
-		unrelc  = (Clique*)(t->objs.head->data);
+		unrelc  = (Clique*)(t->obj);
 		
 		for( ptr = cliq->related->head ; ptr != NULL ; ptr = ptr->next ){
 			pair = (Pair*)(ptr->data);
@@ -784,12 +649,13 @@ void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff){
 			}	
 		}
 		
-		RemoveUnrelated(unrelc->unrelated, cliq->id);
+		hashnum = hashFunction(cliq->id,numBuckets);
+		RemoveUnrelated(unrelc->unrelated.buckets[hashnum], cliq->id);
 	
 	}
 	
 	
-	VisitUnrelated(h->r,cliq,output,buff);	// anadromika phgainoume aristera
+	VisitUnrelated(h->r,cliq,output,buff,numBuckets);	// anadromika phgainoume aristera
 	
 }
 
@@ -797,26 +663,28 @@ void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff){
 
 
 
-void printUnrelated(Link h,FILE* output,char* buff){
+void printUnrelated(Link h,FILE* output,char* buff, int numBuckets){
 	
-	RBItem* t = h->rbitem;		
+	RBItem* t = h->rbitem;	
+	int i;	
     Clique* cliq;	
 	
 	if(h == z)			// base-case
 		return;
 	
-	printUnrelated(h->l,output,buff);	// anadromika phgainoume aristera
+	printUnrelated(h->l,output,buff,numBuckets);	// anadromika phgainoume aristera
 	
 	
-	if(t->objs.head != NULL){									// Den yparxoun diplotypa
+	if(t->obj != NULL){									// Den yparxoun diplotypa
 									
-		cliq  = (Clique*)(t->objs.head->data);
-		VisitUnrelated(cliq->unrelated,cliq,output,buff);
+		cliq  = (Clique*)(t->obj);
+		for( i = 0; i < numBuckets; i++)
+			VisitUnrelated(cliq->unrelated.buckets[i],cliq,output,buff,numBuckets);
 		
 	}
 	
 	
-	printUnrelated(h->r,output,buff);	// anadromika phgainoume aristera
+	printUnrelated(h->r,output,buff,numBuckets);	// anadromika phgainoume aristera
 	
 }
 
@@ -833,40 +701,55 @@ void HTinit( HashTable* ht, int numBuckets ){			// initialise of hash table
 	
 }
 
-int hashFunctionStr(char* str,int numBuckets){ //Polynomial hash function for strings
-	int hash=0;
-	int constant=33;
+int hashFunction(char* str,int numBuckets){ //Polynomial hash function for strings
+	int hash = 0;
+	int constant = 33;
 	while(*str != '\0'){
-		hash=(constant*hash + *str) % numBuckets;
+		hash = (constant*hash + *str) % numBuckets;
 		str++;
 	}
 	return hash;
 }
 
-int hashFunctionNum(int num,int numBuckets){ //Polynomial hash function for numbers
-	
-	return ( num % numBuckets );
 
-}
-
-
-
-void HTinsert( HashTable* ht, int numBuckets, void* key, void** item, int type, int allowDupl ){			
+void HTinsert( HashTable* ht, int numBuckets, char* key, void* item ){			
 	
 	int hashnum;
 	
-	if ( type == 0 ){					// akeraioi
-		hashnum = hashFunctionNum ( *(int*)key , numBuckets );
-		ht->buckets[hashnum] = RBTinsertR( ht->buckets[hashnum] , key , item , type , allowDupl );
-		
-	}
-	else if ( type == 1 ){				//strings
-		hashnum = hashFunctionStr ( (char*) key , numBuckets );
-		ht->buckets[hashnum] = RBTinsertR( ht->buckets[hashnum] , key , item , type , allowDupl );
-	}
+	hashnum = hashFunction( key , numBuckets );
+	ht->buckets[hashnum] = RBTinsertR( ht->buckets[hashnum] , key , item);
 	
 }
 
+void HTmerge( HashTable* ht1 , HashTable* ht2, int  numBuckets){
+	int i;
+	
+	for( i = 0; i < numBuckets; i++)
+		RBTmergeHT(&(ht2->buckets[i]), ht1, numBuckets);
+	
+	free(ht2->buckets);
+		
+}
+
+
+
+Pair* HTfindPair(HashTable* ht,int numBuckets,char* id){
+	
+	int hashnum = hashFunction(id,numBuckets);
+	
+	return RBTfindPair(ht->buckets[hashnum],id);
+	
+}
+
+void HTdestr(HashTable* ht,int numBuckets,void (*del_fun)(Link*)){
+	int i;
+		
+	for( i = 0; i < numBuckets; i++)
+		(*del_fun)(&(ht->buckets[i]));
+		
+	free(ht->buckets);
+	
+}
 
 /*##################                  End of hash tables                               ##########################*/
 
