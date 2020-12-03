@@ -316,7 +316,7 @@ return h;
 
 }
 
-Link insertR(Link h, int id,void** obj ,Link head, int allowDupl)
+Link insertR(Link h, int id,void** obj ,Link head, int type, int allowDupl)
 {   int v = id;
     RBItem* t = h->rbitem;
     if (h == z) //Base case
@@ -340,8 +340,8 @@ Link insertR(Link h, int id,void** obj ,Link head, int allowDupl)
 	return h;
   }
   
-Link RBTinsertR(Link head,int id,void** obj,int allowDupl)
-{ head = insertR(head,id,obj,head,allowDupl);
+Link RBTinsertR( Link head , int id , void** obj , int type , int allowDupl )
+{ head = insertR( head , id , obj , head , type , allowDupl );
   return head; 
 }
 
@@ -790,7 +790,54 @@ void printUnrelated(Link h,FILE* output,char* buff){
 }
 
 
+/*##################                  Start of hash tables                             ##########################*/
 
+void HTinit( HashTable* ht, int numBuckets ){			// initialise of hash table
+	
+	int i;
+	
+	ht->buckets=(Link*)malloc(sizeof(Link)*numBuckets); 
+	for( i = 0; i < numBuckets; i++ )					// each hash table has a tree
+		RBTinit( &(ht->buckets[i]) );
+	
+}
+
+int hashFunctionStr(char* str,int numBuckets){ //Polynomial hash function for strings
+	int hash=0;
+	int constant=33;
+	while(*str != '\0'){
+		hash=(constant*hash + *str) % numBuckets;
+		str++;
+	}
+	return hash;
+}
+
+int hashFunctionNum(int num,int numBuckets){ //Polynomial hash function for numbers
+	
+	return ( num % numBuckets );
+
+}
+
+
+
+void HTinsert( HashTable* ht, int numBuckets, void* key, void** item, int type, int allowDupl ){			
+	
+	int hashnum;
+	
+	if ( type == 0 ){					// akeraioi
+		hashnum = hashFunctionNum ( *(int*)key , numBuckets );
+		ht->buckets[hashnum] = RBTinsertR( ht->buckets[hashnum] , key , item , type , allowDupl );
+		
+	}
+	else if ( type == 1 ){				//strings
+		hashnum = hashFunctionStr ( (char*) key , numBuckets );
+		ht->buckets[hashnum] = RBTinsertR( ht->buckets[hashnum] , key , item , type , allowDupl );
+	}
+	
+}
+
+
+/*##################                  End of hash tables                               ##########################*/
 
 
 

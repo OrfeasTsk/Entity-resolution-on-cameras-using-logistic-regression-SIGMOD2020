@@ -193,8 +193,8 @@ int main(int argc, char* argv[]){
 	Link treeptr;
 	Link cliques;
 	int id = 0;
-	
-	
+	HashTable pairs;
+	HashTable cliques;
 	
 	
 	if(argc != 5){
@@ -214,10 +214,15 @@ int main(int argc, char* argv[]){
 		}
 	}
 	
+	// Trees initialise
 	RBinit();
 	RBTinit(&treeptr);
-	
 	RBTinit(&cliques);
+
+	//Hash Table initialise
+	HTinit( &cliques, numBuckets );
+	
+
 
 
 

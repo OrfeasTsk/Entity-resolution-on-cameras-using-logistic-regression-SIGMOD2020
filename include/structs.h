@@ -94,11 +94,23 @@ void RBdestr();
 void RBTinit(Link*);
 void RBTdestrP(Link*);
 void RBTdestrC(Link*);
-Link RBTinsertR(Link,int,void**,int );
+Link RBTinsertR(Link,int,void**,int, int );
 void RBTmerge(Link* ,Link* );
 
 
 /*##################                  End of red-black trees                           ##########################*/
+
+/*##################                  Start of hash tables                             ##########################*/
+
+typedef struct{
+	Link * buckets;
+} HashTable;
+
+void HTinit( HashTable* , int );
+void HTinsert( HashTable* , int , void* , void** , int , int );
+
+/*##################                  End of hash tables                               ##########################*/
+
 
 Pair* findPair(Link , int , char* );
 void printOutput(Link, FILE*, char* );
