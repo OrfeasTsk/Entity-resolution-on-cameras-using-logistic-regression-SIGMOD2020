@@ -241,11 +241,11 @@ Link rotL(Link h) //Aristerh peristrofh
     return x; }
 
 
-Link NEW(int id,void** obj, Link l, Link r, int color){ 
+Link NEW(void* id,void** obj, Link l, Link r, int color){ 
 	Link x =(Link)malloc(sizeof(struct RBnode));
   	x->l = l; x->r = r; 
 	x->color=color;
-	if( id != -1 && obj != NULL){
+	if( obj != NULL){
 		x->rbitem = (RBItem*)malloc(sizeof(RBItem));
     	QueueInit(&(x->rbitem->objs)); //Arxikopoihsh ths ouras
 		QueueInsert(&(x->rbitem->objs),obj);	//Eisagwgh sthn lista tou komvou
@@ -316,21 +316,21 @@ return h;
 
 }
 
-Link insertR(Link h, int id,void** obj ,Link head, int type, int allowDupl)
-{   int v = id;
+Link insertRnum(Link h, int* id,void** obj ,Link head, int allowDupl)
+{   int v = *id;
     RBItem* t = h->rbitem;
     if (h == z) //Base case
 	    if(h != head)
-	    	return NEW(id,obj, z, z, RED);  //Kathe neos komvos prepei na einai kokkinos
+	    	return NEW((void*)id,obj, z, z, RED);  //Kathe neos komvos prepei na einai kokkinos
 	    else 
-			return NEW(id,obj, z , z , BLACK); // Ektos apo thn riza pou einai maurh
-    if(v < t->id){ //Psaxnoume thn thesh gia na valoume ton neo komvo
-        h->l = insertR(h->l, id,obj,head,allowDupl);
+			return NEW((void*)id,obj, z , z , BLACK); // Ektos apo thn riza pou einai maurh
+    if( v < *(int *)(t->id) ){ //Psaxnoume thn thesh gia na valoume ton neo komvo
+        h->l = insertRnum(h->l, id,obj,head,allowDupl);
         if(h->color==BLACK) //Kathe fora pou vriskoume mauro komvo pou exei toulaxiston ena "eggoni" apo aristera (afou to paidi exei bei aristera)
 	    	h=MakeRBTree(h,head);
 	}
-    else if(t->id < v) {
-		h->r = insertR(h->r, id,obj,head,allowDupl);
+    else if( *(int *)(t->id) < v ) {
+		h->r = insertRnum(h->r, id,obj,head,allowDupl);
 		if(h->color==BLACK) //Kathe fora pou vriskoume mauro komvo pou exei toulaxiston ena "eggoni" apo deksia (afou to paidi exei bei deksia)
 			h=MakeRBTree(h,head);
 	}
@@ -340,9 +340,40 @@ Link insertR(Link h, int id,void** obj ,Link head, int type, int allowDupl)
 	return h;
   }
   
-Link RBTinsertR( Link head , int id , void** obj , int type , int allowDupl )
-{ head = insertR( head , id , obj , head , type , allowDupl );
-  return head; 
+  
+  Link insertRstr(Link h, char* id,void** obj ,Link head, int allowDupl)
+{   
+	char* v = id;
+    RBItem* t = h->rbitem;
+   
+    if (h == z) //Base case
+	    if(h != head)
+	    	return NEW((void*)id,obj, z, z, RED);  //Kathe neos komvos prepei na einai kokkinos
+	    else 
+			return NEW((void*)id,obj, z , z , BLACK); // Ektos apo thn riza pou einai maurh
+    if( strcmp(v,(char*)(t->id)) < 0 ){ //Psaxnoume thn thesh gia na valoume ton neo komvo
+        h->l = insertRstr(h->l, id,obj,head,allowDupl);
+        if(h->color==BLACK) //Kathe fora pou vriskoume mauro komvo pou exei toulaxiston ena "eggoni" apo aristera (afou to paidi exei bei aristera)
+	    	h=MakeRBTree(h,head);
+	}
+    else if( strcmp((char*)(t->id),v) < 0 ) {
+		h->r = insertRstr(h->r, id,obj,head,allowDupl);
+		if(h->color==BLACK) //Kathe fora pou vriskoume mauro komvo pou exei toulaxiston ena "eggoni" apo deksia (afou to paidi exei bei deksia)
+			h=MakeRBTree(h,head);
+	}
+	else if(allowDupl)
+			QueueInsert(&(h->rbitem->objs),obj);	//Eisagwgh sthn oura tou komvou
+		
+	return h;
+  }
+  
+Link RBTinsertR( Link head , void* id , void** obj , int type , int allowDupl ){ 
+
+	if(type==0)			// numbers
+		head = insertRnum( head , (int*)id , obj , head , allowDupl );
+	else if(type==1)	//strings
+		head = insertRstr( head , (char*)id , obj , head , allowDupl );
+  	return head; 
 }
 
 

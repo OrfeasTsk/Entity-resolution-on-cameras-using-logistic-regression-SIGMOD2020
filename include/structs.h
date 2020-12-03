@@ -78,7 +78,7 @@ typedef struct{
 
 
 typedef struct{ //Antikeimeno komvou tou red-black tree
-	int id;
+	void* id;
 	Queue objs;
 }RBItem;
 
