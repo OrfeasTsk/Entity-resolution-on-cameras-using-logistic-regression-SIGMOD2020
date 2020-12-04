@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include "./include/structs.h"
 #include "./include/text_support.h"
 
 
