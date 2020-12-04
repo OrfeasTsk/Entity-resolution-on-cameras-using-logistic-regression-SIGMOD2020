@@ -126,7 +126,7 @@ void QueueConcat(Queue*, Queue*,Clique*);
 
 void HTinit( HashTable* , int );
 void HTinsert( HashTable* , int , char* , void* );
-Pair* HTfindPair(HashTable* , int , char* );
+void* HTfind(HashTable* , int , char* );
 void HTmerge( HashTable* , HashTable* , int );
 void HTdestr(HashTable* ,int ,void (*del_fun)(Link*));
 

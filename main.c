@@ -7,17 +7,6 @@
 #include "./include/text_support.h"
 
 
-int getNumId(char* fullId){
-	int count;
-	
-	for( count = 0; count < 2 ; fullId++)		// Mono o arithmos
-		if(*fullId == '/')
-			count++;			
-						
-	return atoi(fullId);
-	
-}
-
 
 Item* parse(char* json){
 	char* tmp, c, prev = ' ';
@@ -157,10 +146,10 @@ void read_csv(HashTable* ht,char* datasetW,int numBuckets){
 		
 		for(i = 0; (i < 3 && token != NULL) ; i++ ){
 			if( i == 0 ){
-				pairA = HTfindPair(ht,numBuckets,token); //Euresh tou left item	
+				pairA = (Pair*) HTfind(ht,numBuckets,token); //Euresh tou left item	
 			}
 			if(i == 1){
-				pairB = HTfindPair(ht,numBuckets,token);  //Euresh tou right item
+				pairB = (Pair*) HTfind(ht,numBuckets,token);  //Euresh tou right item
 			}
 			if( i == 2)
 				if(pairA != NULL && pairB != NULL)
