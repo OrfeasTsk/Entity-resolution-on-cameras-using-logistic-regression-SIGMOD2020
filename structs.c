@@ -490,6 +490,7 @@ void CliqueConcat(Pair* pair1 , Pair* pair2, int choice, int numBuckets){
 		temp = pair2->cliq;
 		HTmerge(&(pair1->cliq->unrelated),&(pair2->cliq->unrelated),numBuckets);
 		QueueConcat(pair1->cliq->related,pair2->cliq->related,pair1->cliq);
+		free(temp->id);
 		free(temp);
 		}
 	else{				// dld den tairiazoun
