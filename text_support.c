@@ -50,3 +50,28 @@ void tokenize(char* text){
 		
 	
 }
+
+void read_stopwords(HashTable* ht, char* stopwordsFile, int numBuckets){
+	
+	int i,hashnum;
+	FILE * stopwords_file = fopen(stopwordsFile,"r"); 
+	char* token;
+	char line[50];
+	
+	if(stopwords_file == NULL){
+		printf("Stopwords File file is empty!\n");
+		return;
+	}
+			
+	while( fgets( line , sizeof(line) , stopwords_file ) ){
+		
+		token=(char*)malloc(strlen(line)+1);
+		strcpy(token,line);
+
+		HTinsert( ht , numBuckets , token, (void*) token);
+		free(token);
+	}
+	
+
+	fclose(stopwords_file);
+}

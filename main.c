@@ -186,7 +186,7 @@ void read_csv(HashTable* ht,char* datasetW,int numBuckets){
 
 int main(int argc, char* argv[]){
 	int i, id = 0 , numBuckets = -1;
-	char* datasetX=NULL,*datasetW=NULL,*tmpdir1,*json,*tmp;
+	char* datasetX=NULL, *datasetW=NULL, *stopwordsFile=NULL, *tmpdir1, *json, *tmp;
 	char buff[200];
 	DIR* dir_ptr1,*dir_ptr2;
 	FILE* output;
@@ -195,9 +195,10 @@ int main(int argc, char* argv[]){
 	Pair *pair;
 	HashTable pairs;
 	HashTable cliques;
+	HashTable stopwords;
 	
 	
-	if(argc != 7){
+	if(argc != 9){
 		printf("Argument error\n");
 			return 1;
 	}
@@ -210,6 +211,8 @@ int main(int argc, char* argv[]){
 			datasetW=argv[i+1];
 		else if(!strcmp("-b",argv[i]) && numBuckets == -1)
 			numBuckets = atoi(argv[i+1]);
+		else if(!strcmp("-s",argv[i]) && stopwordsFile == NULL)
+			stopwordsFile = argv[i+1];
 		else{
 			printf("Argument error\n");
 			return 1;
@@ -222,6 +225,7 @@ int main(int argc, char* argv[]){
 	//Hash Table initialise
 	HTinit( &cliques, numBuckets );
 	HTinit(&pairs,numBuckets);
+	HTinit(&stopwords,numBuckets);
 	
 
 
@@ -298,6 +302,11 @@ int main(int argc, char* argv[]){
 		printOutput(pairs.buckets[i],output,buff,numBuckets);
 	fclose(output);
 	
+	//Read Stopwords file
+	read_stopwords(&stopwords , stopwordsFile, numBuckets);
+	
+
+
 	HTdestr(&cliques,numBuckets,&RBTdestrC);
 	HTdestr(&pairs,numBuckets,&RBTdestrP);
 	RBdestr();
