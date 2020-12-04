@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include "./include/structs.h"
+#include "./include/text_support.h"
 
 
 int getNumId(char* fullId){
