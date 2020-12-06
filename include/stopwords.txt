@@ -196,6 +196,8 @@ hopefully
 how
 howbeit
 however
+http
+html
 ie
 if
 ignored
@@ -501,6 +503,7 @@ won
 wonder
 would
 wouldn
+www
 yes
 yet
 ll

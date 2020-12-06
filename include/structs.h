@@ -82,6 +82,13 @@ typedef struct{
 }Pair;
 
 
+typedef struct{
+	Item* item;
+	HashTable words;
+	int index;
+}Stats;
+
+
 /*##################                  Start of red-black trees                           ##########################*/
 
 
@@ -124,6 +131,7 @@ int QueueEmpty(Queue* );
 void QueueConcat(Queue*, Queue*,Clique*);
 
 
+int hashFunction(char* , int ) ;
 void HTinit( HashTable* , int );
 void HTinsert( HashTable* , int , char* , void* );
 void* HTfind(HashTable* , int , char* );
@@ -137,8 +145,5 @@ void MakeCliqueHT(Link, HashTable*, int );
 void CliqueConcat(Pair*, Pair*, int,int );
 void ChangeUnrelated(Link, HashTable*, int );
 void printUnrelated(Link ,FILE* ,char*,int );
-
-
-
 
 

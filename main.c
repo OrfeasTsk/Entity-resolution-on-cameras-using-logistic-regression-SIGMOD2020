@@ -174,17 +174,20 @@ void read_csv(HashTable* ht,char* datasetW,int numBuckets){
 
 
 int main(int argc, char* argv[]){
-	int i, id = 0 , numBuckets = -1;
+	int i, id = 0 , numBuckets = -1 ,fIndex = 0 ,wIndex = 0;
 	char* datasetX=NULL, *datasetW=NULL, *stopwordsFile=NULL, *tmpdir1, *json, *tmp;
 	char buff[200];
 	DIR* dir_ptr1,*dir_ptr2;
 	FILE* output;
 	struct dirent* dirent_ptr;
 	Item* item;
+	Stats* fileStats;
 	Pair *pair;
 	HashTable pairs;
 	HashTable cliques;
+	HashTable words;
 	HashTable stopwords;
+	HashTable stats;
 	
 	
 	if(argc != 9){
@@ -212,10 +215,15 @@ int main(int argc, char* argv[]){
 	RBinit();
 
 	//Hash Table initialise
-	HTinit( &cliques, numBuckets );
+	HTinit(&cliques, numBuckets);
 	HTinit(&pairs,numBuckets);
 	HTinit(&stopwords,numBuckets);
+	HTinit(&words,numBuckets);
+	HTinit(&stats,numBuckets);
+
 	
+	//Read Stopwords file
+	read_stopwords(&stopwords , stopwordsFile, numBuckets);
 
 
 
@@ -237,6 +245,14 @@ int main(int argc, char* argv[]){
 					//printf("%s\n",json);
 					if( item = parse(json) ){						// an epistrefetai to item dhmiourgeitai to pair (to opoio prepei na bei sthn domh apothikeushs twn pairs)
 									
+						fileStats = (Stats*)malloc(sizeof(Stats)); //Dhmiourgia stats tou arxeiou
+						fileStats->item = item;
+						HTinit(&(fileStats->words),numBuckets);
+						fileStats->index = fIndex++;
+						CreateStats(fileStats, &words, &stopwords, numBuckets, &wIndex);
+						HTinsert(&stats, numBuckets, item->id , (void*)fileStats);
+
+
 						pair = (Pair*)malloc(sizeof(Pair));
 						pair->item = item;
 						
@@ -291,10 +307,8 @@ int main(int argc, char* argv[]){
 		printOutput(pairs.buckets[i],output,buff,numBuckets);
 	fclose(output);
 	
-	//Read Stopwords file
-	read_stopwords(&stopwords , stopwordsFile, numBuckets);
 	
-
+	
 
 	HTdestr(&cliques,numBuckets,&RBTdestrC);
 	HTdestr(&pairs,numBuckets,&RBTdestrP);
