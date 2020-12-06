@@ -276,23 +276,20 @@ void* RBTfind(Link h,char* id){
    
     RBItem* t = h->rbitem;
     struct QueueNode* curr;
-    Pair* pair;
     
-    if(h == z)								// an den brethei timi 
+    if(h == z)								// an den brethei timh
 		return NULL;
     
-    if( strcmp(id , t->id) < 0 )						// diasxizoume to dentro gia na broume thn timi
+    if( strcmp(id , t->id) < 0 )						// diasxizoume to dentro gia na broume thn timh
 		return RBTfind(h->l,id);
 	else if ( strcmp(t->id , id) < 0)
 		return RBTfind(h->r, id);
-	else{									// otan tin broume elegxoume thn oura twn pairs
-			pair  = (Pair*)(t->obj);
-			return (void*)pair;
-	}
-    
-    
-	
+	else					// otan tin broume epistrefetai h timh
+			return t->obj;
+    	
 }
+
+
 
 void printOutput(Link h,FILE* output,char* buff,int numBuckets){			
 	
