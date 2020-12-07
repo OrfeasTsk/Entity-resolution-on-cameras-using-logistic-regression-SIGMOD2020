@@ -2,8 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <math.h>
 #include "./include/structs.h"
 #include "./include/text_support.h"
+
+
 
 
 
@@ -149,4 +152,37 @@ void read_stopwords(HashTable* ht, char* stopwordsFile, int numBuckets){
 	
 
 	fclose(stopwords_file);
+}
+
+
+
+
+void Bow_To_Tfidf(int ** array, int rows, int cols){
+	
+	int i,j,sum;
+	double idf;
+	
+	for( i = 0 ; i < rows ; i++ ){		// upologismos tf
+		counter=0;				// mas deixnei poses lekseis uparxoun se kathe row
+		for(j = 0 ; j < cols ; j++)
+			if( array[i][j] )
+				counter += array[i][j];	
+		for(j = 0 ; j < cols ; j++)
+			if( array[i][j] && counter)
+				array[i][j] /= counter;
+	}
+	
+	
+	for(j = 0 ; j < cols ; j++){
+		counter = 0;					//o arithmos keimenwn ths sulloghs pou periexoun ton sugkekrimeno arithmo
+		for( i = 0 ; i < rows ; i++ )
+			if( array[i][j] )
+				counter ++;
+		idf=(double)rows / counter;
+		idf= log(idf);
+		for( i = 0 ; i < rows ; i++ )
+			if( array[i][j] )
+				array[i][j] *= idf;
+
+	}
 }
