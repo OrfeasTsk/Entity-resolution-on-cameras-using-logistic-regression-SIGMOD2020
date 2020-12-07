@@ -157,9 +157,9 @@ void read_stopwords(HashTable* ht, char* stopwordsFile, int numBuckets){
 
 
 
-void Bow_To_Tfidf(int ** array, int rows, int cols){
+void Bow_To_Tfidf(int ** array, int rows, int cols){			// ############################3 ISWS PREPEI NA ALLAKSOUME TO INT STON PINAKA ##########################
 	
-	int i,j,sum;
+	int i,j,sum;							
 	double idf;
 	
 	for( i = 0 ; i < rows ; i++ ){		// upologismos tf
