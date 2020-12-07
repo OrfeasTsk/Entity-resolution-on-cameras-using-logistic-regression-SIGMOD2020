@@ -272,7 +272,7 @@ Link RBTinsertR( Link head , char* id , void* obj ){
 }
 
 
-void* RBTfind(Link h,char* id){
+void* RBTfind(Link h,char* id,char type){
    
     RBItem* t = h->rbitem;
     struct QueueNode* curr;
@@ -281,12 +281,15 @@ void* RBTfind(Link h,char* id){
 		return NULL;
     
     if( strcmp(id , t->id) < 0 )						// diasxizoume to dentro gia na broume thn timh
-		return RBTfind(h->l,id);
+		return RBTfind(h->l, id, type);
 	else if ( strcmp(t->id , id) < 0)
-		return RBTfind(h->r, id);
-	else					// otan tin broume epistrefetai h timh
-			return t->obj;
-    	
+		return RBTfind(h->r, id, type);
+	else{					// otan tin broume epistrefetai h timh
+			if(type == 'k')
+				return t->id;
+			else if( type == 'v' && t->obj != NULL)
+				return t->obj;
+    }
 }
 
 
@@ -731,11 +734,11 @@ void HTmerge( HashTable* ht1 , HashTable* ht2, int  numBuckets){
 
 
 
-void* HTfind(HashTable* ht,int numBuckets,char* id){
+void* HTfind(HashTable* ht,int numBuckets,char* id, char type){
 	
 	int hashnum = hashFunction(id,numBuckets);
 	
-	return RBTfind(ht->buckets[hashnum],id);
+	return RBTfind(ht->buckets[hashnum],id,type);
 	
 }
 

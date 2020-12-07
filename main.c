@@ -146,10 +146,10 @@ void read_csv(HashTable* ht,char* datasetW,int numBuckets){
 		
 		for(i = 0; (i < 3 && token != NULL) ; i++ ){
 			if( i == 0 ){
-				pairA = (Pair*) HTfind(ht,numBuckets,token); //Euresh tou left item	
+				pairA = (Pair*) HTfind(ht,numBuckets,token,'v'); //Euresh tou left item	
 			}
 			if(i == 1){
-				pairB = (Pair*) HTfind(ht,numBuckets,token);  //Euresh tou right item
+				pairB = (Pair*) HTfind(ht,numBuckets,token,'v');  //Euresh tou right item
 			}
 			if( i == 2)
 				if(pairA != NULL && pairB != NULL)

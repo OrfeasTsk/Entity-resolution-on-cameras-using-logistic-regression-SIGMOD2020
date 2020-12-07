@@ -134,7 +134,7 @@ void QueueConcat(Queue*, Queue*,Clique*);
 int hashFunction(char* , int ) ;
 void HTinit( HashTable* , int );
 void HTinsert( HashTable* , int , char* , void* );
-void* HTfind(HashTable* , int , char* );
+void* HTfind(HashTable* , int , char* , char);
 void HTmerge( HashTable* , HashTable* , int );
 void HTdestr(HashTable* ,int ,void (*del_fun)(Link*));
 

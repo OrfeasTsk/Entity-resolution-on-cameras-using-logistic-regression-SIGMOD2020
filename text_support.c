@@ -71,24 +71,25 @@ void tokenize(char* text ,HashTable* fwords, HashTable* words,HashTable* stopwor
 						temp[j-start] = text[j];
 					temp[count] = '\0';
 					
-					if(HTfind(stopwords,numBuckets,temp) == NULL){
-						if( num = (int*)HTfind(fwords, numBuckets, temp))
-							++*num;
-						else{
-							num = (int*)malloc(sizeof(int));
-							*num = 1;
-							token = (char*)malloc(strlen(temp) + 1);
-							strcpy(token,temp);
-							HTinsert(fwords, numBuckets, token,(void*) num );
-						}
-
-						if( HTfind(words, numBuckets, temp) == NULL ){
+					if(HTfind(stopwords,numBuckets,temp,'k') == NULL){
+						
+						if( (token = (char*)HTfind(words, numBuckets, temp ,'k')) == NULL ){
 							num = (int*)malloc(sizeof(int));
 							*num = (*index)++;
 							token = (char*)malloc(strlen(temp) + 1);
 							strcpy(token,temp);
 							HTinsert(words, numBuckets, token, (void*) num);
 						}
+
+						if( num = (int*)HTfind(fwords, numBuckets, temp ,'v'))
+							++*num;
+						else{
+							num = (int*)malloc(sizeof(int));
+							*num = 1;
+							HTinsert(fwords, numBuckets, token,(void*) num );
+						}
+
+						
 					}
 
 
