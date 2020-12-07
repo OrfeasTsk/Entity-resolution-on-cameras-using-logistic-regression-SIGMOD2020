@@ -176,20 +176,18 @@ double** Bow_To_Tfidf(int ** array, int rows, int cols){
 			if( array[i][j] && counter)
 				tfidf[i][j] = (double)array[i][j] / counter;
 			else
-				tfidf[i][j] = 0;
+				tfidf[i][j] = 0.0;
 	}
-	
 	
 	for(j = 0 ; j < cols ; j++){
 		counter = 0;					//o arithmos keimenwn ths sulloghs pou periexoun ton sugkekrimeno arithmo
 		for( i = 0 ; i < rows ; i++ )
 			if( array[i][j] )
 				counter ++;
-		idf=(double)rows / counter;
-		idf= log(idf);
+		idf = (double)rows / counter;
+		idf = log(idf);
 		for( i = 0 ; i < rows ; i++ )
 			if( array[i][j] )
 				tfidf[i][j] *= idf;
-
 	}
 }
