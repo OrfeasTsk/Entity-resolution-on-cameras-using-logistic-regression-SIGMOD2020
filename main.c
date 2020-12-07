@@ -318,7 +318,7 @@ int main(int argc, char* argv[]){
 			array[i][j] = 0;
 			
 	for( i = 0; i < numBuckets; i++)
-		CreateArray( stats.buckets[i], words, numBuckets, array );		
+		CreateArray( stats.buckets[i], &words, numBuckets, array );		
 		
 
 	HTdestr(&cliques,numBuckets,&RBTdestrC);

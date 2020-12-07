@@ -29,7 +29,7 @@ rbt_test.o : ./tests/rbt_test.c ./include/structs.h ./include/acutest.h
 main.o : main.c ./include/structs.h ./include/text_support.h
 	gcc -c main.c $(inc)
 
-structs.o : structs.c ./include/structs.h
+structs.o : structs.c ./include/structs.h ./include/text_support.h
 	gcc -c structs.c $(inc)
 
 text_support.o : text_support.c ./include/structs.h ./include/text_support.h
