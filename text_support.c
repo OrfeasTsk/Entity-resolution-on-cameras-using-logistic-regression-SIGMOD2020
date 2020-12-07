@@ -157,10 +157,15 @@ void read_stopwords(HashTable* ht, char* stopwordsFile, int numBuckets){
 
 
 
-void Bow_To_Tfidf(int ** array, int rows, int cols){			// ############################3 ISWS PREPEI NA ALLAKSOUME TO INT STON PINAKA ##########################
+double** Bow_To_Tfidf(int ** array, int rows, int cols){	
 	
 	int i,j,sum;							
 	double idf;
+	
+	//Array
+	double** tfidf = (double**)malloc( sizeof(double*) * (rows));
+	for( i = 0 ; i < rows ; i++ )
+		tfidf[i] = (double*)malloc( sizeof(double) * (cols) ); 
 	
 	for( i = 0 ; i < rows ; i++ ){		// upologismos tf
 		counter=0;				// mas deixnei poses lekseis uparxoun se kathe row
@@ -169,7 +174,9 @@ void Bow_To_Tfidf(int ** array, int rows, int cols){			// ######################
 				counter += array[i][j];	
 		for(j = 0 ; j < cols ; j++)
 			if( array[i][j] && counter)
-				array[i][j] /= counter;
+				tfidf[i][j] = (double)array[i][j] / counter;
+			else
+				tfidf[i][j] = 0;
 	}
 	
 	
@@ -182,7 +189,7 @@ void Bow_To_Tfidf(int ** array, int rows, int cols){			// ######################
 		idf= log(idf);
 		for( i = 0 ; i < rows ; i++ )
 			if( array[i][j] )
-				array[i][j] *= idf;
+				tfidf[i][j] *= idf;
 
 	}
 }
