@@ -706,7 +706,7 @@ void CreateArray( Link h, HashTable* ht, int numBuckets, int**  array ){
 	if(t->obj != NULL){									// Den yparxoun diplotypa
 									
 		fileStats  = (Stats*)(t->obj);
-		UpdateArray(fileStats ,  ht , numBuckets, array){
+		UpdateArray(fileStats ,  ht , numBuckets, array);
 		
 	}
 	

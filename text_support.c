@@ -37,7 +37,7 @@ void UpdateArray(Stats* fileStats , HashTable* words , int numBuckets, int**  ar
 		spec = (Spec*)(curr->data);
 		//if(!strcmp(fileStats->item->id,"buy.net//4233"))
 		tokenize(spec->name, words, NULL, numBuckets, array , fileStats->index );
-		tokenize(spec->value, words, stopwords, numBuckets, array , fileStats->index );		
+		tokenize(spec->value, words, NULL, numBuckets, array , fileStats->index );		
 	}
 
 }
