@@ -690,6 +690,32 @@ void printUnrelated(Link h,FILE* output,char* buff, int numBuckets){
 }
 
 
+
+void CreateArray( Link h, HashTable* ht, int numBuckets, int**  array ){
+	
+	RBItem* t = h->rbitem;	
+	int i;	
+    Stats* fileStats;	
+	
+	if(h == z)			// base-case
+		return;
+	
+	CreateArray(h->l , ht , numBuckets , array);	// anadromika phgainoume aristera
+	
+	
+	if(t->obj != NULL){									// Den yparxoun diplotypa
+									
+		fileStats  = (Stats*)(t->obj);
+		UpdateArray(fileStats ,  ht , numBuckets, array){
+		
+	}
+	
+	
+	CreateArray(h->r, ht , numBuckets , array);	// anadromika phgainoume aristera
+	
+}	
+
+
 /*##################                  Start of hash tables                             ##########################*/
 
 void HTinit( HashTable* ht, int numBuckets ){			// initialise of hash table
@@ -751,6 +777,9 @@ void HTdestr(HashTable* ht,int numBuckets,void (*del_fun)(Link*)){
 	free(ht->buckets);
 	
 }
+
+
+
 
 /*##################                  End of hash tables                               ##########################*/
 

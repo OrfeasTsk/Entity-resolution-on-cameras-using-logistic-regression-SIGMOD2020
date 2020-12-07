@@ -84,7 +84,6 @@ typedef struct{
 
 typedef struct{
 	Item* item;
-	HashTable words;
 	int index;
 }Stats;
 
@@ -145,5 +144,6 @@ void MakeCliqueHT(Link, HashTable*, int );
 void CliqueConcat(Pair*, Pair*, int,int );
 void ChangeUnrelated(Link, HashTable*, int );
 void printUnrelated(Link ,FILE* ,char*,int );
+void CreateArray( Link , HashTable* , int, int** )
 
 

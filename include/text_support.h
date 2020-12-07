@@ -2,6 +2,7 @@
 
 
 void textCleaning(char*);
-void tokenize(char* ,HashTable* , HashTable* ,HashTable*  ,int ,int* );
+void tokenize(char* , HashTable* , HashTable*  ,int , int ** , int* );
 void read_stopwords(HashTable* ,char* ,int );
-void CreateStats(Stats* , HashTable* ,HashTable* , int ,int*);
+void CreateDictionary(Stats* , HashTable* ,HashTable* , int , int*);
+void UpdateArray(Stats*  , HashTable*  , int , int** )

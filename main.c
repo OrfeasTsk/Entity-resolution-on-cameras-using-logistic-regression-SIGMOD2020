@@ -174,7 +174,7 @@ void read_csv(HashTable* ht,char* datasetW,int numBuckets){
 
 
 int main(int argc, char* argv[]){
-	int i, id = 0 , numBuckets = -1 ,fIndex = 0 ,wIndex = 0;
+	int i, j, id = 0 , numBuckets = -1 ,fIndex = 0 ,wIndex = 0;
 	char* datasetX=NULL, *datasetW=NULL, *stopwordsFile=NULL, *tmpdir1, *json, *tmp;
 	char buff[200];
 	DIR* dir_ptr1,*dir_ptr2;
@@ -247,9 +247,8 @@ int main(int argc, char* argv[]){
 									
 						fileStats = (Stats*)malloc(sizeof(Stats)); //Dhmiourgia stats tou arxeiou
 						fileStats->item = item;
-						HTinit(&(fileStats->words),numBuckets);
 						fileStats->index = fIndex++;
-						CreateStats(fileStats, &words, &stopwords, numBuckets, &wIndex);
+						CreateDictionary(fileStats, &words, &stopwords, numBuckets, &wIndex);
 						HTinsert(&stats, numBuckets, item->id , (void*)fileStats);
 
 
@@ -308,7 +307,19 @@ int main(int argc, char* argv[]){
 	fclose(output);
 	
 	
+	//Array
+	int ** array = (int**)malloc( sizeof(int*) * (fIndex));
+	for( i = 0 ; i < fIndex ; i++ )
+		array[i] = (int*)malloc( sizeof(int) * (wIndex) ); 
 	
+	// Arxikopoihsh me 0		
+	for( i = 0 ; i < fIndex ; i++ )
+		for( j = 0 ; j < wIndex ; j++ )
+			array[i][j] = 0;
+			
+	for( i = 0; i < numBuckets; i++)
+		CreateArray( stats.buckets[i], words, numBuckets, array );		
+		
 
 	HTdestr(&cliques,numBuckets,&RBTdestrC);
 	HTdestr(&pairs,numBuckets,&RBTdestrP);
