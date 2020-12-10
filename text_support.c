@@ -191,3 +191,65 @@ double** Bow_To_Tfidf(int ** array, int rows, int cols){
 				tfidf[i][j] *= idf;
 	}
 }
+
+
+
+
+double sigmoid(double f){
+
+	return 1.0/(1.0 + exp(-f))
+
+}
+
+
+double LRpred(LogisticRegression* lr,double* v, int size){
+	int j;
+	int f = lr->weights[0]; //Arxikopoihsh me ton stathero oro
+	
+	for( j = 0; j < size; j++ )
+		f += lr->weights[j + 1] * v[j]; //w^T*xi
+	
+	return sigmoid(f);
+}
+
+
+
+void LRtrain(LogisticRegression* lr,double** X ,int rows,int cols ,int* y){
+
+	int i,j,t;
+	double f,error;
+
+	lr->weights = (double*)malloc(sizeof(double)*(cols + 1)); // Dianysma me varh
+	double* wtmp = (double*)malloc(sizeof(double)*(cols + 1)); //Dianysma me ta prohgoymena varh
+
+	for( i = 0; i < cols + 1;  i++){ //Arxikopoihsh dianysmatwn
+		lr->weights[i] = 0.0;
+		wtmp[i] = 0.0;
+	}
+
+	for( t = 0; t < maxIters; t++){
+		
+		for( i = 0; i < rows ; i++){
+			
+			error = LRpred(lr,x[i],cols) - y[i]; // sigmoid(w^T*xi + b) - yi
+			
+			lr->weights[0] -= lrate * error;
+			for( j = 0; j < cols ; j++)
+				lr->weights[j + 1] -= lrate * error * x[i][j]; // wj = wj - learningRate * sum((sigmoid(w^T * xi + b) - yi) * xij)
+
+		}
+
+		f = 0.0;
+		for( j = 0; j < cols + 1 ; j++){
+			f += (lr->weights[j] - wtmp[j])*(lr->weights[j] - wtmp[j]);
+			wtmp[j] = lr->weights[j];
+		}
+
+		if(sqrt(f) < epsilon)
+			break;
+
+	}
+
+	free(wtmp);
+
+}

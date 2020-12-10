@@ -1,3 +1,10 @@
+#define maxIters 50
+#define lrate 0.01
+#define epsilon 0.05
+
+typedef struct{
+	double * weights;
+} LogisicRegression;
 
 
 
