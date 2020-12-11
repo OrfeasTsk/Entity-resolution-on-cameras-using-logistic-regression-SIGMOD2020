@@ -7,10 +7,34 @@
 #include "./include/text_support.h"
 
 
+void CutOffDictionary(HashTable* words,int numBuckets,int limit){
+	int i,*num;
+	Heap heap;
+	Details* details;
+	
+	HeapInit(&heap);
+	
+	for(i = 0 ; i < numBuckets; i++)
+		HeapifyWords(&(words->buckets[i]),&heap);
+
+	HTinit(words,numBuckets);
+		
+	for(i = 0; i < limit; i++)
+		if( details = HeapRemoveFirst(&heap)){
+			num = (int*)malloc(sizeof(int));
+			*num = i;
+			HTinsert(words,numBuckets,details->name,(void*)num);
+			free(details);
+		}
+		else
+			break;
+	
+	HeapDestroy(&heap);
+		
+}
 
 
-
-void CreateDictionary(Stats* fileStats , HashTable* words ,HashTable* stopwords ,int numBuckets, int* index){
+void CreateDictionary(Stats* fileStats , HashTable* words ,HashTable* stopwords ,int numBuckets){
 
 	struct QueueNode* curr;
 	Spec* spec;
@@ -22,8 +46,8 @@ void CreateDictionary(Stats* fileStats , HashTable* words ,HashTable* stopwords 
 		textCleaning(spec->name);
 		textCleaning(spec->value);
 		//if(!strcmp(fileStats->item->id,"buy.net//4233"))
-		tokenize(spec->name, words, stopwords, numBuckets, NULL , index );
-		tokenize(spec->value, words, stopwords, numBuckets, NULL ,index );		
+		tokenize(spec->name, words, stopwords, numBuckets, NULL , NULL );
+		tokenize(spec->value, words, stopwords, numBuckets, NULL ,NULL );		
 	}
 
 }
@@ -55,27 +79,28 @@ void textCleaning(char* text){
 	for( i=0 ; i < strlen(text) ; i++)
     	if( isalpha(text[i]) && isupper(text[i]) )
     		text[i]=tolower(text[i]);
-    	else if ( ispunct(text[i]) || !isprint(text[i]) || isdigit(text[i]))
+    	else if ( ispunct(text[i]) || !isprint(text[i]) )
     		text[i]=' ';
 
 	
 }
 
-void InsertWord(HashTable* words, HashTable* stopwords ,int numBuckets, int* index, char* temp )
+void InsertWord(HashTable* words, HashTable* stopwords ,int numBuckets, char* temp )
 {
 	char *token;
 	int* num;
 	
-		if(HTfind(stopwords,numBuckets,temp,'k') == NULL){
-			if( HTfind(words, numBuckets, temp ,'k') == NULL ){
+		if(HTfind(stopwords,numBuckets,temp,'k') == NULL)
+			if( num = (int*)HTfind(words, numBuckets, temp ,'v'))
+				(*num)++;
+			else{
 				num = (int*)malloc(sizeof(int));
-				*num = (*index)++;
+				*num = 1;
 				token = (char*)malloc(strlen(temp) + 1);
 				strcpy(token,temp);
 				HTinsert(words, numBuckets, token, (void*) num);
 			}
 			
-		}
 }
 
 
@@ -114,10 +139,10 @@ void tokenize(char* text, HashTable* words, HashTable* stopwords ,int numBuckets
 						temp[j-start] = text[j];
 					temp[count] = '\0';
 					
-					if( stopwords == NULL && array != NULL)
+					if( stopwords == NULL && array != NULL && index != NULL)
 						UpdateArrayValue( words , numBuckets,  temp,  index,  array );
-					else if( stopwords != NULL && array == NULL )
-						InsertWord( words, stopwords , numBuckets, index, temp );
+					else if( stopwords != NULL && index == NULL && array == NULL )
+						InsertWord( words, stopwords , numBuckets, temp );
 
 				}
 				count = 0;
@@ -159,7 +184,7 @@ void read_stopwords(HashTable* ht, char* stopwordsFile, int numBuckets){
 
 double** Bow_To_Tfidf(int ** array, int rows, int cols){	
 	
-	int i,j,sum;							
+	int i,j,counter;							
 	double idf;
 	
 	//Array

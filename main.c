@@ -8,6 +8,7 @@
 
 
 
+
 Item* parse(char* json){
 	char* tmp, c, prev = ' ';
 	int i, j, start = 0, flag = 0, count = 0, isValue = 0 ,isPrim = 0;
@@ -248,7 +249,7 @@ int main(int argc, char* argv[]){
 						fileStats = (Stats*)malloc(sizeof(Stats)); //Dhmiourgia stats tou arxeiou
 						fileStats->item = item;
 						fileStats->index = fIndex++;
-						CreateDictionary(fileStats, &words, &stopwords, numBuckets, &wIndex);
+						CreateDictionary(fileStats, &words, &stopwords, numBuckets);
 						HTinsert(&stats, numBuckets, item->id , (void*)fileStats);
 
 
@@ -307,14 +308,17 @@ int main(int argc, char* argv[]){
 	fclose(output);
 	
 	
+	CutOffDictionary(&words,numBuckets ,1000);
+	
+	
 	//Array
 	int ** array = (int**)malloc( sizeof(int*) * (fIndex));
 	for( i = 0 ; i < fIndex ; i++ )
-		array[i] = (int*)malloc( sizeof(int) * (wIndex) ); 
+		array[i] = (int*)malloc( sizeof(int) * 1000 ); 
 	
 	// Arxikopoihsh me 0		
 	for( i = 0 ; i < fIndex ; i++ )
-		for( j = 0 ; j < wIndex ; j++ )
+		for( j = 0 ; j < 1000 ; j++ )
 			array[i][j] = 0;
 			
 	for( i = 0; i < numBuckets; i++)

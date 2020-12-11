@@ -66,26 +66,6 @@ typedef struct{
 /*##################                  End of hash tables                               ##########################*/
 
 
-/*##################                  Start OF HEAP                          ##########################*/
-
-struct heapNode{ //Komvos heap
-    struct pair* data; 
-    struct heapNode* left; 
-	struct heapNode* right; 
-}; 
-
-
-typedef struct heapTree{  //Domh swrou
-	struct heapNode* head;
-	int nodes;
-	int height;
-	
-	
-}Heap;
-
-
-/*##################                  End OF HEAP                             ##########################*/
-
 
 typedef struct{
 	char* id;
@@ -104,6 +84,38 @@ typedef struct{
 	Item* item;
 	int index;
 }Stats;
+
+typedef struct{
+	char* name;
+	int count;
+}Details;
+
+/*##################                  Start OF HEAP                          ##########################*/
+
+struct heapNode{ //Komvos heap
+    Details* data; 
+    struct heapNode* left; 
+	struct heapNode* right; 
+}; 
+
+
+typedef struct heapTree{  //Domh swrou
+	struct heapNode* head;
+	int nodes;
+	int height;
+}Heap;
+
+
+void HeapInit(Heap*);
+void HeapInsert(Heap* ,Details*);
+Details* HeapRemoveFirst(Heap*);
+void HeapDestroy(Heap*);
+void HeapifyWords(Link* ,Heap*);
+
+
+
+/*##################                  End OF HEAP                             ##########################*/
+
 
 
 /*##################                  Start of red-black trees                           ##########################*/

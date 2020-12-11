@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "./include/structs.h"
 #include "./include/text_support.h"
 
@@ -34,7 +35,7 @@ void HeapInit(Heap* h){ //Arxikopoihsh tou heap
 
 
 
-struct heapNode* newNode(struct pair* data){  //Dhmiourgia neou komvou
+struct heapNode* newNode(Details* data){  //Dhmiourgia neou komvou
     struct heapNode* temp =(struct heapNode*)malloc(sizeof(struct heapNode)); 
     temp->data=data; 
     temp->left=NULL;
@@ -43,7 +44,7 @@ struct heapNode* newNode(struct pair* data){  //Dhmiourgia neou komvou
 } 
 
 int swap(struct heapNode* h1,struct heapNode* h2 ){ //Elegxei kai antallazei ta dedomena metaksy 2 heap komvwn
-	struct pair* temp;
+	Details* temp;
 	
 	if(h1->data->count < h2->data->count){
 		temp=h1->data;
@@ -55,7 +56,7 @@ int swap(struct heapNode* h1,struct heapNode* h2 ){ //Elegxei kai antallazei ta 
 }
 
 
-int HeapRecInsert(struct heapNode* h , int level,struct pair* data){ //Anadromikh eisagwgh me anazhthsh kata epipedo
+int HeapRecInsert(struct heapNode* h , int level,Details* data){ //Anadromikh eisagwgh me anazhthsh kata epipedo
 	
 	if(level == 1) { //Teleutaio epipedo
         if(h->left == NULL ){ //An den yparxei aristero paidi
@@ -86,7 +87,7 @@ int HeapRecInsert(struct heapNode* h , int level,struct pair* data){ //Anadromik
 }
 
 
-void HeapInsert(Heap* h,struct pair* data){ //Basikh methodos eisagwghs
+void HeapInsert(Heap* h,Details* data){ //Basikh methodos eisagwghs
 	int sum,i;
 	
 	if(h->head == NULL){ //An den yparxei kapoios komvos sto dentro
@@ -212,51 +213,37 @@ void Heapify(struct heapNode* h){ //Synarthsh gia th dhmiourgia swrou
 }
 
 
-void FindTopK(Heap* h,int k,int total){//Vriskei ta k megalytera stoixeia tou swrou
-	int i,j,sum;
-	struct pair* data;
+Details* HeapRemoveFirst(Heap* h){//Vriskei ta k megalytera stoixeia tou swrou
+	int j,sum;
+	Details* data;
 	struct heapNode* temp=NULL;
-	int tempnum=-1;
 	
-	for(i = 0 ; i <= k ; i++){	
-		if(h->nodes == 0){
-			if(i!=k)
-				printf("Top %d found\n",i);
-			free(h->head);
-			h->head=NULL;
-			return;
-		}
-		data=h->head->data;//Pairnoume to prwto stoixeio
-		if(data->count==tempnum)
-			i--;
-		if(i==k)
-			return;
-		printf("%s: ",data->name);
-		if(total != 0)
-			printf("%f%%\n",(double)data->count/total*100);
-		else
-			printf("NaN\n");
-		tempnum=data->count;
-		free(data->name);
-		free(data);
-		findLastAndReplace(h->head,&temp,h->head,h->height-1);
-		Heapify(h->head);
-		h->nodes--;
-		sum=0;
-		for(j = 0 ; j < h->height-1 ; j++)
-			sum+=pow(2,j);
-		if(sum == h->nodes)//Diorthwsh tou ypsous
-			h->height--;
+	if(h == NULL)
+		return NULL;
+	
+	if(h->nodes == 0){
+		free(h->head);
+		h->head = NULL;
+		return NULL;
 	}
-	
-	
+	data=h->head->data;//Pairnoume to prwto stoixeio
+	findLastAndReplace(h->head,&temp,h->head,h->height-1);
+	Heapify(h->head);
+	h->nodes--;
+	sum=0;
+	for(j = 0 ; j < h->height-1 ; j++)
+		sum+=pow(2,j);
+	if(sum == h->nodes)//Diorthwsh tou ypsous
+		h->height--;
+
+	return data;
 	
 }
 
 
 void HeapRecDestroy(struct heapNode* h){//Anadromikh synarthsh gia katastrofh tou swrou
 	
-	if (h==NULL)
+	if (h == NULL)
 		return;
     HeapRecDestroy(h->left);
     HeapRecDestroy(h->right);
@@ -271,6 +258,37 @@ void HeapDestroy(Heap* h){
 	HeapRecDestroy(h->head);
 	h->head=NULL;
 }
+
+
+
+void HeapifyWords(Link* head,Heap* heap)
+{
+	Details* details;
+	int* num;
+	
+    if (*head == z){
+		*head = NULL;
+		return;
+	}
+		
+    HeapifyWords(&((*head)->l),heap);
+    HeapifyWords(&((*head)->r),heap);
+    
+
+    if((*head)->rbitem->obj != NULL){
+		num = (int*)((*head)->rbitem->obj);
+		details = (Details*)malloc(sizeof(Details));
+		details->name = (*head)->rbitem->id;
+		details->count = *num;
+		HeapInsert(heap,details);
+		free(num);
+	}
+    
+    free((*head)->rbitem);
+	free(*head);
+	*head = NULL;
+}
+
 
 
 

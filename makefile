@@ -4,7 +4,8 @@ inc = -I ./include/
 all: project queue_test stack_test rbt_test
 
 project : main.o structs.o text_support.o 
-	gcc main.o structs.o text_support.o -o project
+	gcc main.o structs.o text_support.o -o project -lm
+
 	
 queue_test : queue_test.o structs.o
 	gcc queue_test.o structs.o -o queue_test
@@ -30,10 +31,10 @@ main.o : main.c ./include/structs.h ./include/text_support.h
 	gcc -c main.c $(inc)
 
 structs.o : structs.c ./include/structs.h ./include/text_support.h
-	gcc -c structs.c $(inc)
-
+	gcc -c structs.c $(inc) 
+	
 text_support.o : text_support.c ./include/structs.h ./include/text_support.h
-	gcc -c text_support.c $(inc)
+	gcc -c text_support.c $(inc) 
 
 
 
