@@ -197,7 +197,7 @@ double** Bow_To_Tfidf(int ** array, int rows, int cols){
 
 double sigmoid(double f){
 
-	return 1.0/(1.0 + exp(-f))
+	return 1.0/(1.0 + exp(-f));
 
 }
 
@@ -231,11 +231,11 @@ void LRtrain(LogisticRegression* lr,double** X ,int rows,int cols ,int* y){
 		
 		for( i = 0; i < rows ; i++){
 			
-			error = LRpred(lr,x[i],cols) - y[i]; // sigmoid(w^T*xi + b) - yi
+			error = LRpred(lr,X[i],cols) - y[i]; // sigmoid(w^T*xi + b) - yi
 			
 			lr->weights[0] -= lrate * error;
 			for( j = 0; j < cols ; j++)
-				lr->weights[j + 1] -= lrate * error * x[i][j]; // wj = wj - learningRate * sum((sigmoid(w^T * xi + b) - yi) * xij)
+				lr->weights[j + 1] -= lrate * error * X[i][j]; // wj = wj - learningRate * sum((sigmoid(w^T * xi + b) - yi) * xij)
 
 		}
 

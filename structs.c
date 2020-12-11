@@ -5,6 +5,277 @@
 #include "./include/text_support.h"
 
 
+/*##################                  Start of Heap                                     ##########################*/
+
+
+void heaptreeprint(struct heapNode* p, int indent,int type,struct heapNode* head)  //Pretty print tree 
+{ int i;
+if (p != NULL) { // If tree is not empty
+heaptreeprint(p->right, indent+4,1,head);
+// Print right subtree 4 places right of root node 
+for (i=0 ; i < indent ; i++)
+printf(" "); // Take care for indentation 
+if(type==1 && p!=head)
+printf("/");
+if (type==2)
+printf("\\");
+printf("%d\n", p->data->count); // Print root node 
+heaptreeprint(p->left, indent+4,2,head);
+//Print left subtree 4 places right of root node 
+}
+}
+
+
+void HeapInit(Heap* h){ //Arxikopoihsh tou heap
+	h->head=NULL;
+	h->nodes=0;
+	h->height=0;
+}
+
+
+
+struct heapNode* newNode(struct pair* data){  //Dhmiourgia neou komvou
+    struct heapNode* temp =(struct heapNode*)malloc(sizeof(struct heapNode)); 
+    temp->data=data; 
+    temp->left=NULL;
+	temp->right=NULL; 
+    return temp; 
+} 
+
+int swap(struct heapNode* h1,struct heapNode* h2 ){ //Elegxei kai antallazei ta dedomena metaksy 2 heap komvwn
+	struct pair* temp;
+	
+	if(h1->data->count < h2->data->count){
+		temp=h1->data;
+		h1->data=h2->data;
+		h2->data=temp;
+		return 1;
+	}
+	return 0;
+}
+
+
+int HeapRecInsert(struct heapNode* h , int level,struct pair* data){ //Anadromikh eisagwgh me anazhthsh kata epipedo
+	
+	if(level == 1) { //Teleutaio epipedo
+        if(h->left == NULL ){ //An den yparxei aristero paidi
+        	h->left=newNode(data);
+        	swap(h,h->left);//Elegxos kai antallagh (an xreiazetai) me to aristero paidi
+        	return 1;
+		}
+		if(h->right == NULL){ //An den yparxei deksi paidi
+			h->right=newNode(data);
+			swap(h,h->right);//Elegxos kai antallagh (an xreiazetai) me to deksi paidi
+			return 1;
+		}
+	
+	}
+    else if(level > 1) //Anwtera epipeda
+    { 
+        if(HeapRecInsert(h->left, level-1,data)){ //An exei bei neos komvos apo aristera
+        	swap(h,h->left);//Elegxos kai antallagh (an xreiazetai) me to aristero paidi
+			return 1;		
+		}
+        if(HeapRecInsert(h->right, level-1,data)){//AN exei bei neos komvos apo deksia
+			swap(h,h->right);//Elegxos kai antallagh (an xreiazetai) me to deksi paidi
+        	return 1;
+    	}
+    } 
+		
+		return 0;
+}
+
+
+void HeapInsert(Heap* h,struct pair* data){ //Basikh methodos eisagwghs
+	int sum,i;
+	
+	if(h->head == NULL){ //An den yparxei kapoios komvos sto dentro
+		h->head=newNode(data);
+		h->nodes=1;
+		h->height=1;
+	}
+	else{
+		sum=0;
+		for(i = 0 ; i < h->height ; i++)
+			sum+=pow(2,i);//Megistos arithmos komvwn mexri to epipedo i sto dentro
+		if(sum == h->nodes)//Elegxos gia to ypsos
+			h->height++;
+		
+		HeapRecInsert( h->head,h->height-1,data);
+		
+		h->nodes++;
+	
+	}
+}
+
+int findLastAndReplace(struct heapNode* h,struct heapNode** temp,struct heapNode* head,int level){ //Vriskei to teleutaio stoixeio kai to bazei sthn arxh(epistrefei 1 gia na "kladeusei")
+	
+	
+	if(level == 1) {//Teleutaio epipedo
+    	if(h==head){//Periptwsh pou sto teleutaio epipedo vrisketai h riza
+		    if(head->left == NULL){//An den yparxei paidi(den ginetai elegxos gia to deski paidi giati to dentro einai plhres)
+				free(head);
+				head=NULL;
+			}
+			else if(head->right == NULL){ //An yparxei aristero paidi kai oxi deksi
+				head->data=head->left->data; //Ginetai antallagh twn stoixeiwn me auto kai ths rizas
+				free(head->left);
+				head->left=NULL;
+			}
+			else if(head->right != NULL){//An yparxei deksi paidi
+				head->data=head->right->data;//Ginetai antallagh twn stoixeiwn me auto kai ths rizas
+				free(head->right);
+				head->right=NULL;
+			}
+		   
+		}
+		else{
+	    if(h->left == NULL ) //Elegxos gia aristero paidi prwta giati to dentro einai plhres
+        	return 1 ;
+        else
+        	*temp=h; //Krataei ton teleutaio komvo me toulaxiston ena paidi
+		if(h->right == NULL)
+			return 1;
+		}
+	}
+    else if(level > 1) //Anwtera epipeda
+    { 
+        if(findLastAndReplace(h->left,temp,head,level-1)){
+			if(h == head){ //An exei stamathsei h anadromh se katwtero epipedo apo thn euresh enos komvou me ena h kanena paidi
+				if((*temp)->right==NULL){//An yparxei aristero paidi kai oxi deksi
+				head->data=(*temp)->left->data;//Ginetai antallagh twn stoixeiwn tou aristerou paidiou tou komvou me thn riza 
+				free((*temp)->left);
+				(*temp)->left=NULL;
+				}
+				else{//An yparxei deksi paidi
+					head->data=(*temp)->right->data;//Ginetai antallagh twn stoixeiwn tou deksiou paidiou tou komvou me thn riza 
+					free((*temp)->right);
+					(*temp)->right=NULL;
+				}
+			}
+			return 1;
+		}
+		
+        if(findLastAndReplace(h->right,temp,head,level-1)){ //Omoiws 
+			if(h == head){
+				if((*temp)->right==NULL){
+				head->data=(*temp)->left->data;
+				free((*temp)->left);
+				(*temp)->left=NULL;
+				}
+				else{
+					head->data=(*temp)->right->data;
+					free((*temp)->right);
+					(*temp)->right=NULL;
+				}
+			}
+			return 1;
+		}
+		else{ //Oriakh periptwsh(otan to teleutaio epipedo einai plhres den exoume vrei NULL paidi opote exei epistrafei 0 sthn riza)
+			if(h==head){
+					head->data=(*temp)->right->data;
+					free((*temp)->right);
+					(*temp)->right=NULL;
+			}
+		}
+	}
+		return 0;
+	
+}
+
+
+
+
+void Heapify(struct heapNode* h){ //Synarthsh gia th dhmiourgia swrou
+	
+	if(h == NULL)
+		return; 
+	
+	if(h->left == NULL) //An den exei paidia
+		return;
+	
+	if(h->right == NULL){ //An exei aristero paidi kai oxi deksi
+		if(swap(h,h->left))//An egine antallagh twn stoixeiwn me to aristero paidi
+			Heapify(h->left);
+	}
+	else{//An exei aristero kai deksi paidi
+		if(h->left->data->count > h->right->data->count){//Sygkrish twn paidiwn 
+			if(swap(h,h->left))//An egine antallagh twn stoixeiwn me to aristero paidi
+				Heapify(h->left);
+			
+		}
+		else{
+			if(swap(h,h->right))//An egine antallagh twn stoixeiwn me to deksi paidi
+				Heapify(h->right);
+		}
+	}
+}
+
+
+void FindTopK(Heap* h,int k,int total){//Vriskei ta k megalytera stoixeia tou swrou
+	int i,j,sum;
+	struct pair* data;
+	struct heapNode* temp=NULL;
+	int tempnum=-1;
+	
+	for(i = 0 ; i <= k ; i++){	
+		if(h->nodes == 0){
+			if(i!=k)
+				printf("Top %d found\n",i);
+			free(h->head);
+			h->head=NULL;
+			return;
+		}
+		data=h->head->data;//Pairnoume to prwto stoixeio
+		if(data->count==tempnum)
+			i--;
+		if(i==k)
+			return;
+		printf("%s: ",data->name);
+		if(total != 0)
+			printf("%f%%\n",(double)data->count/total*100);
+		else
+			printf("NaN\n");
+		tempnum=data->count;
+		free(data->name);
+		free(data);
+		findLastAndReplace(h->head,&temp,h->head,h->height-1);
+		Heapify(h->head);
+		h->nodes--;
+		sum=0;
+		for(j = 0 ; j < h->height-1 ; j++)
+			sum+=pow(2,j);
+		if(sum == h->nodes)//Diorthwsh tou ypsous
+			h->height--;
+	}
+	
+	
+	
+}
+
+
+void HeapRecDestroy(struct heapNode* h){//Anadromikh synarthsh gia katastrofh tou swrou
+	
+	if (h==NULL)
+		return;
+    HeapRecDestroy(h->left);
+    HeapRecDestroy(h->right);
+    free(h->data->name);
+    free(h->data);
+    free(h);
+	
+}
+
+void HeapDestroy(Heap* h){
+	
+	HeapRecDestroy(h->head);
+	h->head=NULL;
+}
+
+
+
+/*##################                  END OF HEAP                                      ##########################*/
+
 
 /*##################                  Start Generic Queue                                        ##########################*/
 

@@ -63,9 +63,28 @@ int StackEmpty(Stack *);
 typedef struct{
 	Link * buckets;
 } HashTable;
-
-
 /*##################                  End of hash tables                               ##########################*/
+
+
+/*##################                  Start OF HEAP                          ##########################*/
+
+struct heapNode{ //Komvos heap
+    struct pair* data; 
+    struct heapNode* left; 
+	struct heapNode* right; 
+}; 
+
+
+typedef struct heapTree{  //Domh swrou
+	struct heapNode* head;
+	int nodes;
+	int height;
+	
+	
+}Heap;
+
+
+/*##################                  End OF HEAP                             ##########################*/
 
 
 typedef struct{
