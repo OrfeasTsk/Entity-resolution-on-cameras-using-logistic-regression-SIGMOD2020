@@ -179,7 +179,7 @@ void read_stopwords(HashTable* ht, char* stopwordsFile, int numBuckets){
 		
 		token=(char*)malloc(strlen(line) + 1);
 		strcpy(token,line);
-		token[strlen(line)- 1] = '\0';
+		token[strlen(line) - 2 ] = '\0';
 
 		HTinsert( ht , numBuckets , token, (void*) token);
 

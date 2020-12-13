@@ -69,7 +69,7 @@ void test_rbtinsert(void){
 		
 		TEST_ASSERT( newpair != NULL ); //Yparxei to pair sto dentro?
 		TEST_ASSERT( pair != newpair); //Vrethike allo pair? (Afou den epitrepontai diplotypa)
-		
+		PairDestroy(pair);
 	}
 	
 	 
