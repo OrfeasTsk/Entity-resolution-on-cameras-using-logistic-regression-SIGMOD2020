@@ -53,7 +53,7 @@ void CreateDictionary(Stats* fileStats , HashTable* words ,HashTable* stopwords 
 }
 
 
-void UpdateArray(Stats* fileStats , HashTable* words , int numBuckets, int**  array){
+void UpdateArray(Stats* fileStats , HashTable* words , int numBuckets, double**  array){
 
 	struct QueueNode* curr;
 	Spec* spec;
@@ -114,7 +114,7 @@ void InsertWord(HashTable* words, HashTable* stopwords ,int numBuckets, char* te
 }
 
 
-void UpdateArrayValue(HashTable* words ,int numBuckets, char* temp, int* index, int ** array )
+void UpdateArrayValue(HashTable* words ,int numBuckets, char* temp, int* index, double** array )
 {
 	char *token;
 	int* num;
@@ -128,7 +128,7 @@ void UpdateArrayValue(HashTable* words ,int numBuckets, char* temp, int* index, 
 
 
 
-void tokenize(char* text, HashTable* words, HashTable* stopwords ,int numBuckets, int ** array, int* index){
+void tokenize(char* text, HashTable* words, HashTable* stopwords ,int numBuckets, double** array, int* index){
 
 	int i = 0,start,count = 0,j;
 	char temp[100];
@@ -192,7 +192,7 @@ void read_stopwords(HashTable* ht, char* stopwordsFile, int numBuckets){
 
 
 
-double** Bow_To_Tfidf(int ** array, int rows, int cols){	
+double** Bow_To_Tfidf(double** array, int rows, int cols){	
 	
 	int i,j,counter;							
 	double idf;
@@ -209,7 +209,7 @@ double** Bow_To_Tfidf(int ** array, int rows, int cols){
 				counter += array[i][j];	
 		for(j = 0 ; j < cols ; j++)
 			if( array[i][j] && counter)
-				tfidf[i][j] = (double)array[i][j] / counter;
+				tfidf[i][j] = array[i][j] / counter;
 			else
 				tfidf[i][j] = 0.0;
 	}
@@ -225,6 +225,8 @@ double** Bow_To_Tfidf(int ** array, int rows, int cols){
 			if( array[i][j] )
 				tfidf[i][j] *= idf;
 	}
+	
+	return tfidf;
 }
 
 

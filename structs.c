@@ -981,7 +981,7 @@ void printUnrelated(Link h,FILE* output,char* buff, int numBuckets){
 
 
 
-void CreateArray( Link h, HashTable* ht, int numBuckets, int**  array ){
+void CreateArray( Link h, HashTable* ht, int numBuckets, double**  array ){
 	
 	RBItem* t = h->rbitem;	
 	int i;	
