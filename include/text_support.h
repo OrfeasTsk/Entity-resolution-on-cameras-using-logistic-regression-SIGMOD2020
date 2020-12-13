@@ -17,4 +17,5 @@ void CreateDictionary(Stats* , HashTable* ,HashTable* , int);
 void UpdateArray(Stats*  , HashTable*  , int , double** );
 double** Bow_To_Tfidf(double** , int , int );
 void CutOffDictionary(HashTable*,int , int);
+void InsertWord(HashTable* , HashTable*  ,int , char* );
 
