@@ -148,15 +148,15 @@ int main(int argc, char* argv[]){
 	CutOffDictionary(&words,numBuckets ,1000);
 	
 	
-	//Array
-	int ** array = (int**)malloc( sizeof(int*) * (fIndex));
+	//Bow Array
+	double** array = (double**)malloc( sizeof(double*) * (fIndex));
 	for( i = 0 ; i < fIndex ; i++ )
-		array[i] = (int*)malloc( sizeof(int) * 1000 ); 
+		array[i] = (double*)malloc( sizeof(double) * 1000 ); 
 	
 	// Arxikopoihsh me 0		
 	for( i = 0 ; i < fIndex ; i++ )
 		for( j = 0 ; j < 1000 ; j++ )
-			array[i][j] = 0;
+			array[i][j] = 0.0;
 			
 	for( i = 0; i < numBuckets; i++)
 		CreateArray( stats.buckets[i], &words, numBuckets, array );		
