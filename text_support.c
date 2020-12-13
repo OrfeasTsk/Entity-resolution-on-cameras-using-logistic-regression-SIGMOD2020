@@ -75,15 +75,25 @@ void UpdateArray(Stats* fileStats , HashTable* words , int numBuckets, int**  ar
 void textCleaning(char* text){
 
 	int i;
+	int backslash = 0;
 
-	for( i=0 ; i < strlen(text) ; i++)
-    	if( isalpha(text[i]) && isupper(text[i]) )
-    		text[i]=tolower(text[i]);
+	for( i = 0  ; i < strlen(text) ; i++)
+		if( isalnum(text[i]) && backslash)
+			text[i] = ' ';
+    	else if( isalpha(text[i]) && isupper(text[i]) )
+    		text[i] = tolower(text[i]);
+    	else if(text[i] == '\\'){
+    		backslash = 1;
+    		text[i] = ' ';
+    	}
+    	else if( isspace(text[i]) && backslash)
+    		backslash = 0;
     	else if ( ispunct(text[i]) || !isprint(text[i]) )
     		text[i]=' ';
 
 	
 }
+
 
 void InsertWord(HashTable* words, HashTable* stopwords ,int numBuckets, char* temp )
 {
