@@ -43,19 +43,19 @@ void test_rbtinsert(void){
 		QueueInit(&(pair->item->specs));
 		strcpy(pair->item->id,buff);
 		
-		treeptr = RBTinsertR(treeptr, pair->item->id , (void**)&pair); //Eisagwgh tou pair
+		treeptr = RBTinsertR(treeptr, pair->item->id , (void*)pair); //Eisagwgh tou pair
  		
 		newpair = (Pair*)RBTfind(treeptr, buff , 'v' );
 		
 		TEST_ASSERT( newpair != NULL ); //Yparxei to pair sto dentro?
-		TEST_ASSERT( pair  == newpair); //Vrethike to idio pair?
+		TEST_ASSERT( pair == newpair); //Vrethike to idio pair?
 		
 	}
 	
 	for(i = 0; i < 100;  i++){
 		
 		newpair = NULL;
-		sprintf(buff,"sameitem%d",i);
+		sprintf(buff,"item%d",i);
 		
 		pair = (Pair*)malloc(sizeof(Pair)); //Dhmiourgia pair
 		pair->item = (Item*)malloc(sizeof(Item)); // Dhmiourgia item
@@ -63,12 +63,12 @@ void test_rbtinsert(void){
 		QueueInit(&(pair->item->specs));
 		strcpy(pair->item->id,buff);
 		
-		treeptr = RBTinsertR(treeptr, pair->item->id , (void**)&pair); //Eisagwgh tou pair
+		treeptr = RBTinsertR(treeptr, pair->item->id , (void*)pair); //Eisagwgh tou pair
  		
 		newpair = (Pair*)RBTfind(treeptr, buff , 'v' );
 		
 		TEST_ASSERT( newpair != NULL ); //Yparxei to pair sto dentro?
-		TEST_ASSERT( pair  != newpair); //Vrethike allo pair? (Afou den epitrepontai diplotypa)
+		TEST_ASSERT( pair != newpair); //Vrethike allo pair? (Afou den epitrepontai diplotypa)
 		
 	}
 	
