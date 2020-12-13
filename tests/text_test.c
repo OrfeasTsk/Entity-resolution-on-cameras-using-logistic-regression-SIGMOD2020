@@ -6,15 +6,12 @@
 void check_parse(void){
 	
 	Item* item;
-	
-    char *json=NULL;
-
-	json = fopen("../2013_camera_specs/buy.net/4233.json", "r");
-    
-	item = parse(json);
+	char* tmp = "2013_camera_specs/buy.net/4233.json";
+	item = parse(tmp);
 		
 	TEST_ASSERT(item!=NULL);
 	TEST_ASSERT(item->id!="buy.net//4233");
+	TEST_ASSERT( item->specs.head != NULL );
 	TEST_ASSERT( item->specs.count == 22 );
 	
 	ItemDestroy(item);
@@ -26,28 +23,49 @@ void check_parse(void){
 void check_CutOffDictionary(void){
 	
 	HashTable words;
-	int numBuckets=5;
-	char* temp1="First";
-	char* temp2="Word";
-	char* temp3="Is";
-	char* temp4="This";
+	HashTable stopwords;
+
+	int numBuckets=5, limit=2;
+	
+	char* str1="First";
+	char* str2="Word";
+	char* str3="Is";
+	char* str4="This";
 	
 	RBinit();
 	HTinit(&words, numBuckets);
+	HTinit(&stopwords, numBuckets);
 	
-	InsertWord(&words, NULL, numBuckets,  temp1);
-	InsertWord(&words, NULL, numBuckets,  temp1);
-	InsertWord(&words, NULL, numBuckets,  temp1);
-	InsertWord(&words, NULL, numBuckets,  temp2);
-	InsertWord(&words, NULL, numBuckets,  temp2);
-	InsertWord(&words, NULL, numBuckets,  temp3);
-	InsertWord(&words, NULL, numBuckets,  temp4);
+
+	char* curr1 = malloc(strlen(str1)+1);
+	char* curr2 = malloc(strlen(str2)+1);
+	char* curr3 = malloc(strlen(str3)+1);
+	char* curr4 = malloc(strlen(str4)+1);
 	
-	CutOffDictionary( &words, numBuckets, 2);
-	TEST_ASSERT(HTfind(&words,numBuckets,temp1,'k') != NULL);
-	TEST_ASSERT(HTfind(&words,numBuckets,temp2,'k') != NULL);
-	TEST_ASSERT(HTfind(&words,numBuckets,temp3,'k') == NULL);
-	TEST_ASSERT(HTfind(&words,numBuckets,temp4,'k') == NULL);
+	strcpy(curr1,str1);
+	strcpy(curr2,str2);
+	strcpy(curr3,str3);
+	strcpy(curr4,str4);
+	
+	InsertWord(&words, &stopwords, numBuckets,  curr1);
+	InsertWord(&words, &stopwords, numBuckets,  curr1);
+	InsertWord(&words, &stopwords, numBuckets,  curr1);
+	InsertWord(&words, &stopwords, numBuckets,  curr2);
+	InsertWord(&words, &stopwords, numBuckets,  curr2);
+	InsertWord(&words, &stopwords, numBuckets,  curr3);
+	InsertWord(&words, &stopwords, numBuckets,  curr4);
+	
+	CutOffDictionary( &words, numBuckets, limit);
+	TEST_ASSERT(HTfind(&words,numBuckets,curr1,'k') != NULL);
+	TEST_ASSERT(HTfind(&words,numBuckets,curr2,'k') != NULL);
+	TEST_ASSERT(HTfind(&words,numBuckets,curr3,'k') == NULL);
+	TEST_ASSERT(HTfind(&words,numBuckets,curr4,'k') == NULL);
+	
+	free(curr1);
+	free(curr2);
+	free(curr3);
+	free(curr4);
+
 }
 
 
@@ -84,6 +102,8 @@ void check_textcleaning(void){
 
 void check_InsertWord(void){
 	HashTable words;
+	HashTable stopwords;
+	
 	int numBuckets=5;
 	char* temp1="First";
 	char* temp2="Word";
@@ -93,11 +113,12 @@ void check_InsertWord(void){
 	// Trees initialise
 	RBinit();
 	HTinit(&words, numBuckets);
+	HTinit(&stopwords, numBuckets);
 	
-	InsertWord(&words, NULL, numBuckets,  temp1);
-	InsertWord(&words, NULL, numBuckets,  temp2);
-	InsertWord(&words, NULL, numBuckets,  temp3);
-	InsertWord(&words, NULL, numBuckets,  temp4);
+	InsertWord(&words, &stopwords, numBuckets,  temp1);
+	InsertWord(&words, &stopwords, numBuckets,  temp2);
+	InsertWord(&words, &stopwords, numBuckets,  temp3);
+	InsertWord(&words, &stopwords, numBuckets,  temp4);
 	TEST_ASSERT(HTfind(&words,numBuckets,temp1,'k') != NULL);
 	TEST_ASSERT(HTfind(&words,numBuckets,temp2,'k') != NULL);
 	TEST_ASSERT(HTfind(&words,numBuckets,temp3,'k') != NULL);
@@ -109,22 +130,40 @@ void check_InsertWord(void){
 void check_read_stopwords(void){
 	HashTable stopwords;
 	int numBuckets=5;
-	char *stopwordsFile=NULL;
 	
-	char* stopword1="believe";
+	char* stopword1="able";
 	char* stopword2="mon";
 	char* stopword3="contains";
+	
+	
+		
+	char* curr1 = malloc(strlen(stopword1)+1);
+	char* curr2 = malloc(strlen(stopword2)+1);
+	char* curr3 = malloc(strlen(stopword3)+1);
+
+	
+	strcpy(curr1,stopword1);
+	strcpy(curr2,stopword2);
+	strcpy(curr3,stopword3);
+
+	
 	// Trees initialise
 	RBinit();
 	HTinit(&stopwords, numBuckets);
 	
-	stopwordsFile = fopen("../include/stopwords.txt", "r");
+	char* tmp="include/stopwords.txt";
 	
-	read_stopwords( &stopwords , stopwordsFile, numBuckets );
+	
+	read_stopwords( &stopwords , tmp , numBuckets );
 	// these are some values that exists in our stopwords file
-	TEST_ASSERT(HTfind(&stopwords,numBuckets,stopword1,'k') != NULL);
-	TEST_ASSERT(HTfind(&stopwords,numBuckets,stopword2,'k') != NULL);
-	TEST_ASSERT(HTfind(&stopwords,numBuckets,stopword3,'k') != NULL);
+	TEST_ASSERT(HTfind(&stopwords,numBuckets,curr1,'k') != NULL);
+//	TEST_ASSERT(HTfind(&stopwords,numBuckets,curr2,'k') != NULL);
+//	TEST_ASSERT(HTfind(&stopwords,numBuckets,curr3,'k') != NULL);
+
+	
+	free(curr1);
+	free(curr2);
+	free(curr3);
 	
 }
 
