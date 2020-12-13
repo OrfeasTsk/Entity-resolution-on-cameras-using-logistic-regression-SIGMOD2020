@@ -22,6 +22,7 @@ void check_parse(void){
 
 
 
+
 void check_CutOffDictionary(void){
 	HashTable words;
 	int numBuckets=5;
@@ -79,3 +80,61 @@ void check_textcleaning(void){
 }
 
 
+void check_InsertWord(void){
+	HashTable words;
+	int numBuckets=5;
+	char* temp1="First";
+	char* temp2="Word";
+	char* temp3="Is";
+	char* temp4="This";
+	char* temp5="Not";
+	// Trees initialise
+	RBinit();
+	HTinit(&words, numBuckets);
+	
+	InsertWord(words, NULL, numBuckets,  temp1);
+	InsertWord(words, NULL, numBuckets,  temp2);
+	InsertWord(words, NULL, numBuckets,  temp3);
+	InsertWord(words, NULL, numBuckets,  temp4);
+	TEST_ASSERT(HTfind(words,numBuckets,temp1,'k') != NULL);
+	TEST_ASSERT(HTfind(words,numBuckets,temp2,'k') != NULL);
+	TEST_ASSERT(HTfind(words,numBuckets,temp3,'k') != NULL);
+	TEST_ASSERT(HTfind(words,numBuckets,temp4,'k') != NULL);
+	TEST_ASSERT(HTfind(words,numBuckets,temp5,'k') == NULL);
+	
+}
+
+void check_read_stopwords(void){
+	HashTable stopwords;
+	int numBuckets=5;
+	char *stopwordsFile=NULL;
+	
+	char* stopword1="believe";
+	char* stopword2="mon";
+	char* stopword3="contains";
+	// Trees initialise
+	RBinit();
+	HTinit(&stopwords, numBuckets);
+	
+	stopwordsFile= 	fopen("./inlude/stopwords.txt", r);
+	
+	read_stopwords( &stopwords , stopwordsFile, numBuckets );
+	// these are some values that exists in our stopwords file
+	TEST_ASSERT(HTfind(words,numBuckets,stopword1,'k') != NULL);
+	TEST_ASSERT(HTfind(words,numBuckets,stopword2,'k') != NULL);
+	TEST_ASSERT(HTfind(words,numBuckets,stopword3,'k') != NULL);
+	
+}
+
+
+
+
+//Pinakas me tests
+TEST_LIST = {
+	{ "parse_test", check_parse },
+	{ "cutoffdictionary_test", check_CutOffDictionary },
+	{ "textcleaning_test", check_textcleaning },
+	{ "InsertWord_test", check_InsertWord },
+	{ "read_stopwords_test", check_read_stopwords },
+	{ NULL, NULL } // NULL sto telos
+};
