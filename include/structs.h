@@ -176,5 +176,5 @@ void CliqueConcat(Pair*, Pair*, int,int );
 void ChangeUnrelated(Link, HashTable*, int );
 void printUnrelated(Link ,FILE* ,char*,int );
 void CreateArray( Link , HashTable* , int, double** );
-
+void ItemDestroy(Item* );
 
