@@ -7,14 +7,14 @@ project : main.o structs.o text_support.o
 	gcc main.o structs.o text_support.o -o project -lm
 
 	
-queue_test : queue_test.o structs.o
-	gcc queue_test.o structs.o -o queue_test
+queue_test : queue_test.o structs.o text_support.o 
+	gcc queue_test.o structs.o text_support.o -o queue_test -lm
 	
-stack_test : stack_test.o structs.o
-	gcc stack_test.o structs.o -o stack_test
+stack_test : stack_test.o structs.o text_support.o 
+	gcc stack_test.o structs.o text_support.o -o stack_test -lm
 	
-rbt_test : rbt_test.o structs.o
-	gcc rbt_test.o structs.o -o rbt_test
+rbt_test : rbt_test.o structs.o text_support.o 
+	gcc rbt_test.o structs.o text_support.o -o rbt_test -lm
 	
 	
 queue_test.o : ./tests/queue_test.c ./include/structs.h ./include/acutest.h

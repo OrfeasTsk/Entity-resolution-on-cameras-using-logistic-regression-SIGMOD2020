@@ -136,6 +136,7 @@ void treeprint(Link, int, int, Link);
 void RBinit();
 void RBdestr();
 void RBTinit(Link*);
+void* RBTfind(Link,char*,char);
 void RBTdestrP(Link*);
 void RBTdestrC(Link*);
 Link RBTinsertR(Link,char*,void*);
