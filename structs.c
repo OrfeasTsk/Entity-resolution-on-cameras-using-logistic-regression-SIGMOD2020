@@ -1036,6 +1036,7 @@ void HTmerge( HashTable* ht1 , HashTable* ht2){
 		RBTmergeHT(&(ht2->buckets[i]), ht1);
 	
 	free(ht2->buckets);
+	ht2->buckets = NULL;
 		
 }
 

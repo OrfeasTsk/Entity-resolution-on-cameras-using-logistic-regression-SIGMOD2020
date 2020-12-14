@@ -26,7 +26,7 @@ void test_htcreate(void){
 }
 
 
-void test_htinsert (void){
+void test_htinsert(void){
 	int i ,*value;
 	char* key;
 	char buff[10];
@@ -53,9 +53,9 @@ void test_htinsert (void){
 		value = (int*)HTfind(&ht,buff,'v');
 		
 		
-		TEST_ASSERT( key != NULL ); //Yparxei to key sto dentro?
+		TEST_ASSERT( key != NULL ); //Yparxei to key sto hashtable?
 		TEST_ASSERT( !strcmp(key,buff)); //Vrethike to idio key?
-		TEST_ASSERT( value != NULL ); //Yparxei to value sto dentro?
+		TEST_ASSERT( value != NULL ); //Yparxei to value sto hashtable?
 		TEST_ASSERT( *value == i); //Vrethike to idio value?
 		
 	}
@@ -71,8 +71,8 @@ void test_htinsert (void){
 		
 		HTinsert(&ht,key,(void*)value);		
 
-		TEST_ASSERT( key != (char*)HTfind(&ht,buff,'k')); //Yparxei to key hdh sto dentro?
-		TEST_ASSERT( value != (int*)HTfind(&ht,buff,'v')); //Yparxei to value hdh sto dentro?
+		TEST_ASSERT( key != (char*)HTfind(&ht,buff,'k')); //Yparxei to key hdh sto hashtable?
+		TEST_ASSERT( value != (int*)HTfind(&ht,buff,'v')); //Yparxei to value hdh sto hashtable?
 	
 		free(key);
 		free(value);
@@ -86,6 +86,64 @@ void test_htinsert (void){
 
 
 
+void test_htmerge(void){
+	int i;
+	char buff[15];
+	Pair* pair;
+	HashTable ht1,ht2;
+		
+	RBinit();
+	HTinit(&ht1);
+	HTinit(&ht2);
+	
+	for(i = 0; i < 100;  i++){
+		
+		sprintf(buff,"item%d",i);
+		
+		pair = (Pair*)malloc(sizeof(Pair)); //Dhmiourgia pair
+		pair->item = (Item*)malloc(sizeof(Item)); // Dhmiourgia item
+		pair->item->id = (char*)malloc(strlen(buff) + 1);
+		QueueInit(&(pair->item->specs));
+		strcpy(pair->item->id,buff);
+		
+		HTinsert(&ht1,pair->item->id,(void*)pair);		
+				
+	}
+	
+	for(i = 0; i < 100;  i++){
+		
+		sprintf(buff,"newItem%d",i);
+		
+		pair = (Pair*)malloc(sizeof(Pair)); //Dhmiourgia pair
+		pair->item = (Item*)malloc(sizeof(Item)); // Dhmiourgia item
+		pair->item->id = (char*)malloc(strlen(buff) + 1);
+		QueueInit(&(pair->item->specs));
+		strcpy(pair->item->id,buff);
+		
+		HTinsert(&ht2,pair->item->id,(void*)pair);				
+	}
+	
+	HTmerge(&ht1,&ht2);
+	
+	for(i = 0; i < 100;  i++){
+		
+		sprintf(buff,"newItem%d",i);
+		
+		pair = (Pair*)HTfind(&ht1,buff,'v');
+		TEST_ASSERT( pair != NULL ); //Yparxei to pair sto h1?
+		TEST_ASSERT( !strcmp(pair->item->id,buff)); //Vrethike to swsto pair?				
+	}
+	
+	 
+	HTdestr(&ht1,&PairDestroy,'v');
+	TEST_ASSERT( ht1.buckets == NULL );
+	TEST_ASSERT( ht2.buckets == NULL );		
+	RBdestr();
+	
+}
+
+
+
 
 
 
@@ -95,5 +153,6 @@ void test_htinsert (void){
 TEST_LIST = {
 	{ "ht_create", test_htcreate },
 	{ "ht_insert", test_htinsert },
+	{"ht_merge", test_htmerge },
 	{ NULL, NULL } // NULL sto telos
 };
