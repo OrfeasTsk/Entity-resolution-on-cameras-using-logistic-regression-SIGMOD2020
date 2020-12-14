@@ -1056,6 +1056,7 @@ void HTdestr(HashTable* ht,void (*del_fun)(void*),char flag){
 		RBTdestr(&(ht->buckets[i]),del_fun, flag);
 		
 	free(ht->buckets);
+	ht->buckets = NULL;
 	
 }
 
