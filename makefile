@@ -1,7 +1,7 @@
 inc = -I ./include/
 
 
-all: project queue_test stack_test rbt_test text_test heap_test
+all: project queue_test stack_test rbt_test text_test heap_test ht_test
 
 project : main.o structs.o text_support.o 
 	gcc main.o structs.o text_support.o -o project -lm
@@ -21,6 +21,9 @@ text_test : text_test.o structs.o text_support.o
 
 heap_test : heap_test.o structs.o text_support.o 
 	gcc heap_test.o structs.o text_support.o -o heap_test -lm
+
+ht_test : ht_test.o structs.o text_support.o 
+	gcc ht_test.o structs.o text_support.o -o ht_test -lm
 	
 queue_test.o : ./tests/queue_test.c ./include/structs.h ./include/acutest.h
 	gcc -c ./tests/queue_test.c $(inc)
@@ -37,6 +40,9 @@ text_test.o : ./tests/text_test.c ./include/structs.h ./include/acutest.h
 
 heap_test.o : ./tests/heap_test.c ./include/structs.h ./include/acutest.h
 	gcc -c ./tests/heap_test.c $(inc)
+	
+ht_test.o : ./tests/ht_test.c ./include/structs.h ./include/acutest.h
+	gcc -c ./tests/ht_test.c $(inc)
 
 main.o : main.c ./include/structs.h ./include/text_support.h
 	gcc -c main.c $(inc)
@@ -51,4 +57,4 @@ text_support.o : text_support.c ./include/structs.h ./include/text_support.h
 
 
 clean:
-	rm project queue_test stack_test rbt_test text_test heap_test main.o structs.o rbt_test.o stack_test.o queue_test.o text_test.o heap_test.o text_support.o 
+	rm project queue_test stack_test rbt_test text_test heap_test ht_test main.o structs.o rbt_test.o stack_test.o queue_test.o text_test.o heap_test.o ht_test.o text_support.o 
