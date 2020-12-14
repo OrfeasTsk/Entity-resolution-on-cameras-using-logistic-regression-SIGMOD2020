@@ -3,12 +3,13 @@
 #include "../include/text_support.h"
 
 
-void check_parse(void){
+void check_parse(void){			// elegxoume an h parse douleuei swsta
 	
-	Item* item;
-	char* tmp = "2013_camera_specs/buy.net/4233.json";
+	Item* item;				
+	char* tmp = "2013_camera_specs/buy.net/4233.json";		// anoigoume ena json arxeio to opoio uparxei apo to dataset
 	item = parse(tmp);
 		
+	// elegxoume an h parse douleuei swsta kai oi times exoume mpei swtsa
 	TEST_ASSERT(item!=NULL);
 	TEST_ASSERT(item->id!="buy.net//4233");
 	TEST_ASSERT( item->specs.head != NULL );
@@ -20,13 +21,14 @@ void check_parse(void){
 
 
 
-void check_CutOffDictionary(void){
+void check_CutOffDictionary(void){				// elegxoume an h CutOffDictionary xwrizei tis lekseis kai krataei tis shmantikoteres mexri to orio pou theloume
 	
 	HashTable words;
 	HashTable stopwords;
 
 	int limit=2;
 	
+	// arxikopoioume tis lekseis 
 	char* str1="First";
 	char* str2="Word";
 	char* str3="Is";
@@ -47,6 +49,7 @@ void check_CutOffDictionary(void){
 	strcpy(curr3,str3);
 	strcpy(curr4,str4);
 	
+	// bazoume lekseis
 	InsertWord(&words, &stopwords,  curr1);
 	InsertWord(&words, &stopwords,  curr1);
 	InsertWord(&words, &stopwords,  curr1);
@@ -55,7 +58,9 @@ void check_CutOffDictionary(void){
 	InsertWord(&words, &stopwords,  curr3);
 	InsertWord(&words, &stopwords,  curr4);
 	
+	// kratame tis 2 shmantikoteres
 	CutOffDictionary( &words, limit);
+	// kanoumetous analogous elegxous an emeinan oi swstes lekseis
 	TEST_ASSERT(HTfind(&words,curr1,'k') != NULL);
 	TEST_ASSERT(HTfind(&words,curr2,'k') != NULL);
 	TEST_ASSERT(HTfind(&words,curr3,'k') == NULL);
@@ -70,7 +75,7 @@ void check_CutOffDictionary(void){
 
 
 
-void check_textcleaning(void){
+void check_textcleaning(void){			// elegxoume an ginetai swsta o katharismos keimenou se diafores periptwseis
 	int i;
 	char* str1= "AUTO TO KEIMENO exeI kai KefaLAIA";
 	char* str2= " Auto to keimeno exei shmeia !@ stikshs. Dld perilamvanei . kai , kai \\";
@@ -85,7 +90,6 @@ void check_textcleaning(void){
 	strcpy(curr2,str2);
 
 	
-
 	textCleaning(curr1);
 	for(i=0; i< strlen(curr1); i++)						// elegxos oti den periexei kefalaia grammata
 		TEST_ASSERT(! ( curr1[i] >= 65 && curr1[i] <= 90 ) );
@@ -114,6 +118,8 @@ void check_InsertWord(void){
 	HTinit(&words);
 	HTinit(&stopwords);
 	
+	// bazoume lekseis sto keimeno kai elegxoume an autes oi lekseis mphkan kai uparxoyn 
+	
 	InsertWord(&words, &stopwords,  temp1);
 	InsertWord(&words, &stopwords,  temp2);
 	InsertWord(&words, &stopwords,  temp3);
@@ -126,15 +132,15 @@ void check_InsertWord(void){
 	
 }
 
-void check_read_stopwords(void){
+void check_read_stopwords(void){		// elegxos an mpainoun swsta ta stopwords apo to arxeio
 	HashTable stopwords;
 	
+	// ta stopwords ta opoia kseroume oti einai mesa sto arxeio 
 	char* stopword1="able";
 	char* stopword2="mon";
 	char* stopword3="contains";
 	
 	
-		
 	char* curr1 = malloc(strlen(stopword1)+1);
 	char* curr2 = malloc(strlen(stopword2)+1);
 	char* curr3 = malloc(strlen(stopword3)+1);
@@ -153,12 +159,12 @@ void check_read_stopwords(void){
 	
 	
 	read_stopwords( &stopwords , tmp  );
-	// these are some values that exists in our stopwords file
+	// edw elegxoume an exoun bei ontws me ta aparaithta tests
 	TEST_ASSERT(HTfind(&stopwords,curr1,'k') != NULL);
-//	TEST_ASSERT(HTfind(&stopwords,curr2,'k') != NULL);
-//	TEST_ASSERT(HTfind(&stopwords,curr3,'k') != NULL);
+	TEST_ASSERT(HTfind(&stopwords,curr2,'k') != NULL);
+	TEST_ASSERT(HTfind(&stopwords,curr3,'k') != NULL);
 
-	
+
 	free(curr1);
 	free(curr2);
 	free(curr3);
