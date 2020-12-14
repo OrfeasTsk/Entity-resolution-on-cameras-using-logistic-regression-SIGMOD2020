@@ -111,7 +111,8 @@ void HeapInsert(Heap* ,Details*);
 Details* HeapRemoveFirst(Heap*);
 void HeapDestroy(Heap*);
 void HeapifyWords(Link* ,Heap*);
-
+struct heapNode* newNode(Details* );
+int swap(struct heapNode* ,struct heapNode*  );
 
 
 /*##################                  End OF HEAP                             ##########################*/
