@@ -18,7 +18,7 @@ rbt_test : rbt_test.o structs.o text_support.o
 	
 text_test : text_test.o structs.o text_support.o 
 	gcc text_test.o structs.o text_support.o -o text_test -lm
-	
+
 heap_test : heap_test.o structs.o text_support.o 
 	gcc heap_test.o structs.o text_support.o -o heap_test -lm
 	
@@ -34,7 +34,7 @@ rbt_test.o : ./tests/rbt_test.c ./include/structs.h ./include/acutest.h
 	
 text_test.o : ./tests/text_test.c ./include/structs.h ./include/acutest.h
 	gcc -c ./tests/text_test.c $(inc)
-	
+
 heap_test.o : ./tests/heap_test.c ./include/structs.h ./include/acutest.h
 	gcc -c ./tests/heap_test.c $(inc)
 
@@ -51,4 +51,4 @@ text_support.o : text_support.c ./include/structs.h ./include/text_support.h
 
 
 clean:
-	rm project queue_test stack_test rbt_test text_test heap_test main.o structs.o rbt_test.o stack_test.o queue_test.o text_support.o 
+	rm project queue_test stack_test rbt_test text_test heap_test main.o structs.o rbt_test.o stack_test.o queue_test.o text_test.o heap_test.o text_support.o 

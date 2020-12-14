@@ -25,7 +25,7 @@ void check_CutOffDictionary(void){
 	HashTable words;
 	HashTable stopwords;
 
-	int numBuckets=5, limit=2;
+	int limit=2;
 	
 	char* str1="First";
 	char* str2="Word";
@@ -33,8 +33,8 @@ void check_CutOffDictionary(void){
 	char* str4="This";
 	
 	RBinit();
-	HTinit(&words, numBuckets);
-	HTinit(&stopwords, numBuckets);
+	HTinit(&words);
+	HTinit(&stopwords);
 	
 
 	char* curr1 = malloc(strlen(str1)+1);
@@ -47,19 +47,19 @@ void check_CutOffDictionary(void){
 	strcpy(curr3,str3);
 	strcpy(curr4,str4);
 	
-	InsertWord(&words, &stopwords, numBuckets,  curr1);
-	InsertWord(&words, &stopwords, numBuckets,  curr1);
-	InsertWord(&words, &stopwords, numBuckets,  curr1);
-	InsertWord(&words, &stopwords, numBuckets,  curr2);
-	InsertWord(&words, &stopwords, numBuckets,  curr2);
-	InsertWord(&words, &stopwords, numBuckets,  curr3);
-	InsertWord(&words, &stopwords, numBuckets,  curr4);
+	InsertWord(&words, &stopwords,  curr1);
+	InsertWord(&words, &stopwords,  curr1);
+	InsertWord(&words, &stopwords,  curr1);
+	InsertWord(&words, &stopwords,  curr2);
+	InsertWord(&words, &stopwords,  curr2);
+	InsertWord(&words, &stopwords,  curr3);
+	InsertWord(&words, &stopwords,  curr4);
 	
-	CutOffDictionary( &words, numBuckets, limit);
-	TEST_ASSERT(HTfind(&words,numBuckets,curr1,'k') != NULL);
-	TEST_ASSERT(HTfind(&words,numBuckets,curr2,'k') != NULL);
-	TEST_ASSERT(HTfind(&words,numBuckets,curr3,'k') == NULL);
-	TEST_ASSERT(HTfind(&words,numBuckets,curr4,'k') == NULL);
+	CutOffDictionary( &words, limit);
+	TEST_ASSERT(HTfind(&words,curr1,'k') != NULL);
+	TEST_ASSERT(HTfind(&words,curr2,'k') != NULL);
+	TEST_ASSERT(HTfind(&words,curr3,'k') == NULL);
+	TEST_ASSERT(HTfind(&words,curr4,'k') == NULL);
 	
 	free(curr1);
 	free(curr2);
@@ -104,7 +104,6 @@ void check_InsertWord(void){
 	HashTable words;
 	HashTable stopwords;
 	
-	int numBuckets=5;
 	char* temp1="First";
 	char* temp2="Word";
 	char* temp3="Is";
@@ -112,24 +111,23 @@ void check_InsertWord(void){
 	char* temp5="Not";
 	// Trees initialise
 	RBinit();
-	HTinit(&words, numBuckets);
-	HTinit(&stopwords, numBuckets);
+	HTinit(&words);
+	HTinit(&stopwords);
 	
-	InsertWord(&words, &stopwords, numBuckets,  temp1);
-	InsertWord(&words, &stopwords, numBuckets,  temp2);
-	InsertWord(&words, &stopwords, numBuckets,  temp3);
-	InsertWord(&words, &stopwords, numBuckets,  temp4);
-	TEST_ASSERT(HTfind(&words,numBuckets,temp1,'k') != NULL);
-	TEST_ASSERT(HTfind(&words,numBuckets,temp2,'k') != NULL);
-	TEST_ASSERT(HTfind(&words,numBuckets,temp3,'k') != NULL);
-	TEST_ASSERT(HTfind(&words,numBuckets,temp4,'k') != NULL);
-	TEST_ASSERT(HTfind(&words,numBuckets,temp5,'k') == NULL);
+	InsertWord(&words, &stopwords,  temp1);
+	InsertWord(&words, &stopwords,  temp2);
+	InsertWord(&words, &stopwords,  temp3);
+	InsertWord(&words, &stopwords,  temp4);
+	TEST_ASSERT(HTfind(&words,temp1,'k') != NULL);
+	TEST_ASSERT(HTfind(&words,temp2,'k') != NULL);
+	TEST_ASSERT(HTfind(&words,temp3,'k') != NULL);
+	TEST_ASSERT(HTfind(&words,temp4,'k') != NULL);
+	TEST_ASSERT(HTfind(&words,temp5,'k') == NULL);
 	
 }
 
 void check_read_stopwords(void){
 	HashTable stopwords;
-	int numBuckets=5;
 	
 	char* stopword1="able";
 	char* stopword2="mon";
@@ -149,16 +147,16 @@ void check_read_stopwords(void){
 	
 	// Trees initialise
 	RBinit();
-	HTinit(&stopwords, numBuckets);
+	HTinit(&stopwords);
 	
 	char* tmp="include/stopwords.txt";
 	
 	
-	read_stopwords( &stopwords , tmp , numBuckets );
+	read_stopwords( &stopwords , tmp  );
 	// these are some values that exists in our stopwords file
-	TEST_ASSERT(HTfind(&stopwords,numBuckets,curr1,'k') != NULL);
-//	TEST_ASSERT(HTfind(&stopwords,numBuckets,curr2,'k') != NULL);
-//	TEST_ASSERT(HTfind(&stopwords,numBuckets,curr3,'k') != NULL);
+	TEST_ASSERT(HTfind(&stopwords,curr1,'k') != NULL);
+//	TEST_ASSERT(HTfind(&stopwords,curr2,'k') != NULL);
+//	TEST_ASSERT(HTfind(&stopwords,curr3,'k') != NULL);
 
 	
 	free(curr1);

@@ -584,7 +584,7 @@ void* RBTfind(Link h,char* id,char type){
 
 
 
-void printOutput(Link h,FILE* output,char* buff,int numBuckets){			
+void printRelated(Link h,FILE* output,char* buff){			
 	
 	RBItem* t = h->rbitem;
     struct QueueNode *curr, *prev=NULL, *temp;
@@ -596,7 +596,7 @@ void printOutput(Link h,FILE* output,char* buff,int numBuckets){
 	if(h == z)			// base-case
 		return;
 		
-	printOutput(h->l,output,buff,numBuckets);	// anadromika phgainoume aristera
+	printRelated(h->l,output,buff);	// anadromika phgainoume aristera
 	
 	
 	pair  = (Pair*)(t->obj);
@@ -613,11 +613,6 @@ void printOutput(Link h,FILE* output,char* buff,int numBuckets){
 					temp=curr;
 					curr = curr->next; 
 					free(temp);
-					free(pair->cliq->related); //To teleutaio pair katastrefei thn oura
-					HTdestr(&(pair->cliq->unrelated),numBuckets,&RBTdestrC); //To teleutaio pair katastrefei to dentro
-					free(pair->cliq->id);
-					free(pair->cliq);
-
 				}
 				else{																				// diaforetika o head tha deiksei ston epomeno komvo
 					pair->cliq->related->head=curr->next;
@@ -655,7 +650,7 @@ void printOutput(Link h,FILE* output,char* buff,int numBuckets){
 
 	
 	
-	printOutput(h->r,output,buff,numBuckets);	// anadromika phgainoume deksia
+	printRelated(h->r,output,buff);	// anadromika phgainoume deksia
 	
 	
 	
@@ -686,8 +681,8 @@ void ItemDestroy(Item* item){
 }
 
 
-void PairDestroy(Pair* pair){
-	
+void PairDestroy(void* obj){
+	Pair* pair = (Pair*)obj;
 	
 	ItemDestroy(pair->item);
 	free(pair);
@@ -695,33 +690,20 @@ void PairDestroy(Pair* pair){
 	
 }
 
-
-
-void RBTdestrP(Link* head)//Katastrofh tou dentrou zeugariwn
-{
-
-	Pair* pair;
+void CliqueDestroy(void* obj){
+	Clique* cliq = (Clique*)obj;
 	
-    if (*head == z){
-		*head = NULL;
-		return;
-	}
-		
-    RBTdestrP(&((*head)->l));
-    RBTdestrP(&((*head)->r));
-    
-    
-	pair = (Pair*)((*head)->rbitem->obj);
-	PairDestroy(pair);
-    
-    free((*head)->rbitem);
-	free(*head);
-	*head = NULL;
+	free(cliq->related);
+	HTdestr(&(cliq->unrelated),NULL,'n');
+	free(cliq->id);
+	free(cliq);
+	
+	
 }
 
 
 
-void RBTdestrC(Link* head)//Katastrofh tou dentrou klikwn
+void RBTdestr(Link* head,void (*del_fun)(void*),char flag)//Katastrofh tou dentrou
 {
 	Clique* cliq;
 	
@@ -731,9 +713,17 @@ void RBTdestrC(Link* head)//Katastrofh tou dentrou klikwn
 		return;
 	}
 		
-    RBTdestrC(&((*head)->l));
-    RBTdestrC(&((*head)->r));
+    RBTdestr(&((*head)->l),del_fun,flag);
+    RBTdestr(&((*head)->r),del_fun,flag);
     
+    if((*head)->rbitem->id != NULL && (flag == 'b' || flag == 'k') )
+    	free((*head)->rbitem->id);
+    if((*head)->rbitem->obj != NULL && (flag == 'b' || flag == 'v'))
+    	if(del_fun != NULL)
+    		(*del_fun)((*head)->rbitem->obj);
+    	else
+    		free((*head)->rbitem->obj);
+
        
     
     free((*head)->rbitem);
@@ -746,7 +736,8 @@ void RBTdestrC(Link* head)//Katastrofh tou dentrou klikwn
 
 
 
-void RBTmergeHT(Link* head,HashTable* ht, int numBuckets)				//Merge duo dentrwn
+
+void RBTmergeHT(Link* head,HashTable* ht)				//Merge duo dentrwn
 {
 	Pair* pair;
 	
@@ -755,13 +746,13 @@ void RBTmergeHT(Link* head,HashTable* ht, int numBuckets)				//Merge duo dentrwn
 		return;
 	}
 		
-    RBTmergeHT(&((*head)->l),ht,numBuckets);
-    RBTmergeHT(&((*head)->r),ht,numBuckets);
+    RBTmergeHT(&((*head)->l),ht);
+    RBTmergeHT(&((*head)->r),ht);
     
 
     if((*head)->rbitem->obj != NULL){
 		pair = (Pair*)((*head)->rbitem->obj);
-		HTinsert(ht,numBuckets,pair->item->id,(void*)pair);
+		HTinsert(ht,pair->item->id,(void*)pair);
 	}
     
     free((*head)->rbitem);
@@ -772,26 +763,26 @@ void RBTmergeHT(Link* head,HashTable* ht, int numBuckets)				//Merge duo dentrwn
 
 
 
-void CliqueConcat(Pair* pair1 , Pair* pair2, int choice, int numBuckets){
+void CliqueConcat(Pair* pair1 , Pair* pair2, int choice){
 	Clique* temp;
 	
 	
 	if(choice == 1){	// dld an tairiazoun
 		temp = pair2->cliq;
-		HTmerge(&(pair1->cliq->unrelated),&(pair2->cliq->unrelated),numBuckets);
+		HTmerge(&(pair1->cliq->unrelated),&(pair2->cliq->unrelated));
 		QueueConcat(pair1->cliq->related,pair2->cliq->related,pair1->cliq);
 		free(temp->id);
 		free(temp);
 		}
 	else{				// dld den tairiazoun
-		HTinsert(&(pair1->cliq->unrelated),numBuckets,pair2->item->id,(void*)pair2);
-		HTinsert(&(pair2->cliq->unrelated),numBuckets,pair1->item->id,(void*)pair1);
+		HTinsert(&(pair1->cliq->unrelated),pair2->item->id,(void*)pair2);
+		HTinsert(&(pair2->cliq->unrelated),pair1->item->id,(void*)pair1);
 	}
 	
 }
 
 
-void MakeCliqueHT(Link pairTree, HashTable* ht, int numBuckets){
+void MakeCliqueHT(Link pairTree, HashTable* ht){
 	
 	RBItem* t = pairTree->rbitem;
  			
@@ -801,19 +792,19 @@ void MakeCliqueHT(Link pairTree, HashTable* ht, int numBuckets){
 	if(pairTree == z)			// base-case
 		return;
 		
-	MakeCliqueHT(pairTree->l,ht,numBuckets);	// anadromika phgainoume aristera
+	MakeCliqueHT(pairTree->l,ht);	// anadromika phgainoume aristera
 	
 	if(t->obj != NULL){	
 		pair  = (Pair*)(t->obj);
-		HTinsert(ht,numBuckets,pair->cliq->id,(void*)(pair->cliq));
+		HTinsert(ht,pair->cliq->id,(void*)(pair->cliq));
 	}
 
-	MakeCliqueHT(pairTree->r,ht,numBuckets);	// anadromika phgainoume deksia
+	MakeCliqueHT(pairTree->r,ht);	// anadromika phgainoume deksia
 
 }
 
 
-void MakeCliqueUnrelated(Link* oldTree, HashTable* ht, int numBuckets){
+void MakeCliqueUnrelated(Link* oldTree, HashTable* ht){
 	
 	RBItem* t = (*oldTree)->rbitem;
  			
@@ -823,14 +814,14 @@ void MakeCliqueUnrelated(Link* oldTree, HashTable* ht, int numBuckets){
 	if(*oldTree == z)			// base-case
 		return;
 		
-	MakeCliqueUnrelated(&((*oldTree)->l),ht,numBuckets);	// anadromika phgainoume aristera
-	MakeCliqueUnrelated(&((*oldTree)->r),ht,numBuckets);	// anadromika phgainoume deksia
+	MakeCliqueUnrelated(&((*oldTree)->l),ht);	// anadromika phgainoume aristera
+	MakeCliqueUnrelated(&((*oldTree)->r),ht);	// anadromika phgainoume deksia
 
 	
 	if(t->obj != NULL){									// Den yparxoun diplotypa
 	
 		pair  = (Pair*)(t->obj);
-		HTinsert(ht,numBuckets,pair->cliq->id,(void*)(pair->cliq));
+		HTinsert(ht,pair->cliq->id,(void*)(pair->cliq));
 	}
 
 
@@ -843,7 +834,7 @@ void MakeCliqueUnrelated(Link* oldTree, HashTable* ht, int numBuckets){
 
 
 
-void ChangeUnrelated(Link h, HashTable* ht,int numBuckets){
+void ChangeUnrelated(Link h){
 	
 	RBItem* t = h->rbitem;
     int i;		
@@ -854,19 +845,19 @@ void ChangeUnrelated(Link h, HashTable* ht,int numBuckets){
 	if(h == z)			// base-case
 		return;
 	
-	ChangeUnrelated(h->l,ht,numBuckets);	// anadromika phgainoume aristera
+	ChangeUnrelated(h->l);	// anadromika phgainoume aristera
 	
 	
 	if(t->obj != NULL){									// Den yparxoun diplotypa
 	
 	
 		unrelated =(HashTable*)malloc(sizeof(HashTable));
-		HTinit(unrelated,numBuckets);
+		HTinit(unrelated);
 		
 		cliq  = (Clique*)(t->obj);
 		
 		for( i = 0; i < numBuckets; i++)
-			MakeCliqueUnrelated(&(cliq->unrelated.buckets[i]),unrelated,numBuckets);
+			MakeCliqueUnrelated(&(cliq->unrelated.buckets[i]),unrelated);
 		
 		for( i = 0; i < numBuckets; i++)	
 			cliq->unrelated.buckets[i] = unrelated->buckets[i];
@@ -877,7 +868,7 @@ void ChangeUnrelated(Link h, HashTable* ht,int numBuckets){
 	}
 	
 	
-	ChangeUnrelated(h->r,ht,numBuckets);	// anadromika phgainoume aristera
+	ChangeUnrelated(h->r);	// anadromika phgainoume aristera
 	
 }
 
@@ -913,7 +904,7 @@ void RemoveUnrelated(Link h , char* id){
 
 
 
-void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff, int numBuckets){
+void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff){
 	
 	RBItem* t = h->rbitem;
 	int hashnum;
@@ -924,7 +915,7 @@ void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff, int numBuckets
 	if(h == z)			// base-case
 		return;
 	
-	VisitUnrelated(h->l,cliq,output,buff,numBuckets);	// anadromika phgainoume aristera
+	VisitUnrelated(h->l,cliq,output,buff);	// anadromika phgainoume aristera
 	
 	
 	if(t->obj != NULL){									// Den yparxoun diplotypa
@@ -946,7 +937,7 @@ void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff, int numBuckets
 	}
 	
 	
-	VisitUnrelated(h->r,cliq,output,buff,numBuckets);	// anadromika phgainoume aristera
+	VisitUnrelated(h->r,cliq,output,buff);	// anadromika phgainoume aristera
 	
 }
 
@@ -954,7 +945,7 @@ void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff, int numBuckets
 
 
 
-void printUnrelated(Link h,FILE* output,char* buff, int numBuckets){
+void printUnrelated(Link h,FILE* output,char* buff){
 	
 	RBItem* t = h->rbitem;	
 	int i;	
@@ -963,25 +954,25 @@ void printUnrelated(Link h,FILE* output,char* buff, int numBuckets){
 	if(h == z)			// base-case
 		return;
 	
-	printUnrelated(h->l,output,buff,numBuckets);	// anadromika phgainoume aristera
+	printUnrelated(h->l,output,buff);	// anadromika phgainoume aristera
 	
 	
 	if(t->obj != NULL){									// Den yparxoun diplotypa
 									
 		cliq  = (Clique*)(t->obj);
 		for( i = 0; i < numBuckets; i++)
-			VisitUnrelated(cliq->unrelated.buckets[i],cliq,output,buff,numBuckets);
+			VisitUnrelated(cliq->unrelated.buckets[i],cliq,output,buff);
 		
 	}
 	
 	
-	printUnrelated(h->r,output,buff,numBuckets);	// anadromika phgainoume aristera
+	printUnrelated(h->r,output,buff);	// anadromika phgainoume aristera
 	
 }
 
 
 
-void CreateArray( Link h, HashTable* ht, int numBuckets, double**  array ){
+void CreateArray( Link h, HashTable* ht, double**  array ){
 	
 	RBItem* t = h->rbitem;	
 	int i;	
@@ -990,25 +981,25 @@ void CreateArray( Link h, HashTable* ht, int numBuckets, double**  array ){
 	if(h == z)			// base-case
 		return;
 	
-	CreateArray(h->l , ht , numBuckets , array);	// anadromika phgainoume aristera
+	CreateArray(h->l , ht  , array);	// anadromika phgainoume aristera
 	
 	
 	if(t->obj != NULL){									// Den yparxoun diplotypa
 									
 		fileStats  = (Stats*)(t->obj);
-		UpdateArray(fileStats ,  ht , numBuckets, array);
+		UpdateArray(fileStats ,  ht , array);
 		
 	}
 	
 	
-	CreateArray(h->r, ht , numBuckets , array);	// anadromika phgainoume aristera
+	CreateArray(h->r, ht  , array);	// anadromika phgainoume aristera
 	
 }	
 
 
 /*##################                  Start of hash tables                             ##########################*/
 
-void HTinit( HashTable* ht, int numBuckets ){			// initialise of hash table
+void HTinit( HashTable* ht ){			// initialise of hash table
 	
 	int i;
 	
@@ -1018,18 +1009,18 @@ void HTinit( HashTable* ht, int numBuckets ){			// initialise of hash table
 	
 }
 
-int hashFunction(char* str,int numBuckets){ //Polynomial hash function for strings
+int hashFunction(char* str,int nb){ //Polynomial hash function for strings
 	int hash = 0;
 	int constant = 33;
 	while(*str != '\0'){
-		hash = (constant*hash + *str) % numBuckets;
+		hash = (constant*hash + *str) % nb;
 		str++;
 	}
 	return hash;
 }
 
 
-void HTinsert( HashTable* ht, int numBuckets, char* key, void* item ){			
+void HTinsert( HashTable* ht, char* key, void* item ){			
 	
 	int hashnum;
 	
@@ -1038,11 +1029,11 @@ void HTinsert( HashTable* ht, int numBuckets, char* key, void* item ){
 	
 }
 
-void HTmerge( HashTable* ht1 , HashTable* ht2, int  numBuckets){
+void HTmerge( HashTable* ht1 , HashTable* ht2){
 	int i;
 	
 	for( i = 0; i < numBuckets; i++)
-		RBTmergeHT(&(ht2->buckets[i]), ht1, numBuckets);
+		RBTmergeHT(&(ht2->buckets[i]), ht1);
 	
 	free(ht2->buckets);
 		
@@ -1050,7 +1041,7 @@ void HTmerge( HashTable* ht1 , HashTable* ht2, int  numBuckets){
 
 
 
-void* HTfind(HashTable* ht,int numBuckets,char* id, char type){
+void* HTfind(HashTable* ht,char* id, char type){
 	
 	int hashnum = hashFunction(id,numBuckets);
 	
@@ -1058,11 +1049,11 @@ void* HTfind(HashTable* ht,int numBuckets,char* id, char type){
 	
 }
 
-void HTdestr(HashTable* ht,int numBuckets,void (*del_fun)(Link*)){
+void HTdestr(HashTable* ht,void (*del_fun)(void*),char flag){
 	int i;
 		
 	for( i = 0; i < numBuckets; i++)
-		(*del_fun)(&(ht->buckets[i]));
+		RBTdestr(&(ht->buckets[i]),del_fun, flag);
 		
 	free(ht->buckets);
 	

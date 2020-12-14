@@ -1,5 +1,6 @@
 #define RED 0
 #define BLACK 1
+#define numBuckets 100
 
 
 typedef struct RBnode* Link;
@@ -115,6 +116,7 @@ struct heapNode* newNode(Details* );
 int swap(struct heapNode* ,struct heapNode*  );
 
 
+
 /*##################                  End OF HEAP                             ##########################*/
 
 
@@ -136,10 +138,9 @@ struct RBnode{
 void treeprint(Link, int, int, Link);
 void RBinit();
 void RBdestr();
+void RBTdestr(Link*,void (*del_fun)(void*),char);
 void RBTinit(Link*);
 void* RBTfind(Link,char*,char);
-void RBTdestrP(Link*);
-void RBTdestrC(Link*);
 Link RBTinsertR(Link,char*,void*);
 
 
@@ -151,8 +152,9 @@ Link RBTinsertR(Link,char*,void*);
 
 
 
-void printOutput(Link, FILE*, char*,int );
-void PairDestroy(Pair*);
+void printRelated(Link, FILE*, char* );
+void PairDestroy(void*);
+void CliqueDestroy(void*);
 
 
 
@@ -163,19 +165,19 @@ void QueueConcat(Queue*, Queue*,Clique*);
 
 
 int hashFunction(char* , int ) ;
-void HTinit( HashTable* , int );
-void HTinsert( HashTable* , int , char* , void* );
-void* HTfind(HashTable* , int , char* , char);
-void HTmerge( HashTable* , HashTable* , int );
-void HTdestr(HashTable* ,int ,void (*del_fun)(Link*));
+void HTinit( HashTable*  );
+void HTinsert( HashTable*  , char* , void* );
+void* HTfind(HashTable*  , char* , char);
+void HTmerge( HashTable* , HashTable*  );
+void HTdestr(HashTable*  ,void (*del_fun)(void*),char);
 
 
 
 
-void MakeCliqueHT(Link, HashTable*, int );
-void CliqueConcat(Pair*, Pair*, int,int );
-void ChangeUnrelated(Link, HashTable*, int );
-void printUnrelated(Link ,FILE* ,char*,int );
-void CreateArray( Link , HashTable* , int, double** );
+void MakeCliqueHT(Link, HashTable* );
+void CliqueConcat(Pair*, Pair*, int );
+void ChangeUnrelated(Link );
+void printUnrelated(Link ,FILE* ,char* );
+void CreateArray( Link , HashTable* , double** );
 void ItemDestroy(Item* );
 

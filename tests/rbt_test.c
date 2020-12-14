@@ -13,7 +13,7 @@ void test_rbtcreate(void){
 	TEST_ASSERT( z != NULL ); //Elegxos gia arxikopoihsh tou dummy komvou
 	RBTinit(&treeptr);
 	TEST_ASSERT( treeptr == z ); //O deikths deixnei ston dummy komvo?
-	RBTdestrP(&treeptr);
+	RBTdestr(&treeptr,NULL,'n');
 	TEST_ASSERT( treeptr == NULL );	
 	RBdestr();
 	TEST_ASSERT( z == NULL );
@@ -73,7 +73,7 @@ void test_rbtinsert(void){
 	}
 	
 	 
-	RBTdestrP(&treeptr);
+	RBTdestr(&treeptr,&PairDestroy,'v');
 	TEST_ASSERT( treeptr == NULL );	
 	RBdestr();
 	TEST_ASSERT( z == NULL );

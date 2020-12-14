@@ -12,7 +12,7 @@
 
 
 int main(int argc, char* argv[]){
-	int i, j, id = 0 , numBuckets = -1 ,fIndex = 0 ,wIndex = 0;
+	int i, j, id = 0 ,fIndex = 0;
 	char* datasetX=NULL, *datasetW=NULL, *stopwordsFile=NULL, *tmpdir1, *json, *tmp;
 	char buff[200];
 	DIR* dir_ptr1,*dir_ptr2;
@@ -28,7 +28,7 @@ int main(int argc, char* argv[]){
 	HashTable stats;
 	
 	
-	if(argc != 9){
+	if(argc != 7){
 		printf("Argument error\n");
 			return 1;
 	}
@@ -39,8 +39,6 @@ int main(int argc, char* argv[]){
 			datasetX=argv[i+1];
 		else if(!strcmp("-w",argv[i]) && datasetW == NULL)
 			datasetW=argv[i+1];
-		else if(!strcmp("-b",argv[i]) && numBuckets == -1)
-			numBuckets = atoi(argv[i+1]);
 		else if(!strcmp("-s",argv[i]) && stopwordsFile == NULL)
 			stopwordsFile = argv[i+1];
 		else{
@@ -53,15 +51,15 @@ int main(int argc, char* argv[]){
 	RBinit();
 
 	//Hash Table initialise
-	HTinit(&cliques, numBuckets);
-	HTinit(&pairs,numBuckets);
-	HTinit(&stopwords,numBuckets);
-	HTinit(&words,numBuckets);
-	HTinit(&stats,numBuckets);
+	HTinit(&cliques);
+	HTinit(&pairs);
+	HTinit(&stopwords);
+	HTinit(&words);
+	HTinit(&stats);
 
 	
 	//Read Stopwords file
-	read_stopwords(&stopwords , stopwordsFile, numBuckets);
+	read_stopwords(&stopwords , stopwordsFile);
 
 
 
@@ -86,8 +84,8 @@ int main(int argc, char* argv[]){
 						fileStats = (Stats*)malloc(sizeof(Stats)); //Dhmiourgia stats tou arxeiou
 						fileStats->item = item;
 						fileStats->index = fIndex++;
-						CreateDictionary(fileStats, &words, &stopwords, numBuckets);
-						HTinsert(&stats, numBuckets, item->id , (void*)fileStats);
+						CreateDictionary(fileStats, &words, &stopwords);
+						HTinsert(&stats, item->id , (void*)fileStats);
 
 
 						pair = (Pair*)malloc(sizeof(Pair));
@@ -101,13 +99,13 @@ int main(int argc, char* argv[]){
 						id++;
 						
 						pair->cliq->related = (Queue*)malloc(sizeof(Queue));
-						HTinit(&(pair->cliq->unrelated),numBuckets);
+						HTinit(&(pair->cliq->unrelated));
 						
 						QueueInit(pair->cliq->related);
 						QueueInsert(pair->cliq->related, (void**)&pair); // Sthn arxh h related oura exei mono to idio to pair 
 						
 							
-	 					HTinsert(&pairs,numBuckets,item->id,(void*)pair);
+	 					HTinsert(&pairs,item->id,(void*)pair);
 	 					
 	 					
 					}
@@ -123,47 +121,65 @@ int main(int argc, char* argv[]){
 	
 	// CSV READ
 	
-	read_csv(&pairs,datasetW,numBuckets);
+	read_csv(&pairs,datasetW);
 	
 	for( i = 0; i < numBuckets; i++)
-		MakeCliqueHT(pairs.buckets[i],&cliques,numBuckets);
+		MakeCliqueHT(pairs.buckets[i],&cliques);
 	
 	for( i = 0; i < numBuckets; i++)
-		ChangeUnrelated(cliques.buckets[i],&cliques,numBuckets);
+		ChangeUnrelated(cliques.buckets[i]);
 	
 	
 	output = fopen("unrelated.csv","w");
 	for( i = 0; i < numBuckets; i++)
-		printUnrelated(cliques.buckets[i],output,buff,numBuckets);
+		printUnrelated(cliques.buckets[i],output,buff);
 	fclose(output);
 	
 	output = fopen("related.csv","w");
 	sprintf(buff,"left_item , right_item\n");
 	fwrite(buff,sizeof(char),strlen(buff),output);
 	for( i = 0; i < numBuckets; i++)
-		printOutput(pairs.buckets[i],output,buff,numBuckets);
+		printRelated(pairs.buckets[i],output,buff);
 	fclose(output);
 	
 	
-	CutOffDictionary(&words,numBuckets ,1000);
+	CutOffDictionary(&words,lim);
 	
 	
 	//Bow Array
-	double** array = (double**)malloc( sizeof(double*) * (fIndex));
+	double** bow_array = (double**)malloc( sizeof(double*) * fIndex);
 	for( i = 0 ; i < fIndex ; i++ )
-		array[i] = (double*)malloc( sizeof(double) * 1000 ); 
+		bow_array[i] = (double*)malloc( sizeof(double) * lim ); 
 	
 	// Arxikopoihsh me 0		
 	for( i = 0 ; i < fIndex ; i++ )
-		for( j = 0 ; j < 1000 ; j++ )
-			array[i][j] = 0.0;
+		for( j = 0 ; j < lim ; j++ )
+			bow_array[i][j] = 0.0;
 			
 	for( i = 0; i < numBuckets; i++)
-		CreateArray( stats.buckets[i], &words, numBuckets, array );		
-		
+		CreateArray( stats.buckets[i], &words, bow_array );		
+	
 
-	HTdestr(&cliques,numBuckets,&RBTdestrC);
-	HTdestr(&pairs,numBuckets,&RBTdestrP);
+
+
+
+
+	double** tfidf_array = Bow_To_Tfidf(bow_array, fIndex ,lim);
+
+	for( i = 0 ; i < fIndex ; i++ ){
+		free(bow_array[i]);
+		free(tfidf_array[i]);
+	}
+	free(bow_array);
+	free(tfidf_array);
+	
+
+
+	HTdestr(&pairs,&PairDestroy,'v');
+	HTdestr(&cliques,&CliqueDestroy,'v');
+	HTdestr(&stats,NULL,'v');
+	HTdestr(&words,NULL,'b');
+	HTdestr(&stopwords,NULL,'k');
 	RBdestr();
 	
 	return 0;
