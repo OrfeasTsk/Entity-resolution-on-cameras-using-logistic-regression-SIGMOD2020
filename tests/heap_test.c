@@ -1,12 +1,13 @@
 #include "../include/acutest.h"
 #include "../include/structs.h"
 #include "../include/text_support.h"
+#define numBuckets 100
 
 
 void test_heapnodecreate(void){
-	Details* details1;
-	struct heapNode* temp;
-	char name1[10]="First";
+	Details* details1 ;
+	struct heapNode* temp ;
+	char name1[10] = "First" ;
 	
 	details1 = (Details*)malloc(sizeof(Details));
 	details1->name = (char*)malloc(strlen(name1) + 1);
@@ -19,9 +20,9 @@ void test_heapnodecreate(void){
 	TEST_ASSERT( strcmp( temp->data->name , name1 ) == 0  );
 	TEST_ASSERT( temp->data->count == 5 );
 	
-	free(details1->name);
-	free(details1);
-	free(temp);
+	free( details1->name );
+	free( details1 );
+	free( temp );
 }
 
 
@@ -121,7 +122,7 @@ void test_heapinsert(void){
 
 
 void test_heapifywords(void){
-	int numBuckets = 5, i;
+	int i;
 	
 	
 	Heap heap;
@@ -129,8 +130,8 @@ void test_heapifywords(void){
 	
 	HashTable words;
 	HashTable stopwords;
-	HTinit(&words,numBuckets);
-	HTinit(&stopwords, numBuckets);
+	HTinit(&words);
+	HTinit(&stopwords);
 
 	
 	RBinit();
@@ -142,22 +143,22 @@ void test_heapifywords(void){
 	char* temp5="Not";
 	
 	//add 4 times temp1
-	InsertWord(&words, &stopwords, numBuckets,  temp1);
-	InsertWord(&words, &stopwords, numBuckets,  temp1);
-	InsertWord(&words, &stopwords, numBuckets,  temp1);
-	InsertWord(&words, &stopwords, numBuckets,  temp1);
+	InsertWord(&words, &stopwords, temp1);
+	InsertWord(&words, &stopwords, temp1);
+	InsertWord(&words, &stopwords, temp1);
+	InsertWord(&words, &stopwords,  temp1);
 	//add 1 times temp2
-	InsertWord(&words, &stopwords, numBuckets,  temp2);
+	InsertWord(&words, &stopwords, temp2);
 	//add 4 times temp3
-	InsertWord(&words, &stopwords, numBuckets,  temp3);
-	InsertWord(&words, &stopwords, numBuckets,  temp3);
-	InsertWord(&words, &stopwords, numBuckets,  temp3);
-	InsertWord(&words, &stopwords, numBuckets,  temp3);
+	InsertWord(&words, &stopwords, temp3);
+	InsertWord(&words, &stopwords, temp3);
+	InsertWord(&words, &stopwords, temp3);
+	InsertWord(&words, &stopwords, temp3);
 	//add 1 times temp4
-	InsertWord(&words, &stopwords, numBuckets,  temp4);
+	InsertWord(&words, &stopwords, temp4);
 	//add 3 times temp5
-	InsertWord(&words, &stopwords, numBuckets,  temp5);
-	InsertWord(&words, &stopwords, numBuckets,  temp5);
+	InsertWord(&words, &stopwords, temp5);
+	InsertWord(&words, &stopwords, temp5);
 	
 	
 	for(i = 0 ; i < numBuckets; i++)
