@@ -7,7 +7,7 @@
 #include "./include/text_support.h"
 
 
-
+/*
 void CutOffDictionary(HashTable* words,int limit){
 	int i,*num;
 	Heap heap;
@@ -34,42 +34,24 @@ void CutOffDictionary(HashTable* words,int limit){
 	HeapDestroy(&heap);
 		
 }
+*/
 
-
-void CreateDictionary(Stats* fileStats , HashTable* words ,HashTable* stopwords){
+void CreateDictionary(FileStats* fstats , HashTable* words ,HashTable* stopwords,int* index){
 
 	struct QueueNode* curr;
 	Spec* spec;
 
-	//printf("%s\n",fileStats->item->id);
 
-	for( curr = fileStats->item->specs.head; curr != NULL ; curr = curr->next){
+	for( curr = fstats->item->specs.head; curr != NULL ; curr = curr->next){
 		spec = (Spec*)(curr->data);
 		textCleaning(spec->name);
 		textCleaning(spec->value);
-		//if(!strcmp(fileStats->item->id,"buy.net//4233"))
-		tokenize(spec->name, words, stopwords, NULL , NULL );
-		tokenize(spec->value, words, stopwords, NULL ,NULL );		
+		tokenize(spec->name, words, stopwords , fstats , index );
+		tokenize(spec->value, words, stopwords ,fstats ,index );		
 	}
 
 }
 
-
-void UpdateArray(Stats* fileStats , HashTable* words , double**  array){
-
-	struct QueueNode* curr;
-	Spec* spec;
-
-	//printf("%s\n",fileStats->item->id);
-
-	for( curr = fileStats->item->specs.head; curr != NULL ; curr = curr->next){
-		spec = (Spec*)(curr->data);
-		//if(!strcmp(fileStats->item->id,"buy.net//4233"))
-		tokenize(spec->name, words, NULL, array , &(fileStats->index) );
-		tokenize(spec->value, words, NULL, array , &(fileStats->index) );		
-	}
-
-}
 
 
 
@@ -97,40 +79,56 @@ void textCleaning(char* text){
 }
 
 
-void InsertWord(HashTable* words, HashTable* stopwords , char* temp )
+void InsertWord(HashTable* words, HashTable* stopwords , char* temp,FileStats* fstats,int* index )
 {
 	char *token;
 	int* num;
+	WordStats* wstats;
+	ModelStats* mstats;
 	
 		if(HTfind(stopwords,temp,'k') == NULL)
-			if( num = (int*)HTfind(words, temp ,'v'))
-				(*num)++;
+			if( wstats = (WordStats*)HTfind(words, temp ,'v')){
+				if(mstats = (ModelStats*) HTfind(&(fstats->words),wstats->word,'v')){
+					mstats->bow_val++;
+					mstats->tfidf_val++;
+					fstats->numOfWords++;
+				}
+				else{
+					mstats = (ModelStats*)malloc(sizeof(ModelStats));
+					mstats->wstats = wstats;
+					mstats->bow_val = 1;
+					mstats->tfidf_val = 1.0;
+					HTinsert(&(fstats->words),wstats->word,(void*)mstats);
+					fstats->numOfWords++;
+					HTinsert(&(wstats->files),fstats->item->id,(void*)fstats);
+				}
+
+			}
 			else{
-				num = (int*)malloc(sizeof(int));
-				*num = 1;
-				token = (char*)malloc(strlen(temp) + 1);
-				strcpy(token,temp);
-				HTinsert(words, token, (void*) num);
+				
+				wstats = (WordStats*)malloc(sizeof(WordStats));
+				wstats->word = (char*)malloc(strlen(temp) + 1);
+				strcpy(wstats->word,temp);
+				wstats->index = (*index)++;
+				HTinit(&(wstats->files));
+
+				HTinsert(words, wstats->word, (void*) wstats);
+				
+				mstats = (ModelStats*)malloc(sizeof(ModelStats));
+				mstats->wstats = wstats;
+				mstats->bow_val = 1;
+				mstats->tfidf_val = 1.0;
+				HTinsert(&(fstats->words),wstats->word,(void*)mstats);
+				fstats->numOfWords++;
+				HTinsert(&(wstats->files),fstats->item->id,(void*)fstats);	
 			}
 			
 }
 
 
-void UpdateArrayValue(HashTable* words , char* temp, int* index, double** array )
-{
-	char *token;
-	int* num;
-	
-		if( num = (int*)HTfind(words, temp ,'v') )
-			array[*index][*num]++;
-		
-}
 
 
-
-
-
-void tokenize(char* text, HashTable* words, HashTable* stopwords , double** array, int* index){
+void tokenize(char* text, HashTable* words, HashTable* stopwords ,FileStats* fstats,int* index){
 
 	int i = 0,start,count = 0,j;
 	char temp[100];
@@ -138,8 +136,8 @@ void tokenize(char* text, HashTable* words, HashTable* stopwords , double** arra
 	while(isspace(text[i]))
 		i++;
 	
-	for( ; i < strlen(text) ; i++){
-		if(!isspace(text[i])){
+	for( ; i < strlen(text) + 1 ; i++){
+		if(!isspace(text[i]) && text[i] != '\0'){
 			if(count == 0)
 				start = i;				
 			count++;		
@@ -151,10 +149,8 @@ void tokenize(char* text, HashTable* words, HashTable* stopwords , double** arra
 						temp[j-start] = text[j];
 					temp[count] = '\0';
 					
-					if( stopwords == NULL && array != NULL && index != NULL)
-						UpdateArrayValue( words ,  temp,  index,  array );
-					else if( stopwords != NULL && index == NULL && array == NULL )
-						InsertWord( words, stopwords , temp );
+					
+					InsertWord( words, stopwords , temp, fstats, index );
 
 				}
 				count = 0;
@@ -192,44 +188,6 @@ void read_stopwords(HashTable* ht, char* stopwordsFile){
 }
 
 
-
-
-double** Bow_To_Tfidf(double** array, int rows, int cols){	
-	
-	int i,j,counter;							
-	double idf;
-	
-	//Array
-	double** tfidf = (double**)malloc( sizeof(double*) * (rows));
-	for( i = 0 ; i < rows ; i++ )
-		tfidf[i] = (double*)malloc( sizeof(double) * (cols) ); 
-	
-	for( i = 0 ; i < rows ; i++ ){		// upologismos tf
-		counter=0;				// mas deixnei poses lekseis uparxoun se kathe row
-		for(j = 0 ; j < cols ; j++)
-			if( array[i][j] )
-				counter += array[i][j];	
-		for(j = 0 ; j < cols ; j++)
-			if( array[i][j] && counter)
-				tfidf[i][j] = array[i][j] / counter;
-			else
-				tfidf[i][j] = 0.0;
-	}
-	
-	for(j = 0 ; j < cols ; j++){
-		counter = 0;					//o arithmos keimenwn ths sulloghs pou periexoun ton sugkekrimeno arithmo
-		for( i = 0 ; i < rows ; i++ )
-			if( array[i][j] )
-				counter ++;
-		idf = (double)rows / counter;
-		idf = log(idf);
-		for( i = 0 ; i < rows ; i++ )
-			if( array[i][j] )
-				tfidf[i][j] *= idf;
-	}
-	
-	return tfidf;
-}
 
 
 

@@ -12,11 +12,8 @@ typedef struct{
 Item* parse(char*);
 void read_csv(HashTable* ,char*);
 void textCleaning(char*);
-void tokenize(char* , HashTable* , HashTable*  , double** , int* );
+void tokenize(char* , HashTable* , HashTable*  , FileStats* ,int* );
 void read_stopwords(HashTable* ,char*  );
-void CreateDictionary(Stats* , HashTable* ,HashTable* );
-void UpdateArray(Stats*  , HashTable*   , double** );
-double** Bow_To_Tfidf(double** , int , int );
-void CutOffDictionary(HashTable*,int );
-void InsertWord(HashTable* , HashTable*   , char* );
+void CreateDictionary(FileStats* , HashTable* ,HashTable*,int* );
+void InsertWord(HashTable* , HashTable*   , char* ,FileStats* ,int*  );
 

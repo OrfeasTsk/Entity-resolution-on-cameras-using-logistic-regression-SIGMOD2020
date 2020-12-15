@@ -12,20 +12,20 @@
 
 
 int main(int argc, char* argv[]){
-	int i, j, id = 0 ,fIndex = 0;
+	int i, j, id = 0 ,fIndex = 0, wIndex = 0;
 	char* datasetX=NULL, *datasetW=NULL, *stopwordsFile=NULL, *tmpdir1, *json, *tmp;
 	char buff[200];
 	DIR* dir_ptr1,*dir_ptr2;
 	FILE* output;
 	struct dirent* dirent_ptr;
 	Item* item;
-	Stats* fileStats;
+	FileStats* fstats;
 	Pair *pair;
 	HashTable pairs;
 	HashTable cliques;
-	HashTable words;
 	HashTable stopwords;
-	HashTable stats;
+	HashTable words;
+	HashTable files;
 	
 	
 	if(argc != 7){
@@ -55,7 +55,7 @@ int main(int argc, char* argv[]){
 	HTinit(&pairs);
 	HTinit(&stopwords);
 	HTinit(&words);
-	HTinit(&stats);
+	HTinit(&files);
 
 	
 	//Read Stopwords file
@@ -81,11 +81,13 @@ int main(int argc, char* argv[]){
 					//printf("%s\n",json);
 					if( item = parse(json) ){						// an epistrefetai to item dhmiourgeitai to pair (to opoio prepei na bei sthn domh apothikeushs twn pairs)
 									
-						fileStats = (Stats*)malloc(sizeof(Stats)); //Dhmiourgia stats tou arxeiou
-						fileStats->item = item;
-						fileStats->index = fIndex++;
-						CreateDictionary(fileStats, &words, &stopwords);
-						HTinsert(&stats, item->id , (void*)fileStats);
+						fstats = (FileStats*)malloc(sizeof(FileStats)); //Dhmiourgia stats tou arxeiou
+						fstats->item = item;
+						fstats->index = fIndex++;
+						fstats->numOfWords = 0;
+						HTinit(&(fstats->words));
+						CreateDictionary(fstats, &words, &stopwords,&wIndex);
+						HTinsert(&files, item->id , (void*)fstats);
 
 
 						pair = (Pair*)malloc(sizeof(Pair));
@@ -143,41 +145,16 @@ int main(int argc, char* argv[]){
 	fclose(output);
 	
 	
-	CutOffDictionary(&words,lim);
-	
-	
-	//Bow Array
-	double** bow_array = (double**)malloc( sizeof(double*) * fIndex);
-	for( i = 0 ; i < fIndex ; i++ )
-		bow_array[i] = (double*)malloc( sizeof(double) * lim ); 
-	
-	// Arxikopoihsh me 0		
-	for( i = 0 ; i < fIndex ; i++ )
-		for( j = 0 ; j < lim ; j++ )
-			bow_array[i][j] = 0.0;
-			
 	for( i = 0; i < numBuckets; i++)
-		CreateArray( stats.buckets[i], &words, bow_array );		
+		CreateTFIDF(files.buckets[i],fIndex);
 	
-
-
-
-
-
-	double** tfidf_array = Bow_To_Tfidf(bow_array, fIndex ,lim);
-
-	for( i = 0 ; i < fIndex ; i++ ){
-		free(bow_array[i]);
-		free(tfidf_array[i]);
-	}
-	free(bow_array);
-	free(tfidf_array);
+	//CutOffDictionary(&words,lim);
 	
 
 
 	HTdestr(&pairs,&PairDestroy,'v');
 	HTdestr(&cliques,&CliqueDestroy,'v');
-	HTdestr(&stats,NULL,'v');
+	HTdestr(&files,NULL,'v');
 	HTdestr(&words,NULL,'b');
 	HTdestr(&stopwords,NULL,'k');
 	RBdestr();

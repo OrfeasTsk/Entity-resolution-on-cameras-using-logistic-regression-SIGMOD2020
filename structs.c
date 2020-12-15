@@ -455,7 +455,7 @@ Link rotL(Link h) //Aristerh peristrofh
     return x; }
 
 
-Link NEW(char* id,void* obj, Link l, Link r, int color){ 
+Link NEW(char* id,void* obj, Link l, Link r, int color,int* flag){ 
 	Link x =(Link)malloc(sizeof(struct RBnode));
   	x->l = l; x->r = r; 
 	x->color=color;
@@ -463,13 +463,14 @@ Link NEW(char* id,void* obj, Link l, Link r, int color){
 		x->rbitem = (RBItem*)malloc(sizeof(RBItem));
     	x->rbitem->obj = obj;
 		x->rbitem->id = id;
+		*flag = 1;
 	}
     return x;
 }
 
  
 void RBinit() //Arxikopoihsh tou kenou komvou
-	{ z = NEW( NULL ,NULL, NULL, NULL, BLACK); }
+	{ z = NEW( NULL ,NULL, NULL, NULL, BLACK, NULL); }
   
 void RBdestr()
 {
@@ -529,23 +530,23 @@ return h;
 
 }
 
-Link insertR(Link h, char* id,void* obj ,Link head)
+Link insertR(Link h, char* id,void* obj ,Link head, int* flag)
 {   
 	char* v = id;
     RBItem* t = h->rbitem;
    
     if (h == z) //Base case
 	    if(h != head)
-	    	return NEW(id,obj, z, z, RED);  //Kathe neos komvos prepei na einai kokkinos
+	    	return NEW(id,obj, z, z, RED, flag);  //Kathe neos komvos prepei na einai kokkinos
 	    else 
-			return NEW(id,obj, z , z , BLACK); // Ektos apo thn riza pou einai maurh
+			return NEW(id,obj, z , z , BLACK, flag); // Ektos apo thn riza pou einai maurh
     if( strcmp(v,t->id) < 0 ){ //Psaxnoume thn thesh gia na valoume ton neo komvo
-        h->l = insertR(h->l, id,obj,head);
+        h->l = insertR(h->l, id,obj,head,flag);
         if(h->color==BLACK) //Kathe fora pou vriskoume mauro komvo pou exei toulaxiston ena "eggoni" apo aristera (afou to paidi exei bei aristera)
 	    	h=MakeRBTree(h,head);
 	}
     else if( strcmp(t->id,v) < 0 ) {
-		h->r = insertR(h->r, id,obj,head);
+		h->r = insertR(h->r, id,obj,head,flag);
 		if(h->color==BLACK) //Kathe fora pou vriskoume mauro komvo pou exei toulaxiston ena "eggoni" apo deksia (afou to paidi exei bei deksia)
 			h=MakeRBTree(h,head);
 	}
@@ -555,9 +556,9 @@ Link insertR(Link h, char* id,void* obj ,Link head)
 	return h;
   }
   
-Link RBTinsertR( Link head , char* id , void* obj ){ 
+Link RBTinsertR( Link head , char* id , void* obj, int* flag ){ 
 
-	head = insertR( head , id , obj , head );
+	head = insertR( head , id , obj , head, flag );
   	return head; 
 }
 
@@ -971,30 +972,66 @@ void printUnrelated(Link h,FILE* output,char* buff){
 }
 
 
+void UpdateTFIDF( Link h,  int totalFiles , int fileWords){
 
-void CreateArray( Link h, HashTable* ht, double**  array ){
-	
 	RBItem* t = h->rbitem;	
-	int i;	
-    Stats* fileStats;	
+	int i;
+	double idf;	
+    ModelStats* mstats;	
+
 	
 	if(h == z)			// base-case
 		return;
 	
-	CreateArray(h->l , ht  , array);	// anadromika phgainoume aristera
+	UpdateTFIDF(h->l , totalFiles  , fileWords);	// anadromika phgainoume aristera
 	
 	
 	if(t->obj != NULL){									// Den yparxoun diplotypa
 									
-		fileStats  = (Stats*)(t->obj);
-		UpdateArray(fileStats ,  ht , array);
+		mstats  = (ModelStats*)(t->obj);
+		idf = log10((double) totalFiles) - log10((double)mstats->wstats->files.count);
+
+		mstats->tfidf_val /= fileWords; //TF
+		mstats->tfidf_val *= idf; //TF-IDF
+		//printf("totalFiles:%d, fileWords:%d, nt:%d\n   ",totalFiles,fileWords,mstats->wstats->files.count);
+		//printf("%s BOW:%d ,TF-IDF:%f\n  ",mstats->wstats->word,mstats->bow_val,mstats->tfidf_val);
 		
 	}
 	
 	
-	CreateArray(h->r, ht  , array);	// anadromika phgainoume aristera
+	UpdateTFIDF(h->r, totalFiles  , fileWords);	// anadromika phgainoume aristera
+
+
+
+}
+
+
+
+void CreateTFIDF( Link h, int totalFiles){
 	
-}	
+	RBItem* t = h->rbitem;	
+	int i;	
+    FileStats* fstats;	
+	
+	if(h == z)			// base-case
+		return;
+	
+	CreateTFIDF(h->l , totalFiles);	// anadromika phgainoume aristera
+	
+	
+	if(t->obj != NULL){									// Den yparxoun diplotypa
+									
+		fstats  = (FileStats*)(t->obj);
+		//printf("--------%s-------\n",fstats->item->id);
+		for( i = 0; i < numBuckets; i++)
+			UpdateTFIDF(fstats->words.buckets[i] , totalFiles, fstats->numOfWords);
+		
+	}
+	
+	
+	CreateTFIDF(h->r, totalFiles);	// anadromika phgainoume aristera
+	
+}
 
 
 /*##################                  Start of hash tables                             ##########################*/
@@ -1006,6 +1043,7 @@ void HTinit( HashTable* ht ){			// initialise of hash table
 	ht->buckets=(Link*)malloc(sizeof(Link)*numBuckets); 
 	for( i = 0; i < numBuckets; i++ )					// each hash table has a tree
 		RBTinit( &(ht->buckets[i]) );
+	ht->count = 0;
 	
 }
 
@@ -1023,9 +1061,12 @@ int hashFunction(char* str,int nb){ //Polynomial hash function for strings
 void HTinsert( HashTable* ht, char* key, void* item ){			
 	
 	int hashnum;
+	int flag = 0;
 	
 	hashnum = hashFunction( key , numBuckets );
-	ht->buckets[hashnum] = RBTinsertR( ht->buckets[hashnum] , key , item);
+	ht->buckets[hashnum] = RBTinsertR( ht->buckets[hashnum] , key , item, &flag);
+	if(flag)
+		ht->count++;
 	
 }
 
@@ -1037,6 +1078,7 @@ void HTmerge( HashTable* ht1 , HashTable* ht2){
 	
 	free(ht2->buckets);
 	ht2->buckets = NULL;
+	ht2->count = 0;
 		
 }
 
@@ -1058,6 +1100,7 @@ void HTdestr(HashTable* ht,void (*del_fun)(void*),char flag){
 		
 	free(ht->buckets);
 	ht->buckets = NULL;
+	ht->count = 0;
 	
 }
 

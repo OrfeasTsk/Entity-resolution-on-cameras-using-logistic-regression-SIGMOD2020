@@ -63,6 +63,7 @@ int StackEmpty(Stack *);
 
 typedef struct{
 	Link * buckets;
+	int count;
 } HashTable;
 /*##################                  End of hash tables                               ##########################*/
 
@@ -84,12 +85,30 @@ typedef struct{
 typedef struct{
 	Item* item;
 	int index;
-}Stats;
+	int numOfWords;
+	HashTable words;
+}FileStats;
+
+typedef struct{
+	char* word;
+	int index;
+	HashTable files;
+}WordStats;
+
+
 
 typedef struct{
 	char* name;
 	int count;
 }Details;
+
+typedef struct{
+	WordStats* wstats;
+	int bow_val;
+	double tfidf_val;
+}ModelStats;
+
+
 
 /*##################                  Start OF HEAP                          ##########################*/
 
@@ -141,7 +160,7 @@ void RBdestr();
 void RBTdestr(Link*,void (*del_fun)(void*),char);
 void RBTinit(Link*);
 void* RBTfind(Link,char*,char);
-Link RBTinsertR(Link,char*,void*);
+Link RBTinsertR(Link,char*,void*, int*);
 
 
 /*##################                  End of red-black trees                           ##########################*/
@@ -178,6 +197,6 @@ void MakeCliqueHT(Link, HashTable* );
 void CliqueConcat(Pair*, Pair*, int );
 void ChangeUnrelated(Link );
 void printUnrelated(Link ,FILE* ,char* );
-void CreateArray( Link , HashTable* , double** );
+void CreateTFIDF( Link, int );
 void ItemDestroy(Item* );
 
