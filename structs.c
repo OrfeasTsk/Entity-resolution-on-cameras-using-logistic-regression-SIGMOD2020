@@ -263,8 +263,9 @@ void HeapDestroy(Heap* h){
 
 void HeapifyWords(Link* head,Heap* heap)
 {
+	int i;
 	Details* details;
-	int* num;
+	WordStats* wstats; 
 	
     if (*head == z){
 		*head = NULL;
@@ -276,12 +277,16 @@ void HeapifyWords(Link* head,Heap* heap)
     
 
     if((*head)->rbitem->obj != NULL){
-		num = (int*)((*head)->rbitem->obj);
+    	wstats=(WordStats*)((*head)->rbitem->obj);
+    	
 		details = (Details*)malloc(sizeof(Details));
-		details->name = (*head)->rbitem->id;
-		details->count = *num;
-		HeapInsert(heap,details);
-		free(num);
+		details->wstats = wstats;
+		details->count = 0.0;
+		
+		for(i = 0; i < numBuckets; i++ )
+			SumTFIDF( wstats->files.buckets[i] , details );
+		details->count /= wstats->files.count;
+		HeapInsert( heap , details );
 	}
     
     free((*head)->rbitem);
@@ -1030,6 +1035,32 @@ void CreateTFIDF( Link h, int totalFiles){
 	
 	
 	CreateTFIDF(h->r, totalFiles);	// anadromika phgainoume aristera
+	
+}
+
+void SumTFIDF( Link h, Details* details){
+	
+	RBItem* t = h->rbitem;	
+	int i;	
+    FileStats* fstats;
+	ModelStats* mstats;	
+	
+	if(h == z)			// base-case
+		return;
+	
+	SumTFIDF(h->l , details);	// anadromika phgainoume aristera
+	
+	
+	if(t->obj != NULL){									// Den yparxoun diplotypa
+									
+		fstats  = (FileStats*)(t->obj);
+		mstats= (ModelStats*)HTfind(&(fstats->words) , details->wstats->word, 'v' );
+		details->count += mstats->tfidf_val;
+		
+	}
+	
+	
+	SumTFIDF(h->r, details);	// anadromika phgainoume aristera
 	
 }
 

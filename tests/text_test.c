@@ -20,7 +20,7 @@ void check_parse(void){			// elegxoume an h parse douleuei swsta
 
 
 
-
+// den uparxei
 void check_CutOffDictionary(void){				// elegxoume an h CutOffDictionary xwrizei tis lekseis kai krataei tis shmantikoteres mexri to orio pou theloume
 	
 	HashTable words;
@@ -104,7 +104,7 @@ void check_textcleaning(void){			// elegxoume an ginetai swsta o katharismos kei
 }
 
 
-void check_InsertWord(void){
+void check_InsertWord(void){				// thelei allagh
 	HashTable words;
 	HashTable stopwords;
 	

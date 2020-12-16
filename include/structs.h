@@ -98,8 +98,8 @@ typedef struct{
 
 
 typedef struct{
-	char* name;
-	int count;
+	WordStats* wstats;
+	double count;
 }Details;
 
 typedef struct{
@@ -198,5 +198,6 @@ void CliqueConcat(Pair*, Pair*, int );
 void ChangeUnrelated(Link );
 void printUnrelated(Link ,FILE* ,char* );
 void CreateTFIDF( Link, int );
+void SumTFIDF( Link , Details* );
 void ItemDestroy(Item* );
 

@@ -36,6 +36,34 @@ void CutOffDictionary(HashTable* words,int limit){
 }
 */
 
+void CutOffDictionary( HashTable* words , int limit ){
+	
+	int i;
+	Heap heap;
+	Details* details;
+	
+	HeapInit(&heap);
+	
+	for(i = 0 ; i < numBuckets; i++)
+		HeapifyWords(&(words->buckets[i]),&heap);
+
+	free(words->buckets);
+	HTinit(words);
+		
+	for(i = 0; i < limit; i++)
+		if( details = HeapRemoveFirst(&heap)){
+			details->wstats->index = i;
+			HTinsert(words , details->name, (void*)details->wstats );
+			free(details);
+		}
+		else
+			break;
+	
+	HeapDestroy(&heap);
+		
+}
+
+
 void CreateDictionary(FileStats* fstats , HashTable* words ,HashTable* stopwords,int* index){
 
 	struct QueueNode* curr;
