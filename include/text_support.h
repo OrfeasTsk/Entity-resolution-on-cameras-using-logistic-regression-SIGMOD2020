@@ -16,4 +16,4 @@ void tokenize(char* , HashTable* , HashTable*  , FileStats* ,int* );
 void read_stopwords(HashTable* ,char*  );
 void CreateDictionary(FileStats* , HashTable* ,HashTable*,int* );
 void InsertWord(HashTable* , HashTable*   , char* ,FileStats* ,int*  );
-
+void CutOffDictionary( HashTable*, HashTable* , int );

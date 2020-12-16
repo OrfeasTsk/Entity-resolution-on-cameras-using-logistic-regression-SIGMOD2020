@@ -174,6 +174,8 @@ Link RBTinsertR(Link,char*,void*, int*);
 void printRelated(Link, FILE*, char* );
 void PairDestroy(void*);
 void CliqueDestroy(void*);
+void WordsDestroy(void*);
+void FilesDestroy(void*);
 
 
 
@@ -200,4 +202,5 @@ void printUnrelated(Link ,FILE* ,char* );
 void CreateTFIDF( Link, int );
 void SumTFIDF( Link , Details* );
 void ItemDestroy(Item* );
+void AdjustMStats(Link ,HashTable* );
 

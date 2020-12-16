@@ -20,7 +20,7 @@ if(type==1 && p!=head)
 printf("/");
 if (type==2)
 printf("\\");
-printf("%d\n", p->data->count); // Print root node 
+printf("%f\n", p->data->count); // Print root node 
 heaptreeprint(p->left, indent+4,2,head);
 //Print left subtree 4 places right of root node 
 }
@@ -247,7 +247,9 @@ void HeapRecDestroy(struct heapNode* h){//Anadromikh synarthsh gia katastrofh to
 		return;
     HeapRecDestroy(h->left);
     HeapRecDestroy(h->right);
-    free(h->data->name);
+    free(h->data->wstats->word);
+    HTdestr(&(h->data->wstats->files),NULL,'n');
+    free(h->data->wstats);
     free(h->data);
     free(h);
 	
@@ -708,6 +710,21 @@ void CliqueDestroy(void* obj){
 }
 
 
+void WordsDestroy(void* obj){
+	WordStats* wstats = (WordStats*)obj;
+	HTdestr(&(wstats->files),NULL,'n');
+	free(wstats);
+
+}
+
+void FilesDestroy(void* obj){
+	FileStats* fstats = (FileStats*)obj;
+	HTdestr(&(fstats->words),NULL,'v');
+	free(fstats);
+
+}
+
+
 
 void RBTdestr(Link* head,void (*del_fun)(void*),char flag)//Katastrofh tou dentrou
 {
@@ -1062,6 +1079,74 @@ void SumTFIDF( Link h, Details* details){
 	
 	SumTFIDF(h->r, details);	// anadromika phgainoume aristera
 	
+}
+
+
+
+void InsertMStats(Link* oldTree, HashTable* words,  HashTable* newWords){
+	
+	RBItem* t = (*oldTree)->rbitem;
+ 			
+    ModelStats* mstats;	
+
+	
+	if(*oldTree == z)			// base-case
+		return;
+		
+	InsertMStats(&((*oldTree)->l),words,newWords);	// anadromika phgainoume aristera
+	InsertMStats(&((*oldTree)->r),words,newWords);	// anadromika phgainoume deksia
+
+	
+	if(t->obj != NULL){									// Den yparxoun diplotypa
+	
+		mstats  = (ModelStats*)(t->obj);
+		if( HTfind(words,mstats->wstats->word,'k')) //Vrisketai stis shmantikoteres lekseis?
+			HTinsert(newWords,mstats->wstats->word,(void*)mstats);
+		else
+			free(mstats);
+
+	}
+
+
+	free((*oldTree)->rbitem);
+	free(*oldTree);
+	*oldTree = NULL;
+	
+
+}
+
+void AdjustMStats(Link h,HashTable* words){
+	HashTable* newWords;
+
+	RBItem* t = h->rbitem;	
+	int i;	
+    FileStats* fstats;	
+	
+	if(h == z)			// base-case
+		return;
+	
+	AdjustMStats(h->l , words);	// anadromika phgainoume aristera
+	
+	
+	if(t->obj != NULL){									// Den yparxoun diplotypa
+									
+		fstats  = (FileStats*)(t->obj);
+		newWords = (HashTable*)malloc(sizeof(HashTable));
+		HTinit(newWords);
+		
+		for( i = 0; i < numBuckets; i++)
+			InsertMStats(&(fstats->words.buckets[i])  ,words , newWords);
+		
+		for( i = 0; i < numBuckets; i++)	
+			 fstats->words.buckets[i] = newWords->buckets[i];
+		
+		free(newWords->buckets);
+		free(newWords);	
+	}
+	
+	
+	AdjustMStats(h->r, words);	// anadromika phgainoume aristera
+
 }
 
 

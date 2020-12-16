@@ -148,14 +148,14 @@ int main(int argc, char* argv[]){
 	for( i = 0; i < numBuckets; i++)
 		CreateTFIDF(files.buckets[i],fIndex);
 	
-	//CutOffDictionary(&words,lim);
+	CutOffDictionary(&words,&files,lim);
 	
 
 
 	HTdestr(&pairs,&PairDestroy,'v');
 	HTdestr(&cliques,&CliqueDestroy,'v');
-	HTdestr(&files,NULL,'v');
-	HTdestr(&words,NULL,'b');
+	HTdestr(&files,&FilesDestroy,'v');
+	HTdestr(&words,&WordsDestroy,'b');
 	HTdestr(&stopwords,NULL,'k');
 	RBdestr();
 	

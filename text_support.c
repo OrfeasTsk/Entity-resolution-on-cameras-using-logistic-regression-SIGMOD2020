@@ -7,36 +7,11 @@
 #include "./include/text_support.h"
 
 
-/*
-void CutOffDictionary(HashTable* words,int limit){
-	int i,*num;
-	Heap heap;
-	Details* details;
-	
-	HeapInit(&heap);
-	
-	for(i = 0 ; i < numBuckets; i++)
-		HeapifyWords(&(words->buckets[i]),&heap);
 
-	free(words->buckets);
-	HTinit(words);
-		
-	for(i = 0; i < limit; i++)
-		if( details = HeapRemoveFirst(&heap)){
-			num = (int*)malloc(sizeof(int));
-			*num = i;
-			HTinsert(words,details->name,(void*)num);
-			free(details);
-		}
-		else
-			break;
-	
-	HeapDestroy(&heap);
-		
-}
-*/
 
-void CutOffDictionary( HashTable* words , int limit ){
+
+
+void CutOffDictionary( HashTable* words, HashTable* files , int limit ){
 	
 	int i;
 	Heap heap;
@@ -49,16 +24,22 @@ void CutOffDictionary( HashTable* words , int limit ){
 
 	free(words->buckets);
 	HTinit(words);
+
 		
 	for(i = 0; i < limit; i++)
 		if( details = HeapRemoveFirst(&heap)){
 			details->wstats->index = i;
-			HTinsert(words , details->name, (void*)details->wstats );
+			//printf("%s , %f \n",details->wstats->word, details->count );
+			HTinsert(words , details->wstats->word, (void*)details->wstats );
 			free(details);
 		}
 		else
 			break;
+
+	for(i = 0 ; i < numBuckets; i++)
+		AdjustMStats(files->buckets[i],words);
 	
+
 	HeapDestroy(&heap);
 		
 }
