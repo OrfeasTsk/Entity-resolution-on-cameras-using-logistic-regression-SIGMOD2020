@@ -225,12 +225,12 @@ double LRtest(LogisticRegression* lr,Queue* test,int size,int type){
 	Record* record;
 
 
-	double* X = (double*)malloc(sizeof(double)*size*2);
+	double* X = (double*)malloc(sizeof(double)*size);
 
 	for(curr= test->head; curr!=NULL ; curr=curr->next){
 			record=(Record*)(curr->data);
 			y = record->value;
-			for(j = 0; j < 2*size ; j++ )
+			for(j = 0; j < size ; j++ )
 				X[j] = 0.0;
 					
 			for(j = 0 ; j < numBuckets; j++){										// ftiaxoume ton pinaka
@@ -264,7 +264,7 @@ void LRtrain(LogisticRegression* lr,Queue* train,int size,int type){
 
 	lr->weights = (double*)malloc(sizeof(double)*(size + 1)); // Dianysma me varh
 	double* wtmp = (double*)malloc(sizeof(double)*(size + 1)); //Dianysma me ta prohgoymena varh
-	double* X = (double*)malloc(sizeof(double)*size*2);
+	double* X = (double*)malloc(sizeof(double)*size);
 
 	for( j = 0; j < size + 1;  j++){ //Arxikopoihsh dianysmatwn
 		lr->weights[j] = 0.0;
@@ -273,10 +273,10 @@ void LRtrain(LogisticRegression* lr,Queue* train,int size,int type){
 
 	for( t = 0; t < maxIters; t++){
 		
-		for(curr= train->head; curr!=NULL ; curr=curr->next){
+		for(curr = train->head; curr != NULL ; curr=curr->next){
 			record=(Record*)(curr->data);
 			y = record->value;
-			for(j = 0; j < 2*size ; j++ )
+			for(j = 0; j < size ; j++ )
 				X[j] = 0.0;
 					
 			for(j = 0 ; j < numBuckets; j++){										// ftiaxoume ton pinaka

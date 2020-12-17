@@ -165,10 +165,10 @@ int main(int argc, char* argv[]){
 	if(limit < wIndex)
 		CutOffDictionary(&words, &files, limit);
 	
-	LRtrain(&lr,&train,limit,'t');
+	LRtrain(&lr,&train,2*limit,'t');
 	printf("Training finished\n");
 
-	printf("Accuracy: %f\n",LRtest(&lr,&test,limit,'t'));
+	printf("Accuracy: %f\n",LRtest(&lr,&test,2*limit,'t'));
 
 
 	HTdestr(&pairs,&PairDestroy,'v');
