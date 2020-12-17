@@ -235,7 +235,7 @@ double LRtest(LogisticRegression* lr,Queue* test,int size,int type){
 					
 			for(j = 0 ; j < numBuckets; j++){										// ftiaxoume ton pinaka
 				CreateVector(record->item1->words.buckets[j], X, 0 ,type);
-				CreateVector(record->item2->words.buckets[j], X, size , type);
+				CreateVector(record->item2->words.buckets[j], X, size/2 , type);
 			}
 
 			if(LRpred(lr, X, size) > 0.5 ){
@@ -281,7 +281,7 @@ void LRtrain(LogisticRegression* lr,Queue* train,int size,int type){
 					
 			for(j = 0 ; j < numBuckets; j++){										// ftiaxoume ton pinaka
 				CreateVector(record->item1->words.buckets[j], X, 0 ,type);
-				CreateVector(record->item2->words.buckets[j], X, size , type);
+				CreateVector(record->item2->words.buckets[j], X, size/2 , type);
 			}
 
 
