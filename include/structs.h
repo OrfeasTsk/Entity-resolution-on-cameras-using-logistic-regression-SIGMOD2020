@@ -7,7 +7,9 @@ typedef struct RBnode* Link;
 extern Link z;
 Link z;
 
-
+typedef struct{
+	double * weights;
+} LogisticRegression;
 
 /*##################                  Start Generic Queue                                        ##########################*/
 
@@ -209,4 +211,8 @@ void CreateTFIDF( Link, int );
 void SumTFIDF( Link , Details* );
 void ItemDestroy(Item* );
 void AdjustMStats(Link ,HashTable* );
+
+
+
+void DatasetTrain(Queue*  , HashTable* , int , char , LogisticRegression*);
 

@@ -5,9 +5,6 @@
 #define maxSplit 20
 
 
-typedef struct{
-	double * weights;
-} LogisticRegression;
 
 
 

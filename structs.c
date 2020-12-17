@@ -1246,5 +1246,67 @@ void HTdestr(HashTable* ht,void (*del_fun)(void*),char flag){
 /*##################                  End of hash tables                               ##########################*/
 
 
+void CreateVector(Link h, double * array, int start, char type){
 
+
+	RBItem* t = h->rbitem;	
+	int i;	
+    ModelStats* mstats;	
+	
+	if(h == z)			// base-case
+		return;
+	
+	CreateVector(h->l , array, start, type);	// anadromika phgainoume aristera
+	
+	
+	if(t->obj != NULL){									// Den yparxoun diplotypa
+									
+		mstats  = (ModelStats*)(t->obj);
+		if(type == 'b')									// bow
+			array[mstats->wstats->index + start] = (double)(mstats->bow_val);
+		else
+			array[mstats->wstats->index + start] = mstats->tfidf_val;
+			
+		
+	}
+	
+	
+	CreateVector(h->r, array, start, type);	// anadromika phgainoume aristera
+
+}
+
+void DatasetTrain(Queue* train , HashTable* files, int vectorSize, char type, LogisticRegression* lr){
+
+	int i,j;
+	struct QueueNode* curr;
+	Record* record;
+	FileStats* file1, *file2;
+	double **array;
+
+	int* y=(int*)malloc(sizeof(int)*(train->count));
+	array = (double **)malloc(sizeof(double*)*(train->count));
+	for(i=0; i< train->count; i++)
+		array[i]=(double*)malloc(sizeof(double)*vectorSize*2);			// dianisma megethous 2 dianusmatwn to ena dipla sto allo
+		
+	
+	for(curr= train->head, i=0; curr!=NULL ; curr=curr->next, i++){
+		record=(Record*)(curr->data);
+		file1 = (FileStats*) HTfind(files,record->name1,'v');
+		file2 = (FileStats*) HTfind(files,record->name2,'v');
+		y[i]=record->value;
+		for(j=0; j < 2*vectorSize ; j++ )
+			array[i][j] = 0.0;
+			
+		for(j=0 ; j < numBuckets; j++){										// ftiaxoume ton pinaka
+			CreateVector(file1->words.buckets[j], array[i], 0 ,type);
+			CreateVector(file2->words.buckets[j], array[i], vectorSize , type);
+		}
+		
+	}
+	
+	LRtrain(lr, array, train->count, vectorSize, y);
+	for(i=0; i< train->count; i++)
+		free(array[i]);
+	free(array);
+}
 

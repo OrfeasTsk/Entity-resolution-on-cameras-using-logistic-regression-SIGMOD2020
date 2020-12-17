@@ -12,7 +12,7 @@
 
 
 int main(int argc, char* argv[]){
-	int i, j, id = 0 ,fIndex = 0, wIndex = 0;
+	int i, j, id = 0 ,fIndex = 0, wIndex = 0, limit;
 	char* datasetX=NULL, *datasetW=NULL, *stopwordsFile=NULL, *tmpdir1, *json, *tmp;
 	char buff[200];
 	DIR* dir_ptr1,*dir_ptr2;
@@ -155,8 +155,15 @@ int main(int argc, char* argv[]){
 	for( i = 0; i < numBuckets; i++)
 		CreateTFIDF(files.buckets[i],fIndex);
 	
-	CutOffDictionary(&words,&files,lim);
-//	DatasetTrain(&train, &files);
+
+	if( lim > wIndex)		// gia na mhn kseperasei to orio twn leksewn
+		limit=wIndex;
+	else 
+		limit=lim;
+	
+	CutOffDictionary(&words, &files, limit);
+	LogisticRegression lr;
+	DatasetTrain(&train , &files, limit, 'b', &lr );
 
 
 	HTdestr(&pairs,&PairDestroy,'v');
