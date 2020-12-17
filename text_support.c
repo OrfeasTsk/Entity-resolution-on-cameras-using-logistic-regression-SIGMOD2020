@@ -424,5 +424,124 @@ void read_csv(HashTable* ht,char* datasetW){
 }
 
 
+void DatasetSplit(Queue * train, Queue *test, Queue *valid, Record* record ){
+	int sum_of_items_in_queue, r;
+	double flag_train, flag_test, flag_valid;
+	int max_train = maxSplit*60/100;
+	int max_test = maxSplit*20/100;
+	int max_valid = maxSplit*20/100;
+	
+	
+	sum_of_items_in_queue= train->count + test->count + valid->count; 
+	if( sum_of_items_in_queue % 20 == 0 ){			// an einai apo thn arxh 
+		
+    	r = rand() % 3;
+    	if( r == 0 )
+    		QueueInsert(train,(void**)&record);
+    	else if(r == 1)
+    		QueueInsert(test,(void**)&record);
+    	else
+    		QueueInsert(valid,(void**)&record);
+	}
+	else{
+			r= rand()%3;
+			if(r==0)																			// an tuxei to 0
+				if( train->count % max_train == 0 ){										// an to train diaireitai me to 0, h exei gemisei tis 12 theseis pou tou analogoun h den exei bei kamia
+					flag_train = train->count / max_train;								// ypologizoume thn diairesh
+					flag_test = test->count / max_test;
+					flag_valid = valid->count / max_valid;
+					if( (flag_train < flag_test) || (flag_train < flag_valid) )	// an isxuei ena apo ta duo shmainei oti den exei gemisei
+						QueueInsert(train,(void**)&record);
+					else{															// diaforetika shmainei oti exei gemisei
+					
+						r= rand() % 2;
+						if(r==0)											// an erthei 0 paei sto prwto
+							if( test->count % max_test ==0)		// an to mod einai 0, h exei gemisei tiw 4 theseis pou tou analogoun h einai adeio
+								if(flag_test <= flag_valid)				// shmainei oti den exei gemisei
+									QueueInsert(test,(void**)&record);
+								else										// tis exei gemisei
+									QueueInsert(valid,(void**)&record);
+							else											// diaforetika apla mpainei h timh
+								QueueInsert(test,(void**)&record);
+						else if(r==1)										// analoga an tuxei to 1
+							if( valid->count % max_valid ==0)
+								if(flag_valid <= flag_test)				// shmainei oti den exei gemisei
+									QueueInsert(valid,(void**)&record);
+								else
+									QueueInsert(test,(void**)&record);
+							else
+								QueueInsert(valid,(void**)&record);
+					}
+				}
+				else
+					QueueInsert(train,(void**)&record);
+			else if(r==1)															// an tuxei to 1
+				if( test->count % max_test ==0 ){										// an to test diaireitai me to 0, h exei gemisei tis 4 theseis pou tou analogoun h den exei bei kamia
+					flag_train = train->count / max_train;									// ypologizoume thn diairesh
+					flag_test = test->count / max_test;
+					flag_valid = valid->count / max_valid;
+					if( (flag_test < flag_train) || (flag_test < flag_valid) )	// an isxuei ena apo ta duo shmainei oti den exei gemisei
+						QueueInsert(test,(void**)&record);
+					else{															// diaforetika shmainei oti exei gemisei
+					
+						r= rand() % 2;
+						if(r==0)											// an erthei 0 paei sto prwto
+							if( train->count % max_train ==0)						// an to mod einai 0, h exei gemisei tiw 12 theseis pou tou analogoun h einai adeio
+								if(flag_train <= flag_valid)				// shmainei oti den exei gemisei
+									QueueInsert(train,(void**)&record);
+								else										// tis exei gemisei
+									QueueInsert(valid,(void**)&record);
+							else											// diaforetika apla mpainei h timh
+								QueueInsert(train,(void**)&record);
+						else if(r==1)										// analoga an tuxei to 1
+							if( valid->count % max_valid ==0)
+								if(flag_valid <= flag_train)				// shmainei oti den exei gemisei
+									QueueInsert(valid,(void**)&record);
+								else
+									QueueInsert(train,(void**)&record);
+							else
+								QueueInsert(valid,(void**)&record);
+					}
+				}
+				else
+					QueueInsert(test,(void**)&record);	
+			else if(r==2)															// an tuxei to 2
+				if( valid->count % max_valid ==0 ){										// an to valid diaireitai me to 0, h exei gemisei tis 4 theseis pou tou analogoun h den exei bei kamia
+					flag_train = train->count / max_train;									// ypologizoume thn diairesh
+					flag_test = test->count / max_test;
+					flag_valid = valid->count / max_valid;
+					if( (flag_valid < flag_train) || (flag_valid < flag_test) )	// an isxuei ena apo ta duo shmainei oti den exei gemisei
+						QueueInsert(valid,(void**)&record);
+					else{															// diaforetika shmainei oti exei gemisei
+						
+						r= rand ()% 2;
+						if(r==0)											// an erthei 0 paei sto prwto
+							if( train->count % max_train ==0)						// an to mod einai 0, h exei gemisei tiw 12 theseis pou tou analogoun h einai adeio
+								if(flag_train <= flag_test)				// shmainei oti den exei gemisei
+									QueueInsert(train,(void**)&record);
+								else										// tis exei gemisei
+									QueueInsert(test,(void**)&record);
+							else											// diaforetika apla mpainei h timh
+								QueueInsert(train,(void**)&record);
+						else if(r==1)										// analoga an tuxei to 1
+							if( test->count % max_test ==0)
+								if(flag_test <= flag_train)				// shmainei oti den exei gemisei
+									QueueInsert(test,(void**)&record);
+								else
+									QueueInsert(train,(void**)&record);
+							else
+								QueueInsert(test,(void**)&record);
+					}
+				}
+				else
+					QueueInsert(valid,(void**)&record);
+					
+		}
+	
+	
+	
+}
+
+
 
 

@@ -592,11 +592,11 @@ void* RBTfind(Link h,char* id,char type){
 
 
 
-void printRelated(Link h,FILE* output,char* buff){			
+void printRelated(Link h,FILE* output,char* buff, Queue* train,Queue* test,Queue* valid){			
 	
 	RBItem* t = h->rbitem;
     struct QueueNode *curr, *prev=NULL, *temp;
- 	
+ 	Record* record;
 		
     Pair* pair;	
 	Pair* rel_pair;	
@@ -604,7 +604,7 @@ void printRelated(Link h,FILE* output,char* buff){
 	if(h == z)			// base-case
 		return;
 		
-	printRelated(h->l,output,buff);	// anadromika phgainoume aristera
+	printRelated(h->l,output,buff, train, test, valid);	// anadromika phgainoume aristera
 	
 	
 	pair  = (Pair*)(t->obj);
@@ -650,6 +650,16 @@ void printRelated(Link h,FILE* output,char* buff){
 		else{																						// an den einai ta ektypwnoume
 			sprintf(buff,"%s , %s \n", pair->item->id , rel_pair->item->id );			
 			fwrite(buff,sizeof(char),strlen(buff),output);
+							
+			//dhmiourgia record
+			record = (Record*)malloc(sizeof(Record)); //Dhmiourgia record
+			record->name1 = (char*)malloc(strlen(pair->item->id) + 1); // Dhmiourgia onomatos item
+			record->name2 = (char*)malloc(strlen(unrelp->item->id) + 1);	// dhmiourgia onomatos unrelated
+			strcpy(record->name1,pair->item->id);
+			strcpy(record->name2,unrelp->item->id);
+			record->value = 0;										// 0 epeidh eimaste sta unrelated
+			DatasetSplit(train, test1, test2, record );
+			
 			prev = curr;
 			curr = curr->next;
 		}
@@ -658,7 +668,7 @@ void printRelated(Link h,FILE* output,char* buff){
 
 	
 	
-	printRelated(h->r,output,buff);	// anadromika phgainoume deksia
+	printRelated(h->r,output,buff, train, test, valid);	// anadromika phgainoume deksia
 	
 	
 	
@@ -927,18 +937,19 @@ void RemoveUnrelated(Link h , char* id){
 
 
 
-void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff){
+void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff,Queue* train,Queue* test,Queue* valid){
 	
 	RBItem* t = h->rbitem;
 	int hashnum;
     struct QueueNode* ptr,*unrelptr;		
     Clique* unrelc;
 	Pair* pair, *unrelp;	
+	Record* record;
 	
 	if(h == z)			// base-case
 		return;
 	
-	VisitUnrelated(h->l,cliq,output,buff);	// anadromika phgainoume aristera
+	VisitUnrelated(h->l,cliq,output,buff, train, test, valid);	// anadromika phgainoume aristera
 	
 	
 	if(t->obj != NULL){									// Den yparxoun diplotypa
@@ -951,6 +962,15 @@ void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff){
 				unrelp = (Pair*)(unrelptr->data);
 				sprintf(buff,"%s , %s \n", pair->item->id , unrelp->item->id );
 				fwrite(buff,sizeof(char),strlen(buff),output);
+	
+				//dhmiourgia record
+				record = (Record*)malloc(sizeof(Record)); //Dhmiourgia record
+				record->name1 = (char*)malloc(strlen(pair->item->id) + 1); // Dhmiourgia onomatos item
+				record->name2 = (char*)malloc(strlen(unrelp->item->id) + 1);	// dhmiourgia onomatos unrelated
+				strcpy(record->name1,pair->item->id);
+				strcpy(record->name2,unrelp->item->id);
+				record->value = 0;										// 0 epeidh eimaste sta unrelated
+				DatasetSplit(train, test1, test2, record );
 			}	
 		}
 		
@@ -960,7 +980,7 @@ void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff){
 	}
 	
 	
-	VisitUnrelated(h->r,cliq,output,buff);	// anadromika phgainoume aristera
+	VisitUnrelated(h->r,cliq,output,buff, train, test, valid);	// anadromika phgainoume aristera
 	
 }
 
@@ -968,7 +988,7 @@ void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff){
 
 
 
-void printUnrelated(Link h,FILE* output,char* buff){
+void printUnrelated(Link h,FILE* output,char* buff, Queue* train, Queue* test, Queue* valid){
 	
 	RBItem* t = h->rbitem;	
 	int i;	
@@ -977,19 +997,19 @@ void printUnrelated(Link h,FILE* output,char* buff){
 	if(h == z)			// base-case
 		return;
 	
-	printUnrelated(h->l,output,buff);	// anadromika phgainoume aristera
+	printUnrelated(h->l,output,buff, train, test, valid);	// anadromika phgainoume aristera
 	
 	
 	if(t->obj != NULL){									// Den yparxoun diplotypa
 									
 		cliq  = (Clique*)(t->obj);
 		for( i = 0; i < numBuckets; i++)
-			VisitUnrelated(cliq->unrelated.buckets[i],cliq,output,buff);
+			VisitUnrelated(cliq->unrelated.buckets[i],cliq,output,buff, train, test, valid);
 		
 	}
 	
 	
-	printUnrelated(h->r,output,buff);	// anadromika phgainoume aristera
+	printUnrelated(h->r,output,buff, train, test, valid);	// anadromika phgainoume aristera
 	
 }
 

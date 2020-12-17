@@ -26,6 +26,8 @@ int main(int argc, char* argv[]){
 	HashTable stopwords;
 	HashTable words;
 	HashTable files;
+	Queue train,test,valid;
+
 	
 	
 	if(argc != 7){
@@ -56,6 +58,11 @@ int main(int argc, char* argv[]){
 	HTinit(&stopwords);
 	HTinit(&words);
 	HTinit(&files);
+	
+	//Queues for dataset split
+	QueueInit( &train );
+	QueueInit( &test );
+	QueueInit( &valid );
 
 	
 	//Read Stopwords file
@@ -134,14 +141,14 @@ int main(int argc, char* argv[]){
 	
 	output = fopen("unrelated.csv","w");
 	for( i = 0; i < numBuckets; i++)
-		printUnrelated(cliques.buckets[i],output,buff);
+		printUnrelated(cliques.buckets[i],output,buff, &train, &test, &valid);
 	fclose(output);
 	
 	output = fopen("related.csv","w");
 	sprintf(buff,"left_item , right_item\n");
 	fwrite(buff,sizeof(char),strlen(buff),output);
 	for( i = 0; i < numBuckets; i++)
-		printRelated(pairs.buckets[i],output,buff);
+		printRelated(pairs.buckets[i],output,buff, &train, &test, &valid);
 	fclose(output);
 	
 	

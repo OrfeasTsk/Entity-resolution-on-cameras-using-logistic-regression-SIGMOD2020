@@ -97,6 +97,7 @@ typedef struct{
 
 
 
+
 typedef struct{
 	WordStats* wstats;
 	double count;
@@ -108,6 +109,11 @@ typedef struct{
 	double tfidf_val;
 }ModelStats;
 
+typedef struct{
+	char* name1;
+	char* name2;
+	int value;
+}Record;
 
 
 /*##################                  Start OF HEAP                          ##########################*/
@@ -171,7 +177,7 @@ Link RBTinsertR(Link,char*,void*, int*);
 
 
 
-void printRelated(Link, FILE*, char* );
+void printRelated(Link, FILE*, char*,Queue * , Queue *, Queue * );
 void PairDestroy(void*);
 void CliqueDestroy(void*);
 void WordsDestroy(void*);
@@ -198,7 +204,7 @@ void HTdestr(HashTable*  ,void (*del_fun)(void*),char);
 void MakeCliqueHT(Link, HashTable* );
 void CliqueConcat(Pair*, Pair*, int );
 void ChangeUnrelated(Link );
-void printUnrelated(Link ,FILE* ,char* );
+void printUnrelated(Link ,FILE* ,char*,Queue * , Queue *, Queue *  );
 void CreateTFIDF( Link, int );
 void SumTFIDF( Link , Details* );
 void ItemDestroy(Item* );
