@@ -112,8 +112,8 @@ typedef struct{
 }ModelStats;
 
 typedef struct{
-	char* name1;
-	char* name2;
+	FileStats* item1;
+	FileStats* item2;
 	int value;
 }Record;
 
@@ -138,7 +138,7 @@ void HeapInit(Heap*);
 void HeapInsert(Heap* ,Details*);
 Details* HeapRemoveFirst(Heap*);
 void HeapDestroy(Heap*);
-void HeapifyWords(Link* ,Heap*);
+void HeapifyWords(Link* ,Heap*,int);
 struct heapNode* newNode(Details* );
 int swap(struct heapNode* ,struct heapNode*  );
 
@@ -179,7 +179,7 @@ Link RBTinsertR(Link,char*,void*, int*);
 
 
 
-void printRelated(Link, FILE*, char*,Queue * , Queue *, Queue * );
+void printRelated(Link, FILE*, char*,Queue * , Queue *, Queue * ,HashTable* );
 void PairDestroy(void*);
 void CliqueDestroy(void*);
 void WordsDestroy(void*);
@@ -206,13 +206,13 @@ void HTdestr(HashTable*  ,void (*del_fun)(void*),char);
 void MakeCliqueHT(Link, HashTable* );
 void CliqueConcat(Pair*, Pair*, int );
 void ChangeUnrelated(Link );
-void printUnrelated(Link ,FILE* ,char*,Queue * , Queue *, Queue *  );
+void printUnrelated(Link ,FILE* ,char*,Queue * , Queue *, Queue *, HashTable*  );
 void CreateTFIDF( Link, int );
 void SumTFIDF( Link , Details* );
 void ItemDestroy(Item* );
 void AdjustMStats(Link ,HashTable* );
 
+void CreateVector(Link , double * , int , char );
 
 
-void DatasetTrain(Queue*  , HashTable* , int , char , LogisticRegression*);
 

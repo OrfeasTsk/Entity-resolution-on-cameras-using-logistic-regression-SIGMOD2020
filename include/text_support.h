@@ -1,5 +1,5 @@
-#define lim 1000
-#define maxIters 100000
+#define lim 1000000
+#define maxIters 10000
 #define lrate 0.01
 #define epsilon 0.001
 #define maxSplit 20
@@ -17,3 +17,6 @@ void CreateDictionary(FileStats* , HashTable* ,HashTable*,int* );
 void InsertWord(HashTable* , HashTable*   , char* ,FileStats* ,int*  );
 void CutOffDictionary( HashTable*, HashTable* , int );
 void DatasetSplit(Queue * , Queue *, Queue *, Record*  );
+void LRtrain(LogisticRegression* ,Queue* ,int ,int );
+double LRtest(LogisticRegression* ,Queue* ,int ,int );
+double LRpred(LogisticRegression* ,double* , int );

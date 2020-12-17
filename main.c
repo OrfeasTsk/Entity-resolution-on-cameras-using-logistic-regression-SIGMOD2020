@@ -27,6 +27,7 @@ int main(int argc, char* argv[]){
 	HashTable words;
 	HashTable files;
 	Queue train,test,valid;
+	LogisticRegression lr;
 
 	
 	
@@ -141,14 +142,14 @@ int main(int argc, char* argv[]){
 	
 	output = fopen("unrelated.csv","w");
 	for( i = 0; i < numBuckets; i++)
-		printUnrelated(cliques.buckets[i],output,buff, &train, &test, &valid);
+		printUnrelated(cliques.buckets[i],output,buff, &train, &test, &valid, &files );
 	fclose(output);
 	
 	output = fopen("related.csv","w");
 	sprintf(buff,"left_item , right_item\n");
 	fwrite(buff,sizeof(char),strlen(buff),output);
 	for( i = 0; i < numBuckets; i++)
-		printRelated(pairs.buckets[i],output,buff, &train, &test, &valid);
+		printRelated(pairs.buckets[i],output,buff, &train, &test, &valid, &files);
 	fclose(output);
 	
 	
@@ -157,13 +158,17 @@ int main(int argc, char* argv[]){
 	
 
 	if( lim > wIndex)		// gia na mhn kseperasei to orio twn leksewn
-		limit=wIndex;
+		limit = wIndex;
 	else 
-		limit=lim;
+		limit = lim;
 	
-	CutOffDictionary(&words, &files, limit);
-	LogisticRegression lr;
-	DatasetTrain(&train , &files, limit, 'b', &lr );
+	if(limit < wIndex)
+		CutOffDictionary(&words, &files, limit);
+	
+	LRtrain(&lr,&train,limit,'t');
+	printf("Training finished\n");
+
+	printf("Accuracy: %f\n",LRtest(&lr,&test,limit,'t'));
 
 
 	HTdestr(&pairs,&PairDestroy,'v');

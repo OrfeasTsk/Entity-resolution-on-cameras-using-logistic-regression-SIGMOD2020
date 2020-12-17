@@ -263,7 +263,7 @@ void HeapDestroy(Heap* h){
 
 
 
-void HeapifyWords(Link* head,Heap* heap)
+void HeapifyWords(Link* head,Heap* heap,int totalFiles)
 {
 	int i;
 	Details* details;
@@ -274,8 +274,8 @@ void HeapifyWords(Link* head,Heap* heap)
 		return;
 	}
 		
-    HeapifyWords(&((*head)->l),heap);
-    HeapifyWords(&((*head)->r),heap);
+    HeapifyWords(&((*head)->l),heap,totalFiles);
+    HeapifyWords(&((*head)->r),heap,totalFiles);
     
 
     if((*head)->rbitem->obj != NULL){
@@ -287,7 +287,7 @@ void HeapifyWords(Link* head,Heap* heap)
 		
 		for(i = 0; i < numBuckets; i++ )
 			SumTFIDF( wstats->files.buckets[i] , details );
-		details->count /= wstats->files.count;
+		details->count /= totalFiles;
 		HeapInsert( heap , details );
 	}
     
@@ -592,7 +592,7 @@ void* RBTfind(Link h,char* id,char type){
 
 
 
-void printRelated(Link h,FILE* output,char* buff, Queue* train,Queue* test,Queue* valid){			
+void printRelated(Link h,FILE* output,char* buff, Queue* train,Queue* test,Queue* valid,HashTable* files){			
 	
 	RBItem* t = h->rbitem;
     struct QueueNode *curr, *prev=NULL, *temp;
@@ -604,7 +604,7 @@ void printRelated(Link h,FILE* output,char* buff, Queue* train,Queue* test,Queue
 	if(h == z)			// base-case
 		return;
 		
-	printRelated(h->l,output,buff, train, test, valid);	// anadromika phgainoume aristera
+	printRelated(h->l,output,buff, train, test, valid, files);	// anadromika phgainoume aristera
 	
 	
 	pair  = (Pair*)(t->obj);
@@ -653,11 +653,9 @@ void printRelated(Link h,FILE* output,char* buff, Queue* train,Queue* test,Queue
 							
 			//dhmiourgia record
 			record = (Record*)malloc(sizeof(Record)); //Dhmiourgia record
-			record->name1 = (char*)malloc(strlen(pair->item->id) + 1); // Dhmiourgia onomatos item
-			record->name2 = (char*)malloc(strlen(rel_pair->item->id) + 1);	// dhmiourgia onomatos unrelated
-			strcpy(record->name1,pair->item->id);
-			strcpy(record->name2,rel_pair->item->id);
-			record->value = 0;										// 0 epeidh eimaste sta unrelated
+			record->item1 = (FileStats*) HTfind(files,pair->item->id,'v');
+			record->item2 = (FileStats*) HTfind(files,rel_pair->item->id,'v');
+			record->value = 1;										// 1 epeidh eimaste sta related
 			DatasetSplit(train, test, valid, record );
 			
 			prev = curr;
@@ -668,7 +666,7 @@ void printRelated(Link h,FILE* output,char* buff, Queue* train,Queue* test,Queue
 
 	
 	
-	printRelated(h->r,output,buff, train, test, valid);	// anadromika phgainoume deksia
+	printRelated(h->r,output,buff, train, test, valid, files);	// anadromika phgainoume deksia
 	
 	
 	
@@ -937,7 +935,7 @@ void RemoveUnrelated(Link h , char* id){
 
 
 
-void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff,Queue* train,Queue* test,Queue* valid){
+void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff,Queue* train,Queue* test,Queue* valid, HashTable* files){
 	
 	RBItem* t = h->rbitem;
 	int hashnum;
@@ -949,7 +947,7 @@ void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff,Queue* train,Qu
 	if(h == z)			// base-case
 		return;
 	
-	VisitUnrelated(h->l,cliq,output,buff, train, test, valid);	// anadromika phgainoume aristera
+	VisitUnrelated(h->l,cliq,output,buff, train, test, valid, files);	// anadromika phgainoume aristera
 	
 	
 	if(t->obj != NULL){									// Den yparxoun diplotypa
@@ -965,10 +963,8 @@ void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff,Queue* train,Qu
 	
 				//dhmiourgia record
 				record = (Record*)malloc(sizeof(Record)); //Dhmiourgia record
-				record->name1 = (char*)malloc(strlen(pair->item->id) + 1); // Dhmiourgia onomatos item
-				record->name2 = (char*)malloc(strlen(unrelp->item->id) + 1);	// dhmiourgia onomatos unrelated
-				strcpy(record->name1,pair->item->id);
-				strcpy(record->name2,unrelp->item->id);
+				record->item1 = (FileStats*) HTfind(files,pair->item->id,'v');
+				record->item2 = (FileStats*) HTfind(files,unrelp->item->id,'v');
 				record->value = 0;										// 0 epeidh eimaste sta unrelated
 				DatasetSplit(train, test, valid, record );
 			}	
@@ -980,7 +976,7 @@ void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff,Queue* train,Qu
 	}
 	
 	
-	VisitUnrelated(h->r,cliq,output,buff, train, test, valid);	// anadromika phgainoume aristera
+	VisitUnrelated(h->r,cliq,output,buff, train, test, valid, files);	// anadromika phgainoume aristera
 	
 }
 
@@ -988,7 +984,7 @@ void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff,Queue* train,Qu
 
 
 
-void printUnrelated(Link h,FILE* output,char* buff, Queue* train, Queue* test, Queue* valid){
+void printUnrelated(Link h,FILE* output,char* buff, Queue* train, Queue* test, Queue* valid, HashTable* files){
 	
 	RBItem* t = h->rbitem;	
 	int i;	
@@ -997,19 +993,19 @@ void printUnrelated(Link h,FILE* output,char* buff, Queue* train, Queue* test, Q
 	if(h == z)			// base-case
 		return;
 	
-	printUnrelated(h->l,output,buff, train, test, valid);	// anadromika phgainoume aristera
+	printUnrelated(h->l,output,buff, train, test, valid, files);	// anadromika phgainoume aristera
 	
 	
 	if(t->obj != NULL){									// Den yparxoun diplotypa
 									
 		cliq  = (Clique*)(t->obj);
 		for( i = 0; i < numBuckets; i++)
-			VisitUnrelated(cliq->unrelated.buckets[i],cliq,output,buff, train, test, valid);
+			VisitUnrelated(cliq->unrelated.buckets[i],cliq,output,buff, train, test, valid, files);
 		
 	}
 	
 	
-	printUnrelated(h->r,output,buff, train, test, valid);	// anadromika phgainoume aristera
+	printUnrelated(h->r,output,buff, train, test, valid, files);	// anadromika phgainoume aristera
 	
 }
 
@@ -1273,40 +1269,5 @@ void CreateVector(Link h, double * array, int start, char type){
 	
 	CreateVector(h->r, array, start, type);	// anadromika phgainoume aristera
 
-}
-
-void DatasetTrain(Queue* train , HashTable* files, int vectorSize, char type, LogisticRegression* lr){
-
-	int i,j;
-	struct QueueNode* curr;
-	Record* record;
-	FileStats* file1, *file2;
-	double **array;
-
-	int* y=(int*)malloc(sizeof(int)*(train->count));
-	array = (double **)malloc(sizeof(double*)*(train->count));
-	for(i=0; i< train->count; i++)
-		array[i]=(double*)malloc(sizeof(double)*vectorSize*2);			// dianisma megethous 2 dianusmatwn to ena dipla sto allo
-		
-	
-	for(curr= train->head, i=0; curr!=NULL ; curr=curr->next, i++){
-		record=(Record*)(curr->data);
-		file1 = (FileStats*) HTfind(files,record->name1,'v');
-		file2 = (FileStats*) HTfind(files,record->name2,'v');
-		y[i]=record->value;
-		for(j=0; j < 2*vectorSize ; j++ )
-			array[i][j] = 0.0;
-			
-		for(j=0 ; j < numBuckets; j++){										// ftiaxoume ton pinaka
-			CreateVector(file1->words.buckets[j], array[i], 0 ,type);
-			CreateVector(file2->words.buckets[j], array[i], vectorSize , type);
-		}
-		
-	}
-	
-	LRtrain(lr, array, train->count, vectorSize, y);
-	for(i=0; i< train->count; i++)
-		free(array[i]);
-	free(array);
 }
 

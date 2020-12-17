@@ -20,7 +20,7 @@ void CutOffDictionary( HashTable* words, HashTable* files , int limit ){
 	HeapInit(&heap);
 	
 	for(i = 0 ; i < numBuckets; i++)
-		HeapifyWords(&(words->buckets[i]),&heap);
+		HeapifyWords(&(words->buckets[i]),&heap,files->count);
 
 	free(words->buckets);
 	HTinit(words);
@@ -218,35 +218,83 @@ double LRpred(LogisticRegression* lr,double* v, int size){
 	return sigmoid(f);
 }
 
+double LRtest(LogisticRegression* lr,Queue* test,int size,int type){
+
+	int y, j, correct = 0;
+	struct QueueNode* curr;
+	Record* record;
 
 
-void LRtrain(LogisticRegression* lr,double** X ,int rows,int cols ,int* y){
+	double* X = (double*)malloc(sizeof(double)*size*2);
 
-	int i,j,t;
+	for(curr= test->head; curr!=NULL ; curr=curr->next){
+			record=(Record*)(curr->data);
+			y = record->value;
+			for(j = 0; j < 2*size ; j++ )
+				X[j] = 0.0;
+					
+			for(j = 0 ; j < numBuckets; j++){										// ftiaxoume ton pinaka
+				CreateVector(record->item1->words.buckets[j], X, 0 ,type);
+				CreateVector(record->item2->words.buckets[j], X, size , type);
+			}
+
+			if(LRpred(lr, X, size) > 0.5 ){
+				if( y == 1 )
+					correct++;
+			}
+			else{
+				if( y == 0)
+					correct++;
+			}
+	}
+
+	free(X);
+
+	return (double)correct/test->count;
+}
+
+
+
+void LRtrain(LogisticRegression* lr,Queue* train,int size,int type){
+
+	int j,t,y;
 	double f,error;
+	struct QueueNode* curr;
+	Record* record;
 
-	lr->weights = (double*)malloc(sizeof(double)*(cols + 1)); // Dianysma me varh
-	double* wtmp = (double*)malloc(sizeof(double)*(cols + 1)); //Dianysma me ta prohgoymena varh
+	lr->weights = (double*)malloc(sizeof(double)*(size + 1)); // Dianysma me varh
+	double* wtmp = (double*)malloc(sizeof(double)*(size + 1)); //Dianysma me ta prohgoymena varh
+	double* X = (double*)malloc(sizeof(double)*size*2);
 
-	for( i = 0; i < cols + 1;  i++){ //Arxikopoihsh dianysmatwn
-		lr->weights[i] = 0.0;
-		wtmp[i] = 0.0;
+	for( j = 0; j < size + 1;  j++){ //Arxikopoihsh dianysmatwn
+		lr->weights[j] = 0.0;
+		wtmp[j] = 0.0;
 	}
 
 	for( t = 0; t < maxIters; t++){
 		
-		for( i = 0; i < rows ; i++){
-			
-			error = LRpred(lr,X[i],cols) - y[i]; // sigmoid(w^T*xi + b) - yi
+		for(curr= train->head; curr!=NULL ; curr=curr->next){
+			record=(Record*)(curr->data);
+			y = record->value;
+			for(j = 0; j < 2*size ; j++ )
+				X[j] = 0.0;
+					
+			for(j = 0 ; j < numBuckets; j++){										// ftiaxoume ton pinaka
+				CreateVector(record->item1->words.buckets[j], X, 0 ,type);
+				CreateVector(record->item2->words.buckets[j], X, size , type);
+			}
+
+
+			error = LRpred(lr,X,size) - y; // sigmoid(w^T*xi + b) - yi
 			
 			lr->weights[0] -= lrate * error;
-			for( j = 0; j < cols ; j++)
-				lr->weights[j + 1] -= lrate * error * X[i][j]; // wj = wj - learningRate * sum((sigmoid(w^T * xi + b) - yi) * xij)
+			for( j = 0; j < size ; j++)
+				lr->weights[j + 1] -= lrate * error * X[j]; // wj = wj - learningRate * sum((sigmoid(w^T * xi + b) - yi) * xij)
 
 		}
 
 		f = 0.0;
-		for( j = 0; j < cols + 1 ; j++){
+		for( j = 0; j < size + 1 ; j++){
 			f += (lr->weights[j] - wtmp[j])*(lr->weights[j] - wtmp[j]);
 			wtmp[j] = lr->weights[j];
 		}
@@ -257,6 +305,7 @@ void LRtrain(LogisticRegression* lr,double** X ,int rows,int cols ,int* y){
 	}
 
 	free(wtmp);
+	free(X);
 
 }
 
