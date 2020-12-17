@@ -156,7 +156,7 @@ int main(int argc, char* argv[]){
 		CreateTFIDF(files.buckets[i],fIndex);
 	
 	CutOffDictionary(&words,&files,lim);
-	
+//	DatasetTrain(&train, &files);
 
 
 	HTdestr(&pairs,&PairDestroy,'v');

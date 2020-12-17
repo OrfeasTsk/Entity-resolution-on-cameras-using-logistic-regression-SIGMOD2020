@@ -654,11 +654,11 @@ void printRelated(Link h,FILE* output,char* buff, Queue* train,Queue* test,Queue
 			//dhmiourgia record
 			record = (Record*)malloc(sizeof(Record)); //Dhmiourgia record
 			record->name1 = (char*)malloc(strlen(pair->item->id) + 1); // Dhmiourgia onomatos item
-			record->name2 = (char*)malloc(strlen(unrelp->item->id) + 1);	// dhmiourgia onomatos unrelated
+			record->name2 = (char*)malloc(strlen(rel_pair->item->id) + 1);	// dhmiourgia onomatos unrelated
 			strcpy(record->name1,pair->item->id);
-			strcpy(record->name2,unrelp->item->id);
+			strcpy(record->name2,rel_pair->item->id);
 			record->value = 0;										// 0 epeidh eimaste sta unrelated
-			DatasetSplit(train, test1, test2, record );
+			DatasetSplit(train, test, valid, record );
 			
 			prev = curr;
 			curr = curr->next;
@@ -970,7 +970,7 @@ void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff,Queue* train,Qu
 				strcpy(record->name1,pair->item->id);
 				strcpy(record->name2,unrelp->item->id);
 				record->value = 0;										// 0 epeidh eimaste sta unrelated
-				DatasetSplit(train, test1, test2, record );
+				DatasetSplit(train, test, valid, record );
 			}	
 		}
 		
