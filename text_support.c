@@ -197,8 +197,20 @@ void read_stopwords(HashTable* ht, char* stopwordsFile){
 }
 
 
+void UpdateWeights(LogisticRegression* lr , double* error, double val, int totalFiles ,int index ){
 
 
+	lr->weights[index] -= lrate * (*error) * val /totalFiles; // wj = wj - learningRate * sum((sigmoid(w^T * xi + b) - yi) * xij)
+
+}
+
+void CalculateF(LogisticRegression* lr, double* f, double  val, int index){
+
+	
+	*f += lr->weights[index] * val; //w^T*xi
+	
+
+}
 
 
 double sigmoid(double f){
@@ -208,37 +220,32 @@ double sigmoid(double f){
 }
 
 
-double LRpred(LogisticRegression* lr,double* v, int size){
+double LRpred(LogisticRegression* lr,Record* record, int size, char type){
 	int j;
-	int f = lr->weights[0]; //Arxikopoihsh me ton stathero oro
-	
-	for( j = 0; j < size; j++ )
-		f += lr->weights[j + 1] * v[j]; //w^T*xi
+	double f = lr->weights[0]; //Arxikopoihsh me ton stathero oro
+
+	for( j = 0; j < numBuckets; j++ ){
+		SparseIteration(record->item1->words.buckets[j], lr ,&f, 1 , type , -1);
+		SparseIteration(record->item2->words.buckets[j], lr ,&f, size/2 + 1 , type , -1);
+	}
+
+	//f += lr->weights[j + 1] * X[j]; 
 	
 	return sigmoid(f);
 }
 
-double LRtest(LogisticRegression* lr,Queue* test,int size,int type){
+double LRtest(LogisticRegression* lr,Queue* test,int size,char type){
 
 	int y, j, correct = 0;
 	struct QueueNode* curr;
 	Record* record;
 
 
-	double* X = (double*)malloc(sizeof(double)*size);
-
-	for(curr= test->head; curr!=NULL ; curr=curr->next){
-			record=(Record*)(curr->data);
+	for(curr = test->head; curr != NULL ; curr = curr->next){
+			record = (Record*)(curr->data);
 			y = record->value;
-			for(j = 0; j < size ; j++ )
-				X[j] = 0.0;
 					
-			for(j = 0 ; j < numBuckets; j++){										// ftiaxoume ton pinaka
-				CreateVector(record->item1->words.buckets[j], X, 0 ,type);
-				CreateVector(record->item2->words.buckets[j], X, size/2 , type);
-			}
-
-			if(LRpred(lr, X, size) > 0.5 ){
+			if(LRpred(lr, record, size, type) > 0.5 ){
 				if( y == 1 )
 					correct++;
 			}
@@ -248,23 +255,22 @@ double LRtest(LogisticRegression* lr,Queue* test,int size,int type){
 			}
 	}
 
-	free(X);
 
 	return (double)correct/test->count;
 }
 
 
 
-void LRtrain(LogisticRegression* lr,Queue* train,int size,int type){
+void LRtrain(LogisticRegression* lr,Queue* train,int size,char type){
 
 	int j,t,y;
 	double f,error;
 	struct QueueNode* curr;
 	Record* record;
 
+
 	lr->weights = (double*)malloc(sizeof(double)*(size + 1)); // Dianysma me varh
 	double* wtmp = (double*)malloc(sizeof(double)*(size + 1)); //Dianysma me ta prohgoymena varh
-	double* X = (double*)malloc(sizeof(double)*size);
 
 	for( j = 0; j < size + 1;  j++){ //Arxikopoihsh dianysmatwn
 		lr->weights[j] = 0.0;
@@ -276,20 +282,18 @@ void LRtrain(LogisticRegression* lr,Queue* train,int size,int type){
 		for(curr = train->head; curr != NULL ; curr=curr->next){
 			record=(Record*)(curr->data);
 			y = record->value;
-			for(j = 0; j < size ; j++ )
-				X[j] = 0.0;
-					
-			for(j = 0 ; j < numBuckets; j++){										// ftiaxoume ton pinaka
-				CreateVector(record->item1->words.buckets[j], X, 0 ,type);
-				CreateVector(record->item2->words.buckets[j], X, size/2 , type);
+
+			error = LRpred(lr,record,size,type) - y; // sigmoid(w^T*xi + b) - yi
+			
+			lr->weights[0] -= lrate * error / train->count;
+
+			for( j = 0; j < numBuckets; j++ ){
+				SparseIteration(record->item1->words.buckets[j], lr ,&error, 1 , type, train->count);
+				SparseIteration(record->item2->words.buckets[j], lr ,&error, size/2 + 1 ,type, train->count);
 			}
 
 
-			error = LRpred(lr,X,size) - y; // sigmoid(w^T*xi + b) - yi
-			
-			lr->weights[0] -= lrate * error;
-			for( j = 0; j < size ; j++)
-				lr->weights[j + 1] -= lrate * error * X[j]; // wj = wj - learningRate * sum((sigmoid(w^T * xi + b) - yi) * xij)
+			//	lr->weights[j + 1] -= lrate * error * X[j]; 
 
 		}
 
@@ -304,8 +308,8 @@ void LRtrain(LogisticRegression* lr,Queue* train,int size,int type){
 
 	}
 
+
 	free(wtmp);
-	free(X);
 
 }
 

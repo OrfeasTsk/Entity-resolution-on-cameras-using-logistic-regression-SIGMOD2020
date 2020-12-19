@@ -3,6 +3,7 @@
 #include <dirent.h>
 #include <fcntl.h>
 #include <string.h>
+#include <time.h>
 #include "./include/structs.h"
 #include "./include/text_support.h"
 
@@ -70,7 +71,7 @@ int main(int argc, char* argv[]){
 	read_stopwords(&stopwords , stopwordsFile);
 
 
-
+	srand(time(NULL));
 
 	dir_ptr1 = opendir(datasetX);
 	while(dirent_ptr = readdir(dir_ptr1)) //Diavasma twn katalogwn

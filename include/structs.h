@@ -212,7 +212,7 @@ void SumTFIDF( Link , Details* );
 void ItemDestroy(Item* );
 void AdjustMStats(Link ,HashTable* );
 
-void CreateVector(Link , double * , int , char );
+void SparseIteration(Link , LogisticRegression*  ,double*  ,int , char , int);
 
 
 

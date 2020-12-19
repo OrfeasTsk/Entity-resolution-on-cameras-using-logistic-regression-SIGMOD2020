@@ -893,6 +893,8 @@ void ChangeUnrelated(Link h){
 		for( i = 0; i < numBuckets; i++)	
 			cliq->unrelated.buckets[i] = unrelated->buckets[i];
 		
+		cliq->unrelated.count = unrelated->count;
+		
 		free(unrelated->buckets);
 		free(unrelated);
 	
@@ -1156,6 +1158,8 @@ void AdjustMStats(Link h,HashTable* words){
 		for( i = 0; i < numBuckets; i++)	
 			 fstats->words.buckets[i] = newWords->buckets[i];
 		
+		fstats->words.count = newWords->count;
+
 		free(newWords->buckets);
 		free(newWords);	
 	}
@@ -1242,7 +1246,7 @@ void HTdestr(HashTable* ht,void (*del_fun)(void*),char flag){
 /*##################                  End of hash tables                               ##########################*/
 
 
-void CreateVector(Link h, double * array, int start, char type){
+void SparseIteration(Link h, LogisticRegression* lr ,double* p ,int start, char type, int totalFiles){
 
 
 	RBItem* t = h->rbitem;	
@@ -1252,22 +1256,31 @@ void CreateVector(Link h, double * array, int start, char type){
 	if(h == z)			// base-case
 		return;
 	
-	CreateVector(h->l , array, start, type);	// anadromika phgainoume aristera
+	SparseIteration(h->l , lr, p , start, type , totalFiles);	// anadromika phgainoume aristera
 	
 	
 	if(t->obj != NULL){									// Den yparxoun diplotypa
 									
 		mstats  = (ModelStats*)(t->obj);
-		if(type == 'b')									// bow
-			array[mstats->wstats->index + start] = (double)(mstats->bow_val);
-		else
-			array[mstats->wstats->index + start] = mstats->tfidf_val;
-			
 		
+		if(type == 'b'){	 //Bow
+			if(totalFiles != -1)
+				UpdateWeights(lr,p,(double)(mstats->bow_val),totalFiles,mstats->wstats->index + start);  
+			else
+				CalculateF(lr,p,(double)(mstats->bow_val),mstats->wstats->index + start);
+
+		}
+		else{ //Tfidf
+			if(totalFiles != -1)
+				UpdateWeights(lr,p,mstats->tfidf_val,totalFiles,mstats->wstats->index + start);
+			else
+				CalculateF(lr,p,mstats->tfidf_val,mstats->wstats->index + start);
+		}
+
 	}
 	
 	
-	CreateVector(h->r, array, start, type);	// anadromika phgainoume aristera
+	SparseIteration(h->r, lr, p , start, type , totalFiles);	// anadromika phgainoume aristera
 
 }
 
