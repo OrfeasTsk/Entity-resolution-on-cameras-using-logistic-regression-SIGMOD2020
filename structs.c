@@ -220,14 +220,23 @@ Details* HeapRemoveFirst(Heap* h){//Vriskei ta k megalytera stoixeia tou swrou
 	Details* data;
 	struct heapNode* temp=NULL;
 	
+	
+	
 	if(h == NULL)
 		return NULL;
 	
-	if(h->nodes == 0){
-		free(h->head);
-		h->head = NULL;
+	if(h->head == NULL)
 		return NULL;
+		
+	if(h->nodes == 1){
+		data=h->head->data;
+		free(h->head);
+		h->head=NULL;
+		h->nodes=0;
+		h->height=0;
+		return data;
 	}
+	
 	data=h->head->data;//Pairnoume to prwto stoixeio
 	findLastAndReplace(h->head,&temp,h->head,h->height-1);
 	Heapify(h->head);

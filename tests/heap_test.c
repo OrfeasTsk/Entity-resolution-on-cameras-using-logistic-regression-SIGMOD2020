@@ -19,6 +19,7 @@ void test_heapnodecreate(void){		// Elegxoume an h newNode douleuei kai arxikopo
 	wstats->word=(char*)malloc(strlen(name1) + 1);
 	strcpy(wstats->word,name1);
 	wstats->index=0;
+//	HTinit(&(wstats->files));
 	wstats->files=files;
 	
 	// dhmiourgoume ta details pou prepei na baloume
@@ -195,7 +196,7 @@ void test_heapremovefirst(void){	// elegxoume an h HeapRemoveFirst douleuei kai 
 	wstats1->word=(char*)malloc(strlen(name1) + 1);
 	strcpy(wstats1->word,name1);
 	wstats1->index=0;
-	HTinit(&(wstats1->files));
+
 	
 	// dhmiourgoume ta details pou prepei na baloume
 	details1 = (Details*)malloc(sizeof(Details));
@@ -208,7 +209,7 @@ void test_heapremovefirst(void){	// elegxoume an h HeapRemoveFirst douleuei kai 
 	wstats2->word=(char*)malloc(strlen(name2) + 1);
 	strcpy(wstats2->word,name2);
 	wstats2->index=0;
-	HTinit(&(wstats2->files));
+
 	
 	// dhmiourgoume ta details pou prepei na baloume
 	details2 = (Details*)malloc(sizeof(Details));
@@ -223,6 +224,10 @@ void test_heapremovefirst(void){	// elegxoume an h HeapRemoveFirst douleuei kai 
 	TEST_ASSERT( strcmp( details->wstats->word , name2 ) == 0 );
 	TEST_ASSERT( details->count == 10.0 );
 	
+	free(details->wstats->word);
+	free(details->wstats);
+	free(details);
+	
 	// afairoume kai to deutero details kanontas paromoious elegxous
 	details= HeapRemoveFirst(&heap);
 	TEST_ASSERT( heap.nodes == 0 );
@@ -230,7 +235,11 @@ void test_heapremovefirst(void){	// elegxoume an h HeapRemoveFirst douleuei kai 
 	TEST_ASSERT( strcmp( details->wstats->word , name1 ) == 0 );
 	TEST_ASSERT( details->count == 5.0 );
 	
-	HeapDestroy(&heap);
+
+	free(details->wstats->word);
+	free(details->wstats);
+	free(details);
+//	HeapDestroy(&heap);
 	
 }
 
@@ -266,7 +275,7 @@ void test_heapifywords(void){	// Elegxoume an h HeapifyWords douleuei swsta kai 
 	
 	
 	
-		// bazoume lekseis sto keimeno kai elegxoume an autes oi lekseis mphkan kai uparxoyn 
+	// bazoume lekseis sto keimeno kai elegxoume an autes oi lekseis mphkan kai uparxoyn 
 	//First one		
 	item1 = (Item*) malloc(sizeof(Item)); //Dhmiourgia antikeimenou
 	item1->id=malloc(strlen(str1)+1);
@@ -279,14 +288,11 @@ void test_heapifywords(void){	// Elegxoume an h HeapifyWords douleuei swsta kai 
 	fstats1->index = fIndex++;
 	fstats1->numOfWords = 0;
 	HTinit(&(fstats1->words));
-	// bazoume 4 fores thn prwth
-	InsertWord(&words, &stopwords, item1->id, fstats1, &wIndex );
-	InsertWord(&words, &stopwords, item1->id, fstats1, &wIndex );
 	InsertWord(&words, &stopwords, item1->id, fstats1, &wIndex );
 	InsertWord(&words, &stopwords, item1->id, fstats1, &wIndex );
 	HTinsert(&files, item1->id , (void*)fstats1);
 	
-	
+
 	//Second one
 		
 		
@@ -301,14 +307,12 @@ void test_heapifywords(void){	// Elegxoume an h HeapifyWords douleuei swsta kai 
 	fstats2->index = fIndex++;
 	fstats2->numOfWords = 0;
 	HTinit(&(fstats2->words));
-	// mia fora thn deuterh
 	InsertWord(&words, &stopwords, item2->id, fstats2, &wIndex );
 	HTinsert(&files, item2->id , (void*)fstats2);
 	
 	
 	//Third one
-		
-		
+			
 	item3 = (Item*) malloc(sizeof(Item)); //Dhmiourgia antikeimenou
 	item3->id=malloc(strlen(str3)+1);
 	strcpy(item3->id,str3);
@@ -320,9 +324,6 @@ void test_heapifywords(void){	// Elegxoume an h HeapifyWords douleuei swsta kai 
 	fstats3->index = fIndex++;
 	fstats3->numOfWords = 0;
 	HTinit(&(fstats3->words));
-	// 4 fores thn trith
-	InsertWord(&words, &stopwords, item3->id, fstats3, &wIndex );
-	InsertWord(&words, &stopwords, item3->id, fstats3, &wIndex );
 	InsertWord(&words, &stopwords, item3->id, fstats3, &wIndex );
 	InsertWord(&words, &stopwords, item3->id, fstats3, &wIndex );
 	HTinsert(&files, item3->id , (void*)fstats3);
@@ -341,7 +342,6 @@ void test_heapifywords(void){	// Elegxoume an h HeapifyWords douleuei swsta kai 
 	fstats4->index = fIndex++;
 	fstats4->numOfWords = 0;
 	HTinit(&(fstats4->words));
-	// 1 fora thn tetarth
 	InsertWord(&words, &stopwords, item4->id, fstats4, &wIndex );
 	HTinsert(&files, item4->id , (void*)fstats4);
 	
@@ -362,8 +362,6 @@ void test_heapifywords(void){	// Elegxoume an h HeapifyWords douleuei swsta kai 
 	InsertWord(&words, &stopwords, item5->id, fstats5, &wIndex );
 	InsertWord(&words, &stopwords, item5->id, fstats5, &wIndex );
 	InsertWord(&words, &stopwords, item5->id, fstats5, &wIndex );
-	InsertWord(&words, &stopwords, item5->id, fstats5, &wIndex );
-	InsertWord(&words, &stopwords, item5->id, fstats5, &wIndex );
 	HTinsert(&files, item5->id , (void*)fstats5);
 	
 		
@@ -376,7 +374,7 @@ void test_heapifywords(void){	// Elegxoume an h HeapifyWords douleuei swsta kai 
 	TEST_ASSERT(!strcmp(heap.head->data->wstats->word,str5));	// megaluterh timh
 	
 	
-/*	free(item1->id);
+	free(item1->id);
 	free(item2->id);
 	free(item3->id);
 	free(item4->id);
@@ -391,22 +389,13 @@ void test_heapifywords(void){	// Elegxoume an h HeapifyWords douleuei swsta kai 
 
 	
 	HTdestr(&files,&FilesDestroy,'v');
-	HTdestr(&words,&WordsDestroy,'b');
+	free(words.buckets);
 	HTdestr(&stopwords,NULL,'k');
-	
-	free(fstats1);
-	free(fstats2);
-	free(fstats3);
-	free(fstats4);
-	free(fstats5);*/
 
-	details= HeapRemoveFirst(&heap);
-	details= HeapRemoveFirst(&heap);	
-	details= HeapRemoveFirst(&heap);
-	details= HeapRemoveFirst(&heap);
-	details= HeapRemoveFirst(&heap);
 	HeapDestroy(&heap);
+	RBdestr();
 }
+
 
 
 

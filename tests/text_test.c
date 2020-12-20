@@ -129,7 +129,6 @@ void check_CutOffDictionary(void){				// elegxoume an h CutOffDictionary xwrizei
 	free(item3->id);
 	free(item4->id);
 
-	// gia oura?
 	free(item1);
 	free(item2);
 	free(item3);
@@ -139,12 +138,7 @@ void check_CutOffDictionary(void){				// elegxoume an h CutOffDictionary xwrizei
 	HTdestr(&files,&FilesDestroy,'v');
 	HTdestr(&words,&WordsDestroy,'b');
 	HTdestr(&stopwords,NULL,'k');
-	
-	free(fstats1);
-	free(fstats2);
-	free(fstats3);
-	free(fstats4);
-
+	RBdestr();
 
 
 }
@@ -308,11 +302,8 @@ void check_InsertWord(void){
 	HTdestr(&files,&FilesDestroy,'v');
 	HTdestr(&words,&WordsDestroy,'b');
 	HTdestr(&stopwords,NULL,'k');
-	
-	free(fstats1);
-	free(fstats2);
-	free(fstats3);
-	free(fstats4);
+	RBdestr();
+
 
 
 
@@ -382,7 +373,7 @@ void check_tokenization(void){
 	char* str5="text";
 	
 	// bazoume mia leksh sto keimeno
-	
+
 	item = (Item*) malloc(sizeof(Item)); //Dhmiourgia antikeimenou
 	item->id=malloc(strlen(str1)+1);
 	strcpy(item->id,str1);
@@ -396,7 +387,7 @@ void check_tokenization(void){
 	HTinit(&(fstats->words));
 	InsertWord(&words, &stopwords, item->id, fstats, &wIndex );
 	
-	tokenize(temp, &words, &stopwords, fstats, &wIndex );
+	tokenize(temp, &words, &stopwords, fstats, &wIndex);
 	
 	TEST_ASSERT(words.count == 4);
 	TEST_ASSERT(HTfind(&words,str1,'v') != NULL);
@@ -408,17 +399,17 @@ void check_tokenization(void){
 	
 	
 	free(temp);
-	free(item->id);
-	// gia oura?
-	free(item);
 
 	HTdestr(&words,&WordsDestroy,'b');
 	HTdestr(&stopwords,NULL,'k');
+	HTdestr(&(fstats->words),NULL,'v');
 	free(fstats);
-
-
+	free(item->id);
+	free(item);
+	RBdestr();
 	
 }
+
 
 
 
