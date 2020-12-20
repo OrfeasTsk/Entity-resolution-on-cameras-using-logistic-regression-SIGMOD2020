@@ -42,15 +42,7 @@ void test_qinsert(void){
 	}
 	
 	//Diagrafh komvwn
-	for( i = 0 ; (i < 100 && queue.head != NULL) ; i++ ){
-		temp=queue.head;
-		free(temp->data);
-		if(queue.head == queue.tail)
-			queue.tail = queue.head->next;
-		queue.head=queue.head->next;
-		free(temp);
-		queue.count--;
-	}
+	QueueDelete(&queue);
 	
 	//Diagrafthke h oura?
 	TEST_ASSERT(QueueEmpty(&queue));

@@ -350,6 +350,22 @@ void QueueConcat(Queue* q1 , Queue* q2,Clique* cliq){
 	
 }
 
+void QueueDelete(Queue* queue){
+
+	struct QueueNode* curr = queue->head,*temp;
+
+	while(curr != NULL){
+		temp = curr;
+		curr = curr->next;
+		free(temp->data);
+		free(temp);
+	}
+
+	queue->head = NULL;
+	queue->tail = NULL;
+	queue->count = 0;
+
+}
 
 /*##################                  End Generic Queue                                        ##########################*/
 

@@ -171,12 +171,15 @@ int main(int argc, char* argv[]){
 
 	printf("Accuracy: %f\n",LRtest(&lr,&test,2*limit,'t'));
 
-
+	free(lr.weights);
 	HTdestr(&pairs,&PairDestroy,'v');
 	HTdestr(&cliques,&CliqueDestroy,'v');
 	HTdestr(&files,&FilesDestroy,'v');
 	HTdestr(&words,&WordsDestroy,'b');
 	HTdestr(&stopwords,NULL,'k');
+	QueueDelete(&train);
+	QueueDelete(&test);
+	QueueDelete(&valid);
 	RBdestr();
 	
 	return 0;

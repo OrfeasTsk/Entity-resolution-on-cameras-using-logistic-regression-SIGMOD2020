@@ -1,9 +1,8 @@
-#define lim 1000
-#define maxIters 10
-#define lrate 0.001
-#define epsilon 0.001
+#define lim 1000000
+#define maxIters 100
+#define lrate 0.01
+#define epsilon 0.0001
 #define maxSplit 20
-
 
 
 

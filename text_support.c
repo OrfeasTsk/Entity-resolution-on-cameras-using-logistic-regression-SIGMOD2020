@@ -200,7 +200,7 @@ void read_stopwords(HashTable* ht, char* stopwordsFile){
 void UpdateWeights(LogisticRegression* lr , double* error, double val, int totalFiles ,int index ){
 
 
-	lr->weights[index] -= lrate * (*error) * val /totalFiles; // wj = wj - learningRate * sum((sigmoid(w^T * xi + b) - yi) * xij)
+	lr->weights[index] -= lrate * (*error) * val; // wj = wj - learningRate * sum((sigmoid(w^T * xi + b) - yi) * xij)
 
 }
 
