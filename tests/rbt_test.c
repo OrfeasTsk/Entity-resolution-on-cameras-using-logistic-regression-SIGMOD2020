@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#define TEST_NO_MAIN
 #include "../include/acutest.h"
 #include "../include/structs.h"
 
@@ -90,10 +91,3 @@ void test_rbtinsert(void){
 
 
 
-
-//Pinakas me tests
-TEST_LIST = {
-	{ "rbt_create", test_rbtcreate },
-	{ "rbt_insert", test_rbtinsert },
-	{ NULL, NULL } // NULL sto telos
-};

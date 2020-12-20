@@ -13,7 +13,7 @@
 
 
 int main(int argc, char* argv[]){
-	int i, j, id = 0 ,fIndex = 0, wIndex = 0, limit;
+	int i, id = 0 ,fIndex = 0, wIndex = 0, limit;
 	char* datasetX=NULL, *datasetW=NULL, *stopwordsFile=NULL, *tmpdir1, *json, *tmp;
 	char buff[200];
 	DIR* dir_ptr1,*dir_ptr2;
@@ -74,21 +74,21 @@ int main(int argc, char* argv[]){
 	srand(time(NULL));
 
 	dir_ptr1 = opendir(datasetX);
-	while(dirent_ptr = readdir(dir_ptr1)) //Diavasma twn katalogwn
+	while((dirent_ptr = readdir(dir_ptr1))) //Diavasma twn katalogwn
 		if(strcmp(dirent_ptr->d_name,".") && strcmp(dirent_ptr->d_name,"..")){
 			tmpdir1 = (char*)malloc(strlen(datasetX) + strlen(dirent_ptr->d_name) + 2);
 			strcpy(tmpdir1,datasetX);
 			strcat(tmpdir1,"/");
 			strcat(tmpdir1,dirent_ptr->d_name);
 			dir_ptr2 = opendir(tmpdir1);
-			while(dirent_ptr = readdir(dir_ptr2)) //Diavasma twn json arxeiwn
+			while((dirent_ptr = readdir(dir_ptr2))) //Diavasma twn json arxeiwn
 				if(strcmp(dirent_ptr->d_name,".")  && strcmp(dirent_ptr->d_name,"..")){
 					json = (char*)malloc(strlen(tmpdir1) + strlen(dirent_ptr->d_name) + 2);
 					strcpy(json,tmpdir1);
 					strcat(json,"/");
 					strcat(json,dirent_ptr->d_name); 
 					//printf("%s\n",json);
-					if( item = parse(json) ){						// an epistrefetai to item dhmiourgeitai to pair (to opoio prepei na bei sthn domh apothikeushs twn pairs)
+					if( (item = parse(json)) ){						// an epistrefetai to item dhmiourgeitai to pair (to opoio prepei na bei sthn domh apothikeushs twn pairs)
 									
 						fstats = (FileStats*)malloc(sizeof(FileStats)); //Dhmiourgia stats tou arxeiou
 						fstats->item = item;

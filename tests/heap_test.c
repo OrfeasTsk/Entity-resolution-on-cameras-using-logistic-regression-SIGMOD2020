@@ -1,7 +1,7 @@
+#define TEST_NO_MAIN
 #include "../include/acutest.h"
 #include "../include/structs.h"
 #include "../include/text_support.h"
-#define numBuckets 100
 
 
 void test_heapnodecreate(void){		// Elegxoume an h newNode douleuei kai arxikopoiei swsta ta values
@@ -412,15 +412,3 @@ void test_heapifywords(void){	// Elegxoume an h HeapifyWords douleuei swsta kai 
 
 
 
-
-
-//Pinakas me tests
-TEST_LIST = {
-	{ "heap_create", test_heapcreate },
-	{ "heap_insert", test_heapinsert},
-	{ "heapnode_create", test_heapnodecreate },
-	{ "swap_heapnodes", test_swap },
-	{ "heapify_words", test_heapifywords },
-	{ "heap_remove", test_heapremovefirst},
-	{ NULL, NULL } // NULL sto telos
-};

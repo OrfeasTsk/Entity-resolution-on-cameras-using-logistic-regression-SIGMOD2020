@@ -131,12 +131,14 @@ int findLastAndReplace(struct heapNode* h,struct heapNode** temp,struct heapNode
 		   
 		}
 		else{
-	    if(h->left == NULL ) //Elegxos gia aristero paidi prwta giati to dentro einai plhres
-        	return 1 ;
-        else
-        	*temp=h; //Krataei ton teleutaio komvo me toulaxiston ena paidi
-		if(h->right == NULL)
-			return 1;
+	    	if(h->left == NULL ){ //Elegxos gia aristero paidi prwta giati to dentro einai plhres
+        		return 1 ;
+        	}
+        	else{
+        		*temp=h; //Krataei ton teleutaio komvo me toulaxiston ena paidi
+        	}
+			if(h->right == NULL)
+				return 1;
 		}
 	}
     else if(level > 1) //Anwtera epipeda
@@ -509,12 +511,13 @@ Link MakeRBTree(Link h,Link head){  //Synarthsh pou ftiaxnei to red-black tree
 Link leftchild=h->l , rightchild=h->r ;
 if(leftchild->color==RED && rightchild->color==RED) //Periptwsh pou to deksi kai to aristero paidi einai kokkina
 		if(rightchild->l->color != BLACK || rightchild->r->color != BLACK  || leftchild->l->color != BLACK || leftchild->r->color != BLACK){ //An yparxei kokkino eggoni
-			if(h!=head)//Kanoume recoloring ektos ths rizas
+			if(h!=head){//Kanoume recoloring ektos ths rizas
 				h->color=RED;
-				leftchild->color=BLACK;
-				rightchild->color=BLACK;
-				return h;
-}
+			}
+			leftchild->color=BLACK;
+			rightchild->color=BLACK;
+			return h;
+		}
 			
 if(leftchild->color==BLACK && rightchild->color==RED){ //Periptwsh pou to aristero paidi einai mauro kai to deksi kokkino
 	if( rightchild->r->color == RED ){ //Periptwsh pou to aristero eggoni apo ta deksia einai mauro kai to deksi eggoni apo deksia kokkino 
@@ -558,11 +561,12 @@ Link insertR(Link h, char* id,void* obj ,Link head, int* flag)
 	char* v = id;
     RBItem* t = h->rbitem;
    
-    if (h == z) //Base case
+    if (h == z){ //Base case
 	    if(h != head)
 	    	return NEW(id,obj, z, z, RED, flag);  //Kathe neos komvos prepei na einai kokkinos
 	    else 
 			return NEW(id,obj, z , z , BLACK, flag); // Ektos apo thn riza pou einai maurh
+	}
     if( strcmp(v,t->id) < 0 ){ //Psaxnoume thn thesh gia na valoume ton neo komvo
         h->l = insertR(h->l, id,obj,head,flag);
         if(h->color==BLACK) //Kathe fora pou vriskoume mauro komvo pou exei toulaxiston ena "eggoni" apo aristera (afou to paidi exei bei aristera)
@@ -589,7 +593,7 @@ Link RBTinsertR( Link head , char* id , void* obj, int* flag ){
 void* RBTfind(Link h,char* id,char type){
    
     RBItem* t = h->rbitem;
-    struct QueueNode* curr;
+ 
     
     if(h == z)								// an den brethei timh
 		return NULL;
@@ -604,6 +608,8 @@ void* RBTfind(Link h,char* id,char type){
 			else if( type == 'v' && t->obj != NULL)
 				return t->obj;
     }
+
+    return NULL;
 }
 
 
@@ -752,7 +758,6 @@ void FilesDestroy(void* obj){
 
 void RBTdestr(Link* head,void (*del_fun)(void*),char flag)//Katastrofh tou dentrou
 {
-	Clique* cliq;
 	
 	
     if (*head == z){
@@ -765,11 +770,12 @@ void RBTdestr(Link* head,void (*del_fun)(void*),char flag)//Katastrofh tou dentr
     
     if((*head)->rbitem->id != NULL && (flag == 'b' || flag == 'k') )
     	free((*head)->rbitem->id);
-    if((*head)->rbitem->obj != NULL && (flag == 'b' || flag == 'v'))
+    if((*head)->rbitem->obj != NULL && (flag == 'b' || flag == 'v')){
     	if(del_fun != NULL)
     		(*del_fun)((*head)->rbitem->obj);
     	else
     		free((*head)->rbitem->obj);
+    }
 
        
     
@@ -930,7 +936,7 @@ void RemoveUnrelated(Link h , char* id){
 	
 	
 	RBItem* t = h->rbitem;
-    Clique* cliq;
+
     
     if(h == z)								// an den brethei timi 
 		return;
@@ -1031,7 +1037,6 @@ void printUnrelated(Link h,FILE* output,char* buff, Queue* train, Queue* test, Q
 void UpdateTFIDF( Link h,  int totalFiles , int fileWords){
 
 	RBItem* t = h->rbitem;	
-	int i;
 	double idf;	
     ModelStats* mstats;	
 
@@ -1091,8 +1096,7 @@ void CreateTFIDF( Link h, int totalFiles){
 
 void SumTFIDF( Link h, Details* details){
 	
-	RBItem* t = h->rbitem;	
-	int i;	
+	RBItem* t = h->rbitem;		
     FileStats* fstats;
 	ModelStats* mstats;	
 	
@@ -1266,7 +1270,6 @@ void SparseIteration(Link h, LogisticRegression* lr ,double* p ,int start, char 
 
 
 	RBItem* t = h->rbitem;	
-	int i;	
     ModelStats* mstats;	
 	
 	if(h == z)			// base-case

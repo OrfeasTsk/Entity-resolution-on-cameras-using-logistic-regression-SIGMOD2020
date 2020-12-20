@@ -1,3 +1,4 @@
+#define TEST_NO_MAIN
 #include "../include/acutest.h"
 #include "../include/structs.h"
 
@@ -20,7 +21,6 @@ void test_qinsert(void){
 	Queue queue;
 	QueueInit( &queue );
 	
-	struct QueueNode* temp;
 	
 	//Elegxos me thn xrhsh integer
 
@@ -136,11 +136,3 @@ void test_qconcat(void){
 
 
 
-
-//Pinakas me tests
-TEST_LIST = {
-	{ "queue_create", test_qcreate },
-	{ "queue_insert", test_qinsert },
-	{ "queue_concat", test_qconcat },
-	{ NULL, NULL } // NULL sto telos
-};

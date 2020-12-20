@@ -1,3 +1,4 @@
+#define TEST_NO_MAIN
 #include "../include/acutest.h"
 #include "../include/structs.h"
 
@@ -55,7 +56,6 @@ void test_stcheck(void){
 	char* str="{[\"This is a string\"]}";
 	int i , flag=0, count=0;
 	
-	struct StackNode* temp;
 	
 	for( i=0 ; str[i]!='\0' ;  i++){
 		
@@ -87,12 +87,3 @@ void test_stcheck(void){
 
 	
 
-
-
-//Pinakas me tests
-TEST_LIST = {
-	{ "stack_create", test_stcreate },
-	{ "stack_push", test_stpush },
-	{ "stack_check", test_stcheck },
-	{ NULL, NULL } // NULL sto telos
-};

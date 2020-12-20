@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#define TEST_NO_MAIN
 #include "../include/acutest.h"
 #include "../include/structs.h"
 
@@ -143,16 +144,3 @@ void test_htmerge(void){
 }
 
 
-
-
-
-
-
-
-//Pinakas me tests
-TEST_LIST = {
-	{ "ht_create", test_htcreate },
-	{ "ht_insert", test_htinsert },
-	{"ht_merge", test_htmerge },
-	{ NULL, NULL } // NULL sto telos
-};

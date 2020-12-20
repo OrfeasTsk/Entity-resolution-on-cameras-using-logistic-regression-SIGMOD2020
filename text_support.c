@@ -27,7 +27,7 @@ void CutOffDictionary( HashTable* words, HashTable* files , int limit ){
 
 		
 	for(i = 0; i < limit; i++)
-		if( details = HeapRemoveFirst(&heap)){
+		if( (details = HeapRemoveFirst(&heap))){
 			details->wstats->index = i;
 			//printf("%s , %f \n",details->wstats->word, details->count );
 			HTinsert(words , details->wstats->word, (void*)details->wstats );
@@ -90,14 +90,12 @@ void textCleaning(char* text){
 
 void InsertWord(HashTable* words, HashTable* stopwords , char* temp,FileStats* fstats,int* index )
 {
-	char *token;
-	int* num;
 	WordStats* wstats;
 	ModelStats* mstats;
 	
-		if(HTfind(stopwords,temp,'k') == NULL)
-			if( wstats = (WordStats*)HTfind(words, temp ,'v')){
-				if(mstats = (ModelStats*) HTfind(&(fstats->words),wstats->word,'v')){
+		if(HTfind(stopwords,temp,'k') == NULL){
+			if((wstats = (WordStats*)HTfind(words, temp ,'v'))){
+				if((mstats = (ModelStats*) HTfind(&(fstats->words),wstats->word,'v'))){
 					mstats->bow_val++;
 					mstats->tfidf_val++;
 					fstats->numOfWords++;
@@ -131,6 +129,7 @@ void InsertWord(HashTable* words, HashTable* stopwords , char* temp,FileStats* f
 				fstats->numOfWords++;
 				HTinsert(&(wstats->files),fstats->item->id,(void*)fstats);	
 			}
+		}
 			
 }
 
@@ -172,7 +171,6 @@ void tokenize(char* text, HashTable* words, HashTable* stopwords ,FileStats* fst
 
 void read_stopwords(HashTable* ht, char* stopwordsFile){
 	
-	int i,hashnum;
 	FILE * stopwords_file = fopen(stopwordsFile,"r"); 
 	char* token;
 	char line[50];
@@ -236,7 +234,7 @@ double LRpred(LogisticRegression* lr,Record* record, int size, char type){
 
 double LRtest(LogisticRegression* lr,Queue* test,int size,char type){
 
-	int y, j, correct = 0;
+	int y, correct = 0;
 	struct QueueNode* curr;
 	Record* record;
 
@@ -432,7 +430,7 @@ Item* parse(char* json){
 
 void read_csv(HashTable* ht,char* datasetW){
 	
-	int i,hashnum;
+	int i;
 	FILE * csv_file = fopen(datasetW,"r"); 
 	char* token;
 	char line[400];
@@ -458,7 +456,7 @@ void read_csv(HashTable* ht,char* datasetW){
 				pairB = (Pair*) HTfind(ht,token,'v');  //Euresh tou right item
 			}
 			if( i == 2)
-				if(pairA != NULL && pairB != NULL)
+				if(pairA != NULL && pairB != NULL){
 					if(atoi(token) == 1){ //An tairiazoun 
 						if(pairA->cliq->related != pairB->cliq->related) //An den exoun enwthei ksana
 							CliqueConcat(pairA, pairB, 1);
@@ -466,6 +464,7 @@ void read_csv(HashTable* ht,char* datasetW){
 					else{				// alliws sthn periptwsh tou 0 (dld dn tairiazoun)
 						CliqueConcat(pairA, pairB, 0);
 					}
+				}
 			
 			
 			token = strtok(NULL, ",");			// continue to tokenize the string we passed first
@@ -498,7 +497,7 @@ void DatasetSplit(Queue * train, Queue *test, Queue *valid, Record* record ){
 	}
 	else{
 			r= rand()%3;
-			if(r==0)																			// an tuxei to 0
+			if(r==0){																			// an tuxei to 0
 				if( train->count % max_train == 0 ){										// an to train diaireitai me to 0, h exei gemisei tis 12 theseis pou tou analogoun h den exei bei kamia
 					flag_train = train->count / max_train;								// ypologizoume thn diairesh
 					flag_test = test->count / max_test;
@@ -508,27 +507,32 @@ void DatasetSplit(Queue * train, Queue *test, Queue *valid, Record* record ){
 					else{															// diaforetika shmainei oti exei gemisei
 					
 						r= rand() % 2;
-						if(r==0)											// an erthei 0 paei sto prwto
-							if( test->count % max_test ==0)		// an to mod einai 0, h exei gemisei tiw 4 theseis pou tou analogoun h einai adeio
+						if(r==0){											// an erthei 0 paei sto prwto
+							if( test->count % max_test ==0){		// an to mod einai 0, h exei gemisei tiw 4 theseis pou tou analogoun h einai adeio
 								if(flag_test <= flag_valid)				// shmainei oti den exei gemisei
 									QueueInsert(test,(void**)&record);
 								else										// tis exei gemisei
 									QueueInsert(valid,(void**)&record);
+							}
 							else											// diaforetika apla mpainei h timh
 								QueueInsert(test,(void**)&record);
-						else if(r==1)										// analoga an tuxei to 1
-							if( valid->count % max_valid ==0)
+						}
+						else if(r==1){										// analoga an tuxei to 1
+							if( valid->count % max_valid ==0){
 								if(flag_valid <= flag_test)				// shmainei oti den exei gemisei
 									QueueInsert(valid,(void**)&record);
 								else
 									QueueInsert(test,(void**)&record);
+							}
 							else
 								QueueInsert(valid,(void**)&record);
+						}
 					}
 				}
 				else
 					QueueInsert(train,(void**)&record);
-			else if(r==1)															// an tuxei to 1
+			}
+			else if(r==1){															// an tuxei to 1
 				if( test->count % max_test ==0 ){										// an to test diaireitai me to 0, h exei gemisei tis 4 theseis pou tou analogoun h den exei bei kamia
 					flag_train = train->count / max_train;									// ypologizoume thn diairesh
 					flag_test = test->count / max_test;
@@ -538,27 +542,32 @@ void DatasetSplit(Queue * train, Queue *test, Queue *valid, Record* record ){
 					else{															// diaforetika shmainei oti exei gemisei
 					
 						r= rand() % 2;
-						if(r==0)											// an erthei 0 paei sto prwto
-							if( train->count % max_train ==0)						// an to mod einai 0, h exei gemisei tiw 12 theseis pou tou analogoun h einai adeio
+						if(r==0){											// an erthei 0 paei sto prwto
+							if( train->count % max_train ==0){						// an to mod einai 0, h exei gemisei tiw 12 theseis pou tou analogoun h einai adeio
 								if(flag_train <= flag_valid)				// shmainei oti den exei gemisei
 									QueueInsert(train,(void**)&record);
 								else										// tis exei gemisei
 									QueueInsert(valid,(void**)&record);
+							}
 							else											// diaforetika apla mpainei h timh
 								QueueInsert(train,(void**)&record);
-						else if(r==1)										// analoga an tuxei to 1
-							if( valid->count % max_valid ==0)
+						}
+						else if(r==1){										// analoga an tuxei to 1
+							if( valid->count % max_valid ==0){
 								if(flag_valid <= flag_train)				// shmainei oti den exei gemisei
 									QueueInsert(valid,(void**)&record);
 								else
 									QueueInsert(train,(void**)&record);
+							}
 							else
 								QueueInsert(valid,(void**)&record);
+						}
 					}
 				}
 				else
-					QueueInsert(test,(void**)&record);	
-			else if(r==2)															// an tuxei to 2
+					QueueInsert(test,(void**)&record);
+			}	
+			else if(r==2){															// an tuxei to 2
 				if( valid->count % max_valid ==0 ){										// an to valid diaireitai me to 0, h exei gemisei tis 4 theseis pou tou analogoun h den exei bei kamia
 					flag_train = train->count / max_train;									// ypologizoume thn diairesh
 					flag_test = test->count / max_test;
@@ -568,26 +577,31 @@ void DatasetSplit(Queue * train, Queue *test, Queue *valid, Record* record ){
 					else{															// diaforetika shmainei oti exei gemisei
 						
 						r= rand ()% 2;
-						if(r==0)											// an erthei 0 paei sto prwto
-							if( train->count % max_train ==0)						// an to mod einai 0, h exei gemisei tiw 12 theseis pou tou analogoun h einai adeio
+						if(r==0){											// an erthei 0 paei sto prwto
+							if( train->count % max_train ==0){						// an to mod einai 0, h exei gemisei tiw 12 theseis pou tou analogoun h einai adeio
 								if(flag_train <= flag_test)				// shmainei oti den exei gemisei
 									QueueInsert(train,(void**)&record);
 								else										// tis exei gemisei
 									QueueInsert(test,(void**)&record);
+							}
 							else											// diaforetika apla mpainei h timh
 								QueueInsert(train,(void**)&record);
-						else if(r==1)										// analoga an tuxei to 1
-							if( test->count % max_test ==0)
+						}
+						else if(r==1){										// analoga an tuxei to 1
+							if( test->count % max_test ==0){
 								if(flag_test <= flag_train)				// shmainei oti den exei gemisei
 									QueueInsert(test,(void**)&record);
 								else
 									QueueInsert(train,(void**)&record);
+							}
 							else
 								QueueInsert(test,(void**)&record);
+						}
 					}
 				}
 				else
 					QueueInsert(valid,(void**)&record);
+			}
 					
 		}
 	

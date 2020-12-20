@@ -1,3 +1,4 @@
+#define TEST_NO_MAIN
 #include "../include/acutest.h"
 #include "../include/structs.h"
 #include "../include/text_support.h"
@@ -422,13 +423,3 @@ void check_tokenization(void){
 
 
 
-//Pinakas me tests
-TEST_LIST = {
-	{ "parse_test", check_parse },
-	{ "cutoffdictionary_test", check_CutOffDictionary },
-	{ "textcleaning_test", check_textcleaning },
-	{ "InsertWord_test", check_InsertWord },
-	{ "read_stopwords_test", check_read_stopwords },
-	{"tokenization_test", check_tokenization},
-	{ NULL, NULL } // NULL sto telos
-};
