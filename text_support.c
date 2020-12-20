@@ -2,16 +2,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <math.h>
 #include "./include/structs.h"
 #include "./include/text_support.h"
 
 
 
+/*##################              START OF FUNCTIONS ABOUT DICTIONARY CONSTRUNCTION            ##########################*/
 
 
-
-void CutOffDictionary( HashTable* words, HashTable* files , int limit ){
+void CutOffDictionary( HashTable* words, HashTable* files , int limit ){  //Apokoph shmantikoterwn leksewn apo to leksilogio
 	
 	int i;
 	Heap heap;
@@ -26,7 +25,7 @@ void CutOffDictionary( HashTable* words, HashTable* files , int limit ){
 	HTinit(words);
 
 		
-	for(i = 0; i < limit; i++)
+	for(i = 0; i < limit; i++)  //Eksagwgh twn top limit leksewn kai dhmiourgia neou leksilogiou
 		if( (details = HeapRemoveFirst(&heap))){
 			details->wstats->index = i;
 			//printf("%s , %f \n",details->wstats->word, details->count );
@@ -36,7 +35,7 @@ void CutOffDictionary( HashTable* words, HashTable* files , int limit ){
 		else
 			break;
 
-	for(i = 0 ; i < numBuckets; i++)
+	for(i = 0 ; i < numBuckets; i++)  //Prosarmogh twn leksewn sta filestats
 		AdjustMStats(files->buckets[i],words);
 	
 
@@ -45,7 +44,7 @@ void CutOffDictionary( HashTable* words, HashTable* files , int limit ){
 }
 
 
-void CreateDictionary(FileStats* fstats , HashTable* words ,HashTable* stopwords,int* index){
+void CreateDictionary(FileStats* fstats , HashTable* words ,HashTable* stopwords,int* index){ //Dhmiourgia leksilogiou
 
 	struct QueueNode* curr;
 	Spec* spec;
@@ -53,10 +52,10 @@ void CreateDictionary(FileStats* fstats , HashTable* words ,HashTable* stopwords
 
 	for( curr = fstats->item->specs.head; curr != NULL ; curr = curr->next){
 		spec = (Spec*)(curr->data);
-		textCleaning(spec->name);
-		textCleaning(spec->value);
-		tokenize(spec->name, words, stopwords , fstats , index );
-		tokenize(spec->value, words, stopwords ,fstats ,index );		
+		textCleaning(spec->name);  //Katharismos tou onomatos
+		textCleaning(spec->value);  //Katharismos ths timhs
+		tokenize(spec->name, words, stopwords , fstats , index ); //Tokenize tou onomatos
+		tokenize(spec->value, words, stopwords ,fstats ,index );  //Tokenize ths timhs	
 	}
 
 }
@@ -65,42 +64,22 @@ void CreateDictionary(FileStats* fstats , HashTable* words ,HashTable* stopwords
 
 
 
-void textCleaning(char* text){
-
-	int i;
-	int backslash = 0;
-
-	for( i = 0  ; i < strlen(text) ; i++)
-		if( isalnum(text[i]) && backslash)
-			text[i] = ' ';
-    	else if( isalpha(text[i]) && isupper(text[i]) )
-    		text[i] = tolower(text[i]);
-    	else if(text[i] == '\\'){
-    		backslash = 1;
-    		text[i] = ' ';
-    	}
-    	else if( isspace(text[i]) && backslash)
-    		backslash = 0;
-    	else if ( ispunct(text[i]) || !isprint(text[i]) )
-    		text[i]=' ';
-
-	
-}
 
 
-void InsertWord(HashTable* words, HashTable* stopwords , char* temp,FileStats* fstats,int* index )
+
+void InsertWord(HashTable* words, HashTable* stopwords , char* temp,FileStats* fstats,int* index ) //Eisagwgh lekshs
 {
 	WordStats* wstats;
 	ModelStats* mstats;
 	
-		if(HTfind(stopwords,temp,'k') == NULL){
-			if((wstats = (WordStats*)HTfind(words, temp ,'v'))){
-				if((mstats = (ModelStats*) HTfind(&(fstats->words),wstats->word,'v'))){
+		if(HTfind(stopwords,temp,'k') == NULL){  //An den yparxei sta stopwords
+			if((wstats = (WordStats*)HTfind(words, temp ,'v'))){  //An yparxei sto leksilogio
+				if((mstats = (ModelStats*) HTfind(&(fstats->words),wstats->word,'v'))){  //An yparxei stis lekseis tou arxeiou
 					mstats->bow_val++;
 					mstats->tfidf_val++;
 					fstats->numOfWords++;
 				}
-				else{
+				else{  //Eisagwgh stis lekseis tou arxeiou
 					mstats = (ModelStats*)malloc(sizeof(ModelStats));
 					mstats->wstats = wstats;
 					mstats->bow_val = 1;
@@ -111,7 +90,7 @@ void InsertWord(HashTable* words, HashTable* stopwords , char* temp,FileStats* f
 				}
 
 			}
-			else{
+			else{ //Eisagwgh sto leksilogio kai stis lekseis tou arxeiou
 				
 				wstats = (WordStats*)malloc(sizeof(WordStats));
 				wstats->word = (char*)malloc(strlen(temp) + 1);
@@ -134,9 +113,39 @@ void InsertWord(HashTable* words, HashTable* stopwords , char* temp,FileStats* f
 }
 
 
+/*##################              END OF FUNCTIONS ABOUT DICTIONARY CONSTRUNCTION               ##########################*/
 
 
-void tokenize(char* text, HashTable* words, HashTable* stopwords ,FileStats* fstats,int* index){
+
+
+/*##################              START OF TEXT PREPROCESSING                   ##########################*/
+
+void textCleaning(char* text){ //Katharismos leksewn
+
+	int i;
+	int backslash = 0;
+
+	for( i = 0  ; i < strlen(text) ; i++)
+		if( isalnum(text[i]) && backslash)  //An einai alfarithmitiko xwris na yparxei backslash prin
+			text[i] = ' ';
+    	else if( isalpha(text[i]) && isupper(text[i]) ) //An einai gramma kefalaio
+    		text[i] = tolower(text[i]);
+    	else if(text[i] == '\\'){ //An einai backslash
+    		backslash = 1;
+    		text[i] = ' ';
+    	}
+    	else if( isspace(text[i]) && backslash)  //An einai keno kai prohgeitai backslash
+    		backslash = 0;
+    	else if ( ispunct(text[i]) || !isprint(text[i]) )  //An einai shmeio stikshs kai mh egkyros xarakthras
+    		text[i]=' ';
+
+	
+}
+
+
+
+
+void tokenize(char* text, HashTable* words, HashTable* stopwords ,FileStats* fstats,int* index){ //Diaxwrismos twn leksewn
 
 	int i = 0,start,count = 0,j;
 	char temp[100];
@@ -169,150 +178,16 @@ void tokenize(char* text, HashTable* words, HashTable* stopwords ,FileStats* fst
 	
 }
 
-void read_stopwords(HashTable* ht, char* stopwordsFile){
-	
-	FILE * stopwords_file = fopen(stopwordsFile,"r"); 
-	char* token;
-	char line[50];
-	
-	if(stopwords_file == NULL){
-		printf("Stopwords file is empty!\n");
-		return;
-	}
-			
-	while( fgets( line , sizeof(line) , stopwords_file ) ){
-		
-		token=(char*)malloc(strlen(line));
-		strncpy(token,line,strlen(line));
-		token[strlen(line) - 1 ] = '\0';
 
-		HTinsert( ht  , token, (void*) token);
-
-	}
-	
-
-	fclose(stopwords_file);
-}
-
-
-void UpdateWeights(LogisticRegression* lr , double* error, double val, int totalFiles ,int index ){
-
-
-	lr->weights[index] -= lrate * (*error) * val; // wj = wj - learningRate * sum((sigmoid(w^T * xi + b) - yi) * xij)
-
-}
-
-void CalculateF(LogisticRegression* lr, double* f, double  val, int index){
-
-	
-	*f += lr->weights[index] * val; //w^T*xi
-	
-
-}
-
-
-double sigmoid(double f){
-
-	return 1.0/(1.0 + exp(-f));
-
-}
-
-
-double LRpred(LogisticRegression* lr,Record* record, int size, char type){
-	int j;
-	double f = lr->weights[0]; //Arxikopoihsh me ton stathero oro
-
-	for( j = 0; j < numBuckets; j++ ){
-		SparseIteration(record->item1->words.buckets[j], lr ,&f, 1 , type , -1);
-		SparseIteration(record->item2->words.buckets[j], lr ,&f, size/2 + 1 , type , -1);
-	}
-
-	//f += lr->weights[j + 1] * X[j]; 
-	
-	return sigmoid(f);
-}
-
-double LRtest(LogisticRegression* lr,Queue* test,int size,char type){
-
-	int y, correct = 0;
-	struct QueueNode* curr;
-	Record* record;
-
-
-	for(curr = test->head; curr != NULL ; curr = curr->next){
-			record = (Record*)(curr->data);
-			y = record->value;
-					
-			if(LRpred(lr, record, size, type) > 0.5 ){
-				if( y == 1 )
-					correct++;
-			}
-			else{
-				if( y == 0)
-					correct++;
-			}
-	}
-
-
-	return (double)correct/test->count;
-}
+/*##################              END OF TEXT PREPROCESSING                   ##########################*/
 
 
 
-void LRtrain(LogisticRegression* lr,Queue* train,int size,char type){
 
-	int j,t,y;
-	double f,error;
-	struct QueueNode* curr;
-	Record* record;
+/*##################              START OF FILE READING AND PARSING                      ##########################*/
 
 
-	lr->weights = (double*)malloc(sizeof(double)*(size + 1)); // Dianysma me varh
-	double* wtmp = (double*)malloc(sizeof(double)*(size + 1)); //Dianysma me ta prohgoymena varh
-
-	for( j = 0; j < size + 1;  j++){ //Arxikopoihsh dianysmatwn
-		lr->weights[j] = 0.0;
-		wtmp[j] = 0.0;
-	}
-
-	for( t = 0; t < maxIters; t++){
-		
-		for(curr = train->head; curr != NULL ; curr=curr->next){
-			record=(Record*)(curr->data);
-			y = record->value;
-
-			error = LRpred(lr,record,size,type) - y; // sigmoid(w^T*xi + b) - yi
-			
-			lr->weights[0] -= lrate * error / train->count;
-
-			for( j = 0; j < numBuckets; j++ ){
-				SparseIteration(record->item1->words.buckets[j], lr ,&error, 1 , type, train->count);
-				SparseIteration(record->item2->words.buckets[j], lr ,&error, size/2 + 1 ,type, train->count);
-			}
-
-
-			//	lr->weights[j + 1] -= lrate * error * X[j]; 
-
-		}
-
-		f = 0.0;
-		for( j = 0; j < size + 1 ; j++){
-			f += (lr->weights[j] - wtmp[j])*(lr->weights[j] - wtmp[j]);
-			wtmp[j] = lr->weights[j];
-		}
-
-		if(sqrt(f) < epsilon)
-			break;
-
-	}
-
-
-	free(wtmp);
-
-}
-
-
-Item* parse(char* json){
+Item* parse(char* json){  //Json parser
 	char* tmp, c, prev = ' ';
 	int i, j, start = 0, flag = 0, count = 0, isValue = 0 ,isPrim = 0;
 	FILE* fd;
@@ -428,7 +303,7 @@ Item* parse(char* json){
 }
 
 
-void read_csv(HashTable* ht,char* datasetW){
+void read_csv(HashTable* ht,char* datasetW){ //Diavasma tou csv arxeiou
 	
 	int i;
 	FILE * csv_file = fopen(datasetW,"r"); 
@@ -461,13 +336,13 @@ void read_csv(HashTable* ht,char* datasetW){
 						if(pairA->cliq->related != pairB->cliq->related) //An den exoun enwthei ksana
 							CliqueConcat(pairA, pairB, 1);
 					}
-					else{				// alliws sthn periptwsh tou 0 (dld dn tairiazoun)
+					else{				// Alliws sthn periptwsh tou 0 (dld dn tairiazoun)
 						CliqueConcat(pairA, pairB, 0);
 					}
 				}
 			
 			
-			token = strtok(NULL, ",");			// continue to tokenize the string we passed first
+			token = strtok(NULL, ",");			// Synexeia tou tokenize
 		}
 	}
 
@@ -476,7 +351,36 @@ void read_csv(HashTable* ht,char* datasetW){
 }
 
 
-void DatasetSplit(Queue * train, Queue *test, Queue *valid, Record* record ){
+
+void read_stopwords(HashTable* ht, char* stopwordsFile){ //Diavasma twn stopwords
+	
+	FILE * stopwords_file = fopen(stopwordsFile,"r"); 
+	char* token;
+	char line[50];
+	
+	if(stopwords_file == NULL){
+		printf("Stopwords file is empty!\n");
+		return;
+	}
+			
+	while( fgets( line , sizeof(line) , stopwords_file ) ){
+		
+		token=(char*)malloc(strlen(line));
+		strncpy(token,line,strlen(line));
+		token[strlen(line) - 1 ] = '\0';
+
+		HTinsert( ht  , token, (void*) token);
+
+	}
+	
+
+	fclose(stopwords_file);
+}
+
+/*##################              END OF FILE READING AND PARSING                      ##########################*/
+
+
+void DatasetSplit(Queue * train, Queue *test, Queue *valid, Record* record ){  //Tyxaios diaxwrismos tou dataset se 60 20 20
 	int sum_of_items_in_queue, r;
 	double flag_train, flag_test, flag_valid;
 	int max_train = maxSplit*60/100;
@@ -485,7 +389,7 @@ void DatasetSplit(Queue * train, Queue *test, Queue *valid, Record* record ){
 	
 	
 	sum_of_items_in_queue= train->count + test->count + valid->count; 
-	if( sum_of_items_in_queue % 20 == 0 ){			// an einai apo thn arxh 
+	if( sum_of_items_in_queue % 20 == 0 ){			// An einai apo thn arxh 
 		
     	r = rand() % 3;
     	if( r == 0 )
@@ -497,29 +401,29 @@ void DatasetSplit(Queue * train, Queue *test, Queue *valid, Record* record ){
 	}
 	else{
 			r= rand()%3;
-			if(r==0){																			// an tuxei to 0
-				if( train->count % max_train == 0 ){										// an to train diaireitai me to 0, h exei gemisei tis 12 theseis pou tou analogoun h den exei bei kamia
-					flag_train = train->count / max_train;								// ypologizoume thn diairesh
+			if(r==0){																			// An tuxei to 0(periptwsh train)
+				if( train->count % max_train == 0 ){										// An to train diaireitai me to 0, h exei gemisei tis 12 theseis pou tou analogoun h den exei bei kamia
+					flag_train = train->count / max_train;								// Ypologizoume thn diairesh
 					flag_test = test->count / max_test;
 					flag_valid = valid->count / max_valid;
-					if( (flag_train < flag_test) || (flag_train < flag_valid) )	// an isxuei ena apo ta duo shmainei oti den exei gemisei
+					if( (flag_train < flag_test) || (flag_train < flag_valid) )	// An isxuei ena apo ta duo shmainei oti den exei gemisei (oriakh periptwsh)
 						QueueInsert(train,(void**)&record);
-					else{															// diaforetika shmainei oti exei gemisei
+					else{															// Diaforetika shmainei oti exei gemisei (oriakh periptwsh)
 					
 						r= rand() % 2;
-						if(r==0){											// an erthei 0 paei sto prwto
-							if( test->count % max_test ==0){		// an to mod einai 0, h exei gemisei tiw 4 theseis pou tou analogoun h einai adeio
-								if(flag_test <= flag_valid)				// shmainei oti den exei gemisei
+						if(r==0){											// An erthei 0 paei sto test
+							if( test->count % max_test ==0){		// An to mod einai 0, h exei gemisei tiw 4 theseis pou tou analogoun h einai adeio
+								if(flag_test <= flag_valid)				// Shmainei oti den exei gemisei
 									QueueInsert(test,(void**)&record);
-								else										// tis exei gemisei
+								else										// Exei gemisei kai bainei sto valid
 									QueueInsert(valid,(void**)&record);
 							}
-							else											// diaforetika apla mpainei h timh
+							else											// Diaforetika apla mpainei h timh
 								QueueInsert(test,(void**)&record);
 						}
-						else if(r==1){										// analoga an tuxei to 1
+						else if(r==1){										// Analoga an tuxei to 1 paei sto valid
 							if( valid->count % max_valid ==0){
-								if(flag_valid <= flag_test)				// shmainei oti den exei gemisei
+								if(flag_valid <= flag_test)				// Shmainei oti den exei gemisei
 									QueueInsert(valid,(void**)&record);
 								else
 									QueueInsert(test,(void**)&record);
@@ -532,29 +436,29 @@ void DatasetSplit(Queue * train, Queue *test, Queue *valid, Record* record ){
 				else
 					QueueInsert(train,(void**)&record);
 			}
-			else if(r==1){															// an tuxei to 1
-				if( test->count % max_test ==0 ){										// an to test diaireitai me to 0, h exei gemisei tis 4 theseis pou tou analogoun h den exei bei kamia
-					flag_train = train->count / max_train;									// ypologizoume thn diairesh
+			else if(r==1){															// An tuxei to 1 (periptwsh test)
+				if( test->count % max_test ==0 ){										// An to test diaireitai me to 0, h exei gemisei tis 4 theseis pou tou analogoun h den exei bei kamia
+					flag_train = train->count / max_train;									// Ypologizoume thn diairesh
 					flag_test = test->count / max_test;
 					flag_valid = valid->count / max_valid;
-					if( (flag_test < flag_train) || (flag_test < flag_valid) )	// an isxuei ena apo ta duo shmainei oti den exei gemisei
+					if( (flag_test < flag_train) || (flag_test < flag_valid) )	// An isxuei ena apo ta duo shmainei oti den exei gemisei (oriakh periptwsh)
 						QueueInsert(test,(void**)&record);
-					else{															// diaforetika shmainei oti exei gemisei
+					else{															// Diaforetika shmainei oti exei gemisei (oriakh periptwsh)
 					
 						r= rand() % 2;
-						if(r==0){											// an erthei 0 paei sto prwto
-							if( train->count % max_train ==0){						// an to mod einai 0, h exei gemisei tiw 12 theseis pou tou analogoun h einai adeio
-								if(flag_train <= flag_valid)				// shmainei oti den exei gemisei
+						if(r==0){											// An erthei 0 paei sto train
+							if( train->count % max_train ==0){				// An to mod einai 0, h exei gemisei tiw 12 theseis pou tou analogoun h einai adeio
+								if(flag_train <= flag_valid)				// Shmainei oti den exei gemisei
 									QueueInsert(train,(void**)&record);
-								else										// tis exei gemisei
+								else										// Exei gemisei kai bainei sto valid
 									QueueInsert(valid,(void**)&record);
 							}
-							else											// diaforetika apla mpainei h timh
+							else											// Diaforetika apla mpainei h timh
 								QueueInsert(train,(void**)&record);
 						}
-						else if(r==1){										// analoga an tuxei to 1
+						else if(r==1){										// Analoga an tuxei to 1 paei sto valid
 							if( valid->count % max_valid ==0){
-								if(flag_valid <= flag_train)				// shmainei oti den exei gemisei
+								if(flag_valid <= flag_train)				// Shmainei oti den exei gemisei
 									QueueInsert(valid,(void**)&record);
 								else
 									QueueInsert(train,(void**)&record);
@@ -567,29 +471,29 @@ void DatasetSplit(Queue * train, Queue *test, Queue *valid, Record* record ){
 				else
 					QueueInsert(test,(void**)&record);
 			}	
-			else if(r==2){															// an tuxei to 2
-				if( valid->count % max_valid ==0 ){										// an to valid diaireitai me to 0, h exei gemisei tis 4 theseis pou tou analogoun h den exei bei kamia
-					flag_train = train->count / max_train;									// ypologizoume thn diairesh
+			else if(r==2){															// An tuxei to 2 (periptwsh valid)
+				if( valid->count % max_valid ==0 ){										// An to valid diaireitai me to 0, h exei gemisei tis 4 theseis pou tou analogoun h den exei bei kamia
+					flag_train = train->count / max_train;									// Ypologizoume thn diairesh
 					flag_test = test->count / max_test;
 					flag_valid = valid->count / max_valid;
-					if( (flag_valid < flag_train) || (flag_valid < flag_test) )	// an isxuei ena apo ta duo shmainei oti den exei gemisei
+					if( (flag_valid < flag_train) || (flag_valid < flag_test) )	// An isxuei ena apo ta duo shmainei oti den exei gemisei (oriakh periptwsh)
 						QueueInsert(valid,(void**)&record);
-					else{															// diaforetika shmainei oti exei gemisei
+					else{															// Diaforetika shmainei oti exei gemisei (oriakh periptwsh)
 						
 						r= rand ()% 2;
-						if(r==0){											// an erthei 0 paei sto prwto
-							if( train->count % max_train ==0){						// an to mod einai 0, h exei gemisei tiw 12 theseis pou tou analogoun h einai adeio
-								if(flag_train <= flag_test)				// shmainei oti den exei gemisei
+						if(r==0){											// An erthei 0 paei sto train
+							if( train->count % max_train ==0){						// An to mod einai 0, h exei gemisei tiw 12 theseis pou tou analogoun h einai adeio
+								if(flag_train <= flag_test)				// Shmainei oti den exei gemisei
 									QueueInsert(train,(void**)&record);
-								else										// tis exei gemisei
+								else										// Exei gemisei kai bainei sto test
 									QueueInsert(test,(void**)&record);
 							}
-							else											// diaforetika apla mpainei h timh
+							else											// Diaforetika apla mpainei h timh
 								QueueInsert(train,(void**)&record);
 						}
-						else if(r==1){										// analoga an tuxei to 1
+						else if(r==1){										// Analoga an tuxei to 1 paei sto test
 							if( test->count % max_test ==0){
-								if(flag_test <= flag_train)				// shmainei oti den exei gemisei
+								if(flag_test <= flag_train)				// Shmainei oti den exei gemisei
 									QueueInsert(test,(void**)&record);
 								else
 									QueueInsert(train,(void**)&record);

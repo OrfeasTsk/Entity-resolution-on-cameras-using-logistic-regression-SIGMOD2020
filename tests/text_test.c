@@ -180,7 +180,7 @@ void check_InsertWord(void){
 	HashTable files;
 	Item* item1, *item2, *item3, *item4, *item5;
 	FileStats* fstats1,* fstats2,* fstats3,* fstats4;
-	int fIndex = 0, limit=2, wIndex = 0;
+	int fIndex = 0, wIndex = 0;
 
 	
 	RBinit();

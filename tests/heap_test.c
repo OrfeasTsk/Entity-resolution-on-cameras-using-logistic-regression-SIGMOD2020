@@ -130,7 +130,7 @@ void test_heapcreate(void){	// Elegxoume an h HeapInit douleuei kai arxikopoiei 
 
 void test_heapinsert(void){		// Elegxoume an h HeapInsert douleuei kai mpainoun swsta oi times kai allazoun oi analoges times tou heap
 	
-	Details* details1, *details2, *details;
+	Details* details1, *details2;
 	WordStats* wstats1, *wstats2;
 	Heap heap;
 	char name1[10]="First";
@@ -251,8 +251,7 @@ void test_heapifywords(void){	// Elegxoume an h HeapifyWords douleuei swsta kai 
 	int i;
 	Item* item1, *item2, *item3, *item4, *item5;
 	FileStats* fstats1,* fstats2,* fstats3,* fstats4, * fstats5;
-	Details* details;
-	int fIndex = 0, limit=2, wIndex = 0;
+	int fIndex = 0, wIndex = 0;
 	
 	RBinit();
 	

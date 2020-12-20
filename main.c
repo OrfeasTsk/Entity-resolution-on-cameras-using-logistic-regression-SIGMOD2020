@@ -6,6 +6,7 @@
 #include <time.h>
 #include "./include/structs.h"
 #include "./include/text_support.h"
+#include "./include/logistic_regression.h"
 
 
 
@@ -88,7 +89,7 @@ int main(int argc, char* argv[]){
 					strcat(json,"/");
 					strcat(json,dirent_ptr->d_name); 
 					//printf("%s\n",json);
-					if( (item = parse(json)) ){						// an epistrefetai to item dhmiourgeitai to pair (to opoio prepei na bei sthn domh apothikeushs twn pairs)
+					if( (item = parse(json)) ){						// An epistrefetai to item dhmiourgeitai to pair (to opoio prepei na bei sthn domh apothikeushs twn pairs)
 									
 						fstats = (FileStats*)malloc(sizeof(FileStats)); //Dhmiourgia stats tou arxeiou
 						fstats->item = item;
@@ -158,7 +159,7 @@ int main(int argc, char* argv[]){
 		CreateTFIDF(files.buckets[i],fIndex);
 	
 
-	if( lim > wIndex)		// gia na mhn kseperasei to orio twn leksewn
+	if( lim > wIndex)		// Gia na mhn kseperastei to plithos twn leksewn
 		limit = wIndex;
 	else 
 		limit = lim;
@@ -166,11 +167,16 @@ int main(int argc, char* argv[]){
 	if(limit < wIndex)
 		CutOffDictionary(&words, &files, limit);
 	
+	
+	LRinit(&lr,epsilon,lrate,dBoundary,maxIters);
+	printf("Training started\n");
 	LRtrain(&lr,&train,2*limit,'t');
 	printf("Training finished\n");
 
 	printf("Accuracy: %f\n",LRtest(&lr,&test,2*limit,'t'));
 
+	
+	//Free allocated memory
 	free(lr.weights);
 	HTdestr(&pairs,&PairDestroy,'v');
 	HTdestr(&cliques,&CliqueDestroy,'v');

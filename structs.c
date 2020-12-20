@@ -6,7 +6,70 @@
 #include "./include/text_support.h"
 
 
-/*##################                  Start of Heap                                     ##########################*/
+
+
+/*##################              START OF DESTROY FUNCTIONS                         ##########################*/
+
+
+void ItemDestroy(Item* item){ //Diagrafh Item
+	Spec* spec;
+	struct QueueNode* curr = item->specs.head,*Temp;
+	
+	
+	while( curr != NULL ){
+		spec = (Spec*)(curr->data);
+		free(spec->name);
+		free(spec->value);
+		free(spec);
+		Temp = curr;
+		curr = curr->next;
+		free(Temp);
+	}
+	
+	free(item->id);
+	free(item);
+}
+
+
+void PairDestroy(void* obj){ //Diagrafh Pair
+	Pair* pair = (Pair*)obj;
+	
+	ItemDestroy(pair->item);
+	free(pair);
+	
+	
+}
+
+void CliqueDestroy(void* obj){ //Diagrafh Clique
+	Clique* cliq = (Clique*)obj;
+	
+	free(cliq->related);
+	HTdestr(&(cliq->unrelated),NULL,'n');
+	free(cliq->id);
+	free(cliq);
+	
+	
+}
+
+
+void WordsDestroy(void* obj){ //Diagrafh WordStats
+	WordStats* wstats = (WordStats*)obj;
+	HTdestr(&(wstats->files),NULL,'n');
+	free(wstats);
+
+}
+
+void FilesDestroy(void* obj){ //Diagrafh FileStats
+	FileStats* fstats = (FileStats*)obj;
+	HTdestr(&(fstats->words),NULL,'v');
+	free(fstats);
+
+}
+
+/*##################              END OF DESTROY FUNCTIONS                          ##########################*/
+
+
+/*##################                  START OF HEAP                                  ##########################*/
 
 
 void heaptreeprint(struct heapNode* p, int indent,int type,struct heapNode* head)  //Pretty print tree 
@@ -215,7 +278,7 @@ void Heapify(struct heapNode* h){ //Synarthsh gia th dhmiourgia swrou
 }
 
 
-Details* HeapRemoveFirst(Heap* h){//Vriskei ta k megalytera stoixeia tou swrou
+Details* HeapRemoveFirst(Heap* h){//Afairei to megalytero stoixeio tou swrou
 	int j,sum;
 	Details* data;
 	struct heapNode* temp=NULL;
@@ -225,10 +288,10 @@ Details* HeapRemoveFirst(Heap* h){//Vriskei ta k megalytera stoixeia tou swrou
 	if(h == NULL)
 		return NULL;
 	
-	if(h->head == NULL)
+	if(h->head == NULL) //An den yparxei stoixeio
 		return NULL;
 		
-	if(h->nodes == 1){
+	if(h->nodes == 1){ //An einai to teleutaio stoixeio
 		data=h->head->data;
 		free(h->head);
 		h->head=NULL;
@@ -274,7 +337,7 @@ void HeapDestroy(Heap* h){
 
 
 
-void HeapifyWords(Link* head,Heap* heap,int totalFiles)
+void HeapifyWords(Link* head,Heap* heap,int totalFiles) //Eisagwgh twn leksewn ston swro
 {
 	int i;
 	Details* details;
@@ -297,8 +360,8 @@ void HeapifyWords(Link* head,Heap* heap,int totalFiles)
 		details->count = 0.0;
 		
 		for(i = 0; i < numBuckets; i++ )
-			SumTFIDF( wstats->files.buckets[i] , details );
-		details->count /= totalFiles;
+			SumTFIDF( wstats->files.buckets[i] , details ); //Euresh tou athroismatos olwn twn TF-IDF timwn
+		details->count /= totalFiles;  //Euresh tou mesou TF-IDF ws krithrio eisagwghs ston swro
 		HeapInsert( heap , details );
 	}
     
@@ -310,10 +373,10 @@ void HeapifyWords(Link* head,Heap* heap,int totalFiles)
 
 
 
-/*##################                  END OF HEAP                                      ##########################*/
+/*##################                  END OF HEAP                             ##########################*/
 
 
-/*##################                  Start Generic Queue                                        ##########################*/
+/*##################                  START OF QUEUE                          ##########################*/
 
 void QueueInit(Queue* queue){ 			//Arxikopoihsh ouras
         
@@ -344,7 +407,7 @@ int QueueEmpty(Queue* queue){
 	return queue->count == 0;
 }
 
-void QueueConcat(Queue* q1 , Queue* q2,Clique* cliq){
+void QueueConcat(Queue* q1 , Queue* q2,Clique* cliq){ //Enwsh ourwn
 	struct QueueNode* curr = q2->head,*prev;
 	Pair* pair;
 	
@@ -361,7 +424,7 @@ void QueueConcat(Queue* q1 , Queue* q2,Clique* cliq){
 	
 }
 
-void QueueDelete(Queue* queue){
+void QueueDelete(Queue* queue){ //Diagrafh ouras
 
 	struct QueueNode* curr = queue->head,*temp;
 
@@ -378,10 +441,10 @@ void QueueDelete(Queue* queue){
 
 }
 
-/*##################                  End Generic Queue                                        ##########################*/
+/*##################                  END OF QUEUE            ##########################*/
 
 
-/*##################     Start Stack For only one char !! Used in Json Parse !!                ##########################*/
+/*##################     START OF STACK               ##########################*/
 
 
 void StackInit(Stack * stack){ //Arxikopoihsh ths listas
@@ -437,7 +500,7 @@ void check(Stack * stack, char c ){ // Diagrafh prwtou item elegxontas an prepei
 		else						// Giati tha exei elegxtei hdh to " 
 			push(stack,c);
 	}
-	else if(c == '[' || c == '{')							// diaforetika kanoume push to stoixeio
+	else if(c == '[' || c == '{')							// Diaforetika kanoume push to stoixeio
 		push(stack,c);
 	
 }
@@ -448,16 +511,14 @@ int StackEmpty(Stack * stack){
 
 
 
-/*##################              End Stack                            ##########################*/
+/*##################              END OF STACK                         ##########################*/
 
 
 
 
 
 
-
-//RED-BLACK
-
+/*##################              START OF RED-BLACK                        ##########################*/
 
 
 
@@ -497,7 +558,7 @@ Link NEW(char* id,void* obj, Link l, Link r, int color,int* flag){
 		x->rbitem = (RBItem*)malloc(sizeof(RBItem));
     	x->rbitem->obj = obj;
 		x->rbitem->id = id;
-		*flag = 1;
+		*flag = 1; // To stoixeio bhke gia prwth fora
 	}
     return x;
 }
@@ -586,13 +647,13 @@ Link insertR(Link h, char* id,void* obj ,Link head, int* flag)
 		if(h->color==BLACK) //Kathe fora pou vriskoume mauro komvo pou exei toulaxiston ena "eggoni" apo deksia (afou to paidi exei bei deksia)
 			h=MakeRBTree(h,head);
 	}
-	else if( t->obj == NULL)
+	else if( t->obj == NULL) //An den yparxei timh
 		t->obj = obj;
 		
 	return h;
   }
   
-Link RBTinsertR( Link head , char* id , void* obj, int* flag ){ 
+Link RBTinsertR( Link head , char* id , void* obj, int* flag ){ // Eisagwgh sto Red-Black dentro
 
 	head = insertR( head , id , obj , head, flag );
   	return head; 
@@ -604,165 +665,22 @@ void* RBTfind(Link h,char* id,char type){
     RBItem* t = h->rbitem;
  
     
-    if(h == z)								// an den brethei timh
+    if(h == z)								// An den brethei timh
 		return NULL;
-    
-    if( strcmp(id , t->id) < 0 )						// diasxizoume to dentro gia na broume thn timh
+    // Diasxish tou dentrou gia thn euresh ths timhs
+    if( strcmp(id , t->id) < 0 )						
 		return RBTfind(h->l, id, type);
 	else if ( strcmp(t->id , id) < 0)
 		return RBTfind(h->r, id, type);
-	else{					// otan tin broume epistrefetai h timh
-			if(type == 'k')
+	else{					// Otan vrethei h timh epistrefetai 
+			if(type == 'k') //An exei zhththei to key
 				return t->id;
-			else if( type == 'v' && t->obj != NULL)
+			else if( type == 'v' && t->obj != NULL) //An exei zhththei h timh
 				return t->obj;
     }
 
     return NULL;
 }
-
-
-
-void printRelated(Link h,FILE* output,char* buff, Queue* train,Queue* test,Queue* valid,HashTable* files){			
-	
-	RBItem* t = h->rbitem;
-    struct QueueNode *curr, *prev=NULL, *temp;
- 	Record* record;
-		
-    Pair* pair;	
-	Pair* rel_pair;	
-	
-	if(h == z)			// base-case
-		return;
-		
-	printRelated(h->l,output,buff, train, test, valid, files);	// anadromika phgainoume aristera
-	
-	
-	pair  = (Pair*)(t->obj);
-	curr = pair->cliq->related->head;
-	while( curr != NULL ){								// diasxizoume thn related 
-		rel_pair  = (Pair*)(curr->data);															// related_pairs	
-		if( !strcmp( pair->item->id , rel_pair->item->id ) ){										// an einai to idio item
-		
-			if (curr == pair->cliq->related->head ){														// an einai o head
-				if( curr == pair->cliq->related->tail ){													// an einai to monadiko antikeimeno
-					pair->cliq->related->head=NULL;														// diagrafh tou komvou
-					pair->cliq->related->tail=NULL;
-					pair->cliq->related->count--;
-					temp=curr;
-					curr = curr->next; 
-					free(temp);
-				}
-				else{																				// diaforetika o head tha deiksei ston epomeno komvo
-					pair->cliq->related->head=curr->next;
-					pair->cliq->related->count--;
-					temp=curr;
-					curr = curr->next; 
-					free(temp);
-				}
-			}
-			else if(curr == pair->cliq->related->tail){													// an einai to teleutaio item
-				pair->cliq->related->tail = prev;															// tha metakinithei enan komvo pisw
-				prev->next = NULL;
-				pair->cliq->related->count--;
-				temp = curr;
-				curr = curr->next;
-				free(temp);
-			}
-			else{																					// se opoiadhpote allh periptwsh
-				prev->next=curr->next;
-				pair->cliq->related->count--;
-				temp = curr;
-				curr = curr->next;
-				free(temp);
-			}
-			
-		}
-		else{																						// an den einai ta ektypwnoume
-			sprintf(buff,"%s , %s \n", pair->item->id , rel_pair->item->id );			
-			fwrite(buff,sizeof(char),strlen(buff),output);
-							
-			//dhmiourgia record
-			record = (Record*)malloc(sizeof(Record)); //Dhmiourgia record
-			record->item1 = (FileStats*) HTfind(files,pair->item->id,'v');
-			record->item2 = (FileStats*) HTfind(files,rel_pair->item->id,'v');
-			record->value = 1;										// 1 epeidh eimaste sta related
-			DatasetSplit(train, test, valid, record );
-			
-			prev = curr;
-			curr = curr->next;
-		}
-		
-	}
-
-	
-	
-	printRelated(h->r,output,buff, train, test, valid, files);	// anadromika phgainoume deksia
-	
-	
-	
-	
-}
-
-
-
-
-
-void ItemDestroy(Item* item){
-	Spec* spec;
-	struct QueueNode* curr = item->specs.head,*Temp;
-	
-	
-	while( curr != NULL ){
-		spec = (Spec*)(curr->data);
-		free(spec->name);
-		free(spec->value);
-		free(spec);
-		Temp = curr;
-		curr = curr->next;
-		free(Temp);
-	}
-	
-	free(item->id);
-	free(item);
-}
-
-
-void PairDestroy(void* obj){
-	Pair* pair = (Pair*)obj;
-	
-	ItemDestroy(pair->item);
-	free(pair);
-	
-	
-}
-
-void CliqueDestroy(void* obj){
-	Clique* cliq = (Clique*)obj;
-	
-	free(cliq->related);
-	HTdestr(&(cliq->unrelated),NULL,'n');
-	free(cliq->id);
-	free(cliq);
-	
-	
-}
-
-
-void WordsDestroy(void* obj){
-	WordStats* wstats = (WordStats*)obj;
-	HTdestr(&(wstats->files),NULL,'n');
-	free(wstats);
-
-}
-
-void FilesDestroy(void* obj){
-	FileStats* fstats = (FileStats*)obj;
-	HTdestr(&(fstats->words),NULL,'v');
-	free(fstats);
-
-}
-
 
 
 void RBTdestr(Link* head,void (*del_fun)(void*),char flag)//Katastrofh tou dentrou
@@ -777,13 +695,13 @@ void RBTdestr(Link* head,void (*del_fun)(void*),char flag)//Katastrofh tou dentr
     RBTdestr(&((*head)->l),del_fun,flag);
     RBTdestr(&((*head)->r),del_fun,flag);
     
-    if((*head)->rbitem->id != NULL && (flag == 'b' || flag == 'k') )
+    if((*head)->rbitem->id != NULL && (flag == 'b' || flag == 'k') ) //An diagrafetai to key logw flag ('b' = both), ('k' = key)
     	free((*head)->rbitem->id);
-    if((*head)->rbitem->obj != NULL && (flag == 'b' || flag == 'v')){
+    if((*head)->rbitem->obj != NULL && (flag == 'b' || flag == 'v')){ //An diagrafetai h timh logw flag ('b' = both), ('v' = value)
     	if(del_fun != NULL)
-    		(*del_fun)((*head)->rbitem->obj);
+    		(*del_fun)((*head)->rbitem->obj);  //Synarthsh diagrafhs
     	else
-    		free((*head)->rbitem->obj);
+    		free((*head)->rbitem->obj);  //Aplh diagrafh
     }
 
        
@@ -799,7 +717,7 @@ void RBTdestr(Link* head,void (*del_fun)(void*),char flag)//Katastrofh tou dentr
 
 
 
-void RBTmergeHT(Link* head,HashTable* ht)				//Merge duo dentrwn
+void RBTmergeHT(Link* head,HashTable* ht)		//Eisagwgh stoixeiwn dentrou se neo hashtable
 {
 	Pair* pair;
 	
@@ -825,18 +743,108 @@ void RBTmergeHT(Link* head,HashTable* ht)				//Merge duo dentrwn
 
 
 
-void CliqueConcat(Pair* pair1 , Pair* pair2, int choice){
+
+
+/*##################              END OF RED-BLACK                        ##########################*/
+
+
+
+
+/*##################                  START OF HASH TABLES                             ##########################*/
+
+void HTinit( HashTable* ht ){			// Arxikopoihsh hashtable
+	
+	int i;
+	
+	ht->buckets=(Link*)malloc(sizeof(Link)*numBuckets); 
+	for( i = 0; i < numBuckets; i++ )					// Kathe hashtable exei ws buckets Red-Black dentra
+		RBTinit( &(ht->buckets[i]) );
+	ht->count = 0;
+	
+}
+
+int hashFunction(char* str,int nb){ //Polynomial hash function for strings
+	int hash = 0;
+	int constant = 33;
+	while(*str != '\0'){
+		hash = (constant*hash + *str) % nb;
+		str++;
+	}
+	return hash;
+}
+
+
+void HTinsert( HashTable* ht, char* key, void* item ){			//Eisagwgh sto hashtable
+	
+	int hashnum;
+	int flag = 0;
+	
+	hashnum = hashFunction( key , numBuckets );
+	ht->buckets[hashnum] = RBTinsertR( ht->buckets[hashnum] , key , item, &flag);
+	if(flag)  //An egine epityxws h eisagwgh
+		ht->count++;
+	
+}
+
+void HTmerge( HashTable* ht1 , HashTable* ht2){  //Enwsh dyo hashtables
+	int i;
+	
+	for( i = 0; i < numBuckets; i++)
+		RBTmergeHT(&(ht2->buckets[i]), ht1);
+	
+	free(ht2->buckets);
+	ht2->buckets = NULL;
+	ht2->count = 0;
+		
+}
+
+
+
+void* HTfind(HashTable* ht,char* id, char type){ //Anazhthsh sto hashtable
+	
+	int hashnum = hashFunction(id,numBuckets);
+	
+	return RBTfind(ht->buckets[hashnum],id,type);
+	
+}
+
+void HTdestr(HashTable* ht,void (*del_fun)(void*),char flag){  //Diagrafh tou hashtable me sygekrimenh synarthsh diagrafhs
+	int i;
+		
+	for( i = 0; i < numBuckets; i++)
+		RBTdestr(&(ht->buckets[i]),del_fun, flag);
+		
+	free(ht->buckets);
+	ht->buckets = NULL;
+	ht->count = 0;
+	
+}
+
+
+
+
+/*##################                  END OF HASH TABLES                             ##########################*/
+
+
+
+
+/*##################                  START OF HELPER FUNCTIONS                             ##########################*/
+
+
+
+
+void CliqueConcat(Pair* pair1 , Pair* pair2, int choice){  //Enwsh klikwn
 	Clique* temp;
 	
 	
-	if(choice == 1){	// dld an tairiazoun
+	if(choice == 1){	// Dhladh an tairiazoun enwsh twn related kai unrelated
 		temp = pair2->cliq;
 		HTmerge(&(pair1->cliq->unrelated),&(pair2->cliq->unrelated));
 		QueueConcat(pair1->cliq->related,pair2->cliq->related,pair1->cliq);
 		free(temp->id);
 		free(temp);
 		}
-	else{				// dld den tairiazoun
+	else{				// Dhladh an den tairiazoun eisagwgh ths mias stis unrelated ths allhs
 		HTinsert(&(pair1->cliq->unrelated),pair2->item->id,(void*)pair2);
 		HTinsert(&(pair2->cliq->unrelated),pair1->item->id,(void*)pair1);
 	}
@@ -844,40 +852,40 @@ void CliqueConcat(Pair* pair1 , Pair* pair2, int choice){
 }
 
 
-void MakeCliqueHT(Link pairTree, HashTable* ht){
+void MakeCliqueHT(Link pairTree, HashTable* ht){  //Dhmiourgia tou hashtable twn klikwn apo to hashtable twn Pairs
 	
 	RBItem* t = pairTree->rbitem;
  			
     Pair* pair;	
 
 	
-	if(pairTree == z)			// base-case
+	if(pairTree == z)			// Base-case
 		return;
 		
-	MakeCliqueHT(pairTree->l,ht);	// anadromika phgainoume aristera
+	MakeCliqueHT(pairTree->l,ht);	// Anadromika phgainoume aristera
 	
 	if(t->obj != NULL){	
 		pair  = (Pair*)(t->obj);
 		HTinsert(ht,pair->cliq->id,(void*)(pair->cliq));
 	}
 
-	MakeCliqueHT(pairTree->r,ht);	// anadromika phgainoume deksia
+	MakeCliqueHT(pairTree->r,ht);	// Anadromika phgainoume deksia
 
 }
 
 
-void MakeCliqueUnrelated(Link* oldTree, HashTable* ht){
+void MakeCliqueUnrelated(Link* oldTree, HashTable* ht){ //Dhmiourgia tou hashtable twn unrelated klikwn apo ta unrelated Pairs
 	
 	RBItem* t = (*oldTree)->rbitem;
  			
     Pair* pair;	
 
 	
-	if(*oldTree == z)			// base-case
+	if(*oldTree == z)			// Base-case
 		return;
 		
-	MakeCliqueUnrelated(&((*oldTree)->l),ht);	// anadromika phgainoume aristera
-	MakeCliqueUnrelated(&((*oldTree)->r),ht);	// anadromika phgainoume deksia
+	MakeCliqueUnrelated(&((*oldTree)->l),ht);	// Anadromika phgainoume aristera
+	MakeCliqueUnrelated(&((*oldTree)->r),ht);	// Anadromika phgainoume deksia
 
 	
 	if(t->obj != NULL){									// Den yparxoun diplotypa
@@ -904,16 +912,16 @@ void ChangeUnrelated(Link h){
 	HashTable* unrelated;
 	
 	
-	if(h == z)			// base-case
+	if(h == z)			// Base-case
 		return;
 	
-	ChangeUnrelated(h->l);	// anadromika phgainoume aristera
+	ChangeUnrelated(h->l);	// Anadromika phgainoume aristera
 	
 	
 	if(t->obj != NULL){									// Den yparxoun diplotypa
 	
 	
-		unrelated =(HashTable*)malloc(sizeof(HashTable));
+		unrelated =(HashTable*)malloc(sizeof(HashTable)); //Dhmiourgia vohthitikou hashtable
 		HTinit(unrelated);
 		
 		cliq  = (Clique*)(t->obj);
@@ -921,7 +929,7 @@ void ChangeUnrelated(Link h){
 		for( i = 0; i < numBuckets; i++)
 			MakeCliqueUnrelated(&(cliq->unrelated.buckets[i]),unrelated);
 		
-		for( i = 0; i < numBuckets; i++)	
+		for( i = 0; i < numBuckets; i++)	 //Antigrafh tou vohthitikou hashtable
 			cliq->unrelated.buckets[i] = unrelated->buckets[i];
 		
 		cliq->unrelated.count = unrelated->count;
@@ -932,7 +940,7 @@ void ChangeUnrelated(Link h){
 	}
 	
 	
-	ChangeUnrelated(h->r);	// anadromika phgainoume aristera
+	ChangeUnrelated(h->r);	// Anadromika phgainoume deksia
 	
 }
 
@@ -947,14 +955,14 @@ void RemoveUnrelated(Link h , char* id){
 	RBItem* t = h->rbitem;
 
     
-    if(h == z)								// an den brethei timi 
+    if(h == z)								// An den brethei timi 
 		return;
     
-    if( strcmp(id , t->id) < 0 )						// diasxizoume to dentro gia na broume thn timi
+    if( strcmp(id , t->id) < 0 )						// Diasxish tou dentrou gia na brethei h timi
 		return RemoveUnrelated(h->l, id);
 	else if (strcmp(t->id , id ) < 0)
 		return RemoveUnrelated(h->r, id);
-	else{									// otan tin broume elegxoume thn oura twn pairs
+	else{									// Otan vrethei h timh afaireitai
 			if(t->obj != NULL)
 				t->obj = NULL;
 
@@ -977,10 +985,10 @@ void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff,Queue* train,Qu
 	Pair* pair, *unrelp;	
 	Record* record;
 	
-	if(h == z)			// base-case
+	if(h == z)			// Base-case
 		return;
 	
-	VisitUnrelated(h->l,cliq,output,buff, train, test, valid, files);	// anadromika phgainoume aristera
+	VisitUnrelated(h->l,cliq,output,buff, train, test, valid, files);	// Anadromika phgainoume aristera
 	
 	
 	if(t->obj != NULL){									// Den yparxoun diplotypa
@@ -998,7 +1006,7 @@ void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff,Queue* train,Qu
 				record = (Record*)malloc(sizeof(Record)); //Dhmiourgia record
 				record->item1 = (FileStats*) HTfind(files,pair->item->id,'v');
 				record->item2 = (FileStats*) HTfind(files,unrelp->item->id,'v');
-				record->value = 0;										// 0 epeidh eimaste sta unrelated
+				record->value = 0;										// 0 logw unrelated
 				DatasetSplit(train, test, valid, record );
 			}	
 		}
@@ -1009,7 +1017,7 @@ void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff,Queue* train,Qu
 	}
 	
 	
-	VisitUnrelated(h->r,cliq,output,buff, train, test, valid, files);	// anadromika phgainoume aristera
+	VisitUnrelated(h->r,cliq,output,buff, train, test, valid, files);	// Anadromika phgainoume deksia
 	
 }
 
@@ -1023,10 +1031,10 @@ void printUnrelated(Link h,FILE* output,char* buff, Queue* train, Queue* test, Q
 	int i;	
     Clique* cliq;	
 	
-	if(h == z)			// base-case
+	if(h == z)			// Base-case
 		return;
 	
-	printUnrelated(h->l,output,buff, train, test, valid, files);	// anadromika phgainoume aristera
+	printUnrelated(h->l,output,buff, train, test, valid, files);	// Anadromika phgainoume aristera
 	
 	
 	if(t->obj != NULL){									// Den yparxoun diplotypa
@@ -1038,9 +1046,94 @@ void printUnrelated(Link h,FILE* output,char* buff, Queue* train, Queue* test, Q
 	}
 	
 	
-	printUnrelated(h->r,output,buff, train, test, valid, files);	// anadromika phgainoume aristera
+	printUnrelated(h->r,output,buff, train, test, valid, files);	// Anadromika phgainoume deksia
 	
 }
+
+
+
+void printRelated(Link h,FILE* output,char* buff, Queue* train,Queue* test,Queue* valid,HashTable* files){			
+	
+	RBItem* t = h->rbitem;
+    struct QueueNode *curr, *prev=NULL, *temp;
+ 	Record* record;
+		
+    Pair* pair;	
+	Pair* rel_pair;	
+	
+	if(h == z)			// base-case
+		return;
+		
+	printRelated(h->l,output,buff, train, test, valid, files);	// Anadromika phgainoume aristera
+	
+	
+	pair  = (Pair*)(t->obj);
+	curr = pair->cliq->related->head;
+	while( curr != NULL ){								// Diasxizoume thn related 
+		rel_pair  = (Pair*)(curr->data);															// Related_pairs	
+		if( !strcmp( pair->item->id , rel_pair->item->id ) ){										// An einai to idio item
+		
+			if (curr == pair->cliq->related->head ){														// An einai o head
+				if( curr == pair->cliq->related->tail ){													// An einai to monadiko antikeimeno
+					pair->cliq->related->head=NULL;														// Diagrafh tou komvou
+					pair->cliq->related->tail=NULL;
+					pair->cliq->related->count--;
+					temp=curr;
+					curr = curr->next; 
+					free(temp);
+				}
+				else{																				// Diaforetika o head tha deiksei ston epomeno komvo
+					pair->cliq->related->head=curr->next;
+					pair->cliq->related->count--;
+					temp=curr;
+					curr = curr->next; 
+					free(temp);
+				}
+			}
+			else if(curr == pair->cliq->related->tail){													// An einai to teleutaio item
+				pair->cliq->related->tail = prev;															// Tha metakinithei enan komvo pisw
+				prev->next = NULL;
+				pair->cliq->related->count--;
+				temp = curr;
+				curr = curr->next;
+				free(temp);
+			}
+			else{																					// Se opoiadhpote allh periptwsh
+				prev->next=curr->next;
+				pair->cliq->related->count--;
+				temp = curr;
+				curr = curr->next;
+				free(temp);
+			}
+			
+		}
+		else{																						// An den einai ta ektypwnoume
+			sprintf(buff,"%s , %s \n", pair->item->id , rel_pair->item->id );			
+			fwrite(buff,sizeof(char),strlen(buff),output);
+							
+			
+			record = (Record*)malloc(sizeof(Record)); //Dhmiourgia record
+			record->item1 = (FileStats*) HTfind(files,pair->item->id,'v');
+			record->item2 = (FileStats*) HTfind(files,rel_pair->item->id,'v');
+			record->value = 1;										// 1 logw related
+			DatasetSplit(train, test, valid, record );
+			
+			prev = curr;
+			curr = curr->next;
+		}
+		
+	}
+
+	
+	
+	printRelated(h->r,output,buff, train, test, valid, files);	// Anadromika phgainoume deksia
+	
+	
+	
+	
+}
+
+
 
 
 void UpdateTFIDF( Link h,  int totalFiles , int fileWords){
@@ -1050,10 +1143,10 @@ void UpdateTFIDF( Link h,  int totalFiles , int fileWords){
     ModelStats* mstats;	
 
 	
-	if(h == z)			// base-case
+	if(h == z)			// Base-case
 		return;
 	
-	UpdateTFIDF(h->l , totalFiles  , fileWords);	// anadromika phgainoume aristera
+	UpdateTFIDF(h->l , totalFiles  , fileWords);	// Anadromika phgainoume aristera
 	
 	
 	if(t->obj != NULL){									// Den yparxoun diplotypa
@@ -1069,7 +1162,7 @@ void UpdateTFIDF( Link h,  int totalFiles , int fileWords){
 	}
 	
 	
-	UpdateTFIDF(h->r, totalFiles  , fileWords);	// anadromika phgainoume aristera
+	UpdateTFIDF(h->r, totalFiles  , fileWords);	// Anadromika phgainoume deksia
 
 
 
@@ -1083,10 +1176,10 @@ void CreateTFIDF( Link h, int totalFiles){
 	int i;	
     FileStats* fstats;	
 	
-	if(h == z)			// base-case
+	if(h == z)			// Base-case
 		return;
 	
-	CreateTFIDF(h->l , totalFiles);	// anadromika phgainoume aristera
+	CreateTFIDF(h->l , totalFiles);	// Anadromika phgainoume aristera
 	
 	
 	if(t->obj != NULL){									// Den yparxoun diplotypa
@@ -1099,7 +1192,7 @@ void CreateTFIDF( Link h, int totalFiles){
 	}
 	
 	
-	CreateTFIDF(h->r, totalFiles);	// anadromika phgainoume aristera
+	CreateTFIDF(h->r, totalFiles);	// Anadromika phgainoume deksia
 	
 }
 
@@ -1109,10 +1202,10 @@ void SumTFIDF( Link h, Details* details){
     FileStats* fstats;
 	ModelStats* mstats;	
 	
-	if(h == z)			// base-case
+	if(h == z)			// Base-case
 		return;
 	
-	SumTFIDF(h->l , details);	// anadromika phgainoume aristera
+	SumTFIDF(h->l , details);	// Anadromika phgainoume aristera
 	
 	
 	if(t->obj != NULL){									// Den yparxoun diplotypa
@@ -1124,7 +1217,7 @@ void SumTFIDF( Link h, Details* details){
 	}
 	
 	
-	SumTFIDF(h->r, details);	// anadromika phgainoume aristera
+	SumTFIDF(h->r, details);	// Anadromika phgainoume deksia
 	
 }
 
@@ -1137,17 +1230,17 @@ void InsertMStats(Link* oldTree, HashTable* words,  HashTable* newWords){
     ModelStats* mstats;	
 
 	
-	if(*oldTree == z)			// base-case
+	if(*oldTree == z)			// Base-case
 		return;
 		
-	InsertMStats(&((*oldTree)->l),words,newWords);	// anadromika phgainoume aristera
-	InsertMStats(&((*oldTree)->r),words,newWords);	// anadromika phgainoume deksia
+	InsertMStats(&((*oldTree)->l),words,newWords);	// Anadromika phgainoume aristera
+	InsertMStats(&((*oldTree)->r),words,newWords);	// Anadromika phgainoume deksia
 
 	
 	if(t->obj != NULL){									// Den yparxoun diplotypa
 	
 		mstats  = (ModelStats*)(t->obj);
-		if( HTfind(words,mstats->wstats->word,'k')) //Vrisketai stis shmantikoteres lekseis?
+		if( HTfind(words,mstats->wstats->word,'k')) //An vrisketai stis shmantikoteres lekseis
 			HTinsert(newWords,mstats->wstats->word,(void*)mstats);
 		else
 			free(mstats);
@@ -1169,22 +1262,22 @@ void AdjustMStats(Link h,HashTable* words){
 	int i;	
     FileStats* fstats;	
 	
-	if(h == z)			// base-case
+	if(h == z)			// Base-case
 		return;
 	
-	AdjustMStats(h->l , words);	// anadromika phgainoume aristera
+	AdjustMStats(h->l , words);	// Anadromika phgainoume aristera
 	
 	
 	if(t->obj != NULL){									// Den yparxoun diplotypa
 									
 		fstats  = (FileStats*)(t->obj);
-		newWords = (HashTable*)malloc(sizeof(HashTable));
+		newWords = (HashTable*)malloc(sizeof(HashTable)); //Dhmiourgia vohthitikou hashtable
 		HTinit(newWords);
 		
 		for( i = 0; i < numBuckets; i++)
 			InsertMStats(&(fstats->words.buckets[i])  ,words , newWords);
 		
-		for( i = 0; i < numBuckets; i++)	
+		for( i = 0; i < numBuckets; i++)	 //Antigrafh tou vohthitikou hashtable
 			 fstats->words.buckets[i] = newWords->buckets[i];
 		
 		fstats->words.count = newWords->count;
@@ -1194,121 +1287,12 @@ void AdjustMStats(Link h,HashTable* words){
 	}
 	
 	
-	AdjustMStats(h->r, words);	// anadromika phgainoume aristera
+	AdjustMStats(h->r, words);	// Anadromika phgainoume deksia
 
 }
 
 
-/*##################                  Start of hash tables                             ##########################*/
-
-void HTinit( HashTable* ht ){			// initialise of hash table
-	
-	int i;
-	
-	ht->buckets=(Link*)malloc(sizeof(Link)*numBuckets); 
-	for( i = 0; i < numBuckets; i++ )					// each hash table has a tree
-		RBTinit( &(ht->buckets[i]) );
-	ht->count = 0;
-	
-}
-
-int hashFunction(char* str,int nb){ //Polynomial hash function for strings
-	int hash = 0;
-	int constant = 33;
-	while(*str != '\0'){
-		hash = (constant*hash + *str) % nb;
-		str++;
-	}
-	return hash;
-}
-
-
-void HTinsert( HashTable* ht, char* key, void* item ){			
-	
-	int hashnum;
-	int flag = 0;
-	
-	hashnum = hashFunction( key , numBuckets );
-	ht->buckets[hashnum] = RBTinsertR( ht->buckets[hashnum] , key , item, &flag);
-	if(flag)
-		ht->count++;
-	
-}
-
-void HTmerge( HashTable* ht1 , HashTable* ht2){
-	int i;
-	
-	for( i = 0; i < numBuckets; i++)
-		RBTmergeHT(&(ht2->buckets[i]), ht1);
-	
-	free(ht2->buckets);
-	ht2->buckets = NULL;
-	ht2->count = 0;
-		
-}
 
 
 
-void* HTfind(HashTable* ht,char* id, char type){
-	
-	int hashnum = hashFunction(id,numBuckets);
-	
-	return RBTfind(ht->buckets[hashnum],id,type);
-	
-}
-
-void HTdestr(HashTable* ht,void (*del_fun)(void*),char flag){
-	int i;
-		
-	for( i = 0; i < numBuckets; i++)
-		RBTdestr(&(ht->buckets[i]),del_fun, flag);
-		
-	free(ht->buckets);
-	ht->buckets = NULL;
-	ht->count = 0;
-	
-}
-
-
-
-
-/*##################                  End of hash tables                               ##########################*/
-
-
-void SparseIteration(Link h, LogisticRegression* lr ,double* p ,int start, char type, int totalFiles){
-
-
-	RBItem* t = h->rbitem;	
-    ModelStats* mstats;	
-	
-	if(h == z)			// base-case
-		return;
-	
-	SparseIteration(h->l , lr, p , start, type , totalFiles);	// anadromika phgainoume aristera
-	
-	
-	if(t->obj != NULL){									// Den yparxoun diplotypa
-									
-		mstats  = (ModelStats*)(t->obj);
-		
-		if(type == 'b'){	 //Bow
-			if(totalFiles != -1)
-				UpdateWeights(lr,p,(double)(mstats->bow_val),totalFiles,mstats->wstats->index + start);  
-			else
-				CalculateF(lr,p,(double)(mstats->bow_val),mstats->wstats->index + start);
-
-		}
-		else{ //Tfidf
-			if(totalFiles != -1)
-				UpdateWeights(lr,p,mstats->tfidf_val,totalFiles,mstats->wstats->index + start);
-			else
-				CalculateF(lr,p,mstats->tfidf_val,mstats->wstats->index + start);
-		}
-
-	}
-	
-	
-	SparseIteration(h->r, lr, p , start, type , totalFiles);	// anadromika phgainoume aristera
-
-}
-
+/*##################                  END OF HELPER FUNCTIONS                             ##########################*/

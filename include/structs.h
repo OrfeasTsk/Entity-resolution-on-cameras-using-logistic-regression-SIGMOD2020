@@ -1,17 +1,18 @@
 #define RED 0
 #define BLACK 1
-#define numBuckets 100
+#define numBuckets 50
 
 
 typedef struct RBnode* Link;
+typedef struct HeapItem Details;
+typedef struct RelItems Clique;
+
 extern Link z;
 Link z;
 
-typedef struct{
-	double * weights;
-} LogisticRegression;
 
-/*##################                  Start Generic Queue                                        ##########################*/
+
+/*##################                  START OF QUEUE                                        ##########################*/
 
 struct QueueNode{
         void* data;
@@ -26,22 +27,19 @@ typedef struct{
         
 }Queue;
 
-typedef struct{			// each node has the name of the spec and it's value
-	char* name;
-	char* value;
-}Spec; 
+void QueueInit(Queue*);
+void QueueInsert(Queue*,void **);
+int QueueEmpty(Queue* );
+void QueueConcat(Queue*, Queue*,Clique*);
+void QueueDelete(Queue*);
 
-typedef struct{
-	char* id;
-	Queue specs;
-	
-}Item;
+
+/*##################                  END OF QUEUE                                     ##########################*/
 
 
 
-/*##################                  End Generic Queue                                        ##########################*/
 
-/*##################               Start Stack For only one char !! Used in Json Parse !!                        ##########################*/
+/*##################               START OF STACK                         ##########################*/
 
 
 
@@ -61,61 +59,11 @@ struct StackNode * push(Stack *, char);
 void check(Stack *, char);
 int StackEmpty(Stack *);
 
-/*##################                  End Stack                           ##########################*/
-
-typedef struct{
-	Link * buckets;
-	int count;
-} HashTable;
-/*##################                  End of hash tables                               ##########################*/
-
-
-
-typedef struct{
-	char* id;
-	Queue* related;
-	HashTable unrelated;
-}Clique;
-
-
-typedef struct{
-	Item* item;
-	Clique* cliq;
-}Pair;
-
-
-typedef struct{
-	Item* item;
-	int index;
-	int numOfWords;
-	HashTable words;
-}FileStats;
-
-typedef struct{
-	char* word;
-	int index;
-	HashTable files;
-}WordStats;
+/*##################                  END OF STACK                           ##########################*/
 
 
 
 
-typedef struct{
-	WordStats* wstats;
-	double count;
-}Details;
-
-typedef struct{
-	WordStats* wstats;
-	int bow_val;
-	double tfidf_val;
-}ModelStats;
-
-typedef struct{
-	FileStats* item1;
-	FileStats* item2;
-	int value;
-}Record;
 
 
 /*##################                  Start OF HEAP                          ##########################*/
@@ -148,7 +96,7 @@ int swap(struct heapNode* ,struct heapNode*  );
 
 
 
-/*##################                  Start of red-black trees                           ##########################*/
+/*##################                  START OF RED-BLACK TREES                        ##########################*/
 
 
 typedef struct{ //Antikeimeno komvou tou red-black tree
@@ -171,27 +119,15 @@ void* RBTfind(Link,char*,char);
 Link RBTinsertR(Link,char*,void*, int*);
 
 
-/*##################                  End of red-black trees                           ##########################*/
-
-/*##################                  Start of hash tables                             ##########################*/
+/*##################                  END OF RED-BLACK TREES                        ##########################*/
 
 
+/*##################                  START OF HASHTABLES                          ##########################*/
 
-
-
-void printRelated(Link, FILE*, char*,Queue * , Queue *, Queue * ,HashTable* );
-void PairDestroy(void*);
-void CliqueDestroy(void*);
-void WordsDestroy(void*);
-void FilesDestroy(void*);
-
-
-
-void QueueInit(Queue*);
-void QueueInsert(Queue*,void **);
-int QueueEmpty(Queue* );
-void QueueConcat(Queue*, Queue*,Clique*);
-void QueueDelete(Queue*);
+typedef struct{
+	Link * buckets;
+	int count;
+} HashTable;
 
 
 int hashFunction(char* , int ) ;
@@ -201,19 +137,94 @@ void* HTfind(HashTable*  , char* , char);
 void HTmerge( HashTable* , HashTable*  );
 void HTdestr(HashTable*  ,void (*del_fun)(void*),char);
 
+/*##################                  END OF HASHTABLES                              ##########################*/
+
+/*##################                  START OF SOME OTHER STRUCTS                             ##########################*/
+
+typedef struct{		
+	char* name;
+	char* value;
+}Spec; 
+
+typedef struct{
+	char* id;
+	Queue specs;
+	
+}Item;
+
+struct RelItems{
+	char* id;
+	Queue* related;
+	HashTable unrelated;
+};
 
 
+typedef struct{
+	Item* item;
+	Clique* cliq;
+}Pair;
+
+
+typedef struct{
+	Item* item;
+	int index;
+	int numOfWords;
+	HashTable words;
+}FileStats;
+
+typedef struct{
+	char* word;
+	int index;
+	HashTable files;
+}WordStats;
+
+
+struct HeapItem{
+	WordStats* wstats;
+	double count;
+};
+
+typedef struct{
+	WordStats* wstats;
+	int bow_val;
+	double tfidf_val;
+}ModelStats;
+
+typedef struct{
+	FileStats* item1;
+	FileStats* item2;
+	int value;
+}Record;
+
+
+
+
+/*##################                  END OF SOME OTHER STRUCTS                             ##########################*/
+
+/*##################              START OF DESTROY FUNCTIONS                         ##########################*/
+
+void ItemDestroy(Item*);
+void PairDestroy(void*);
+void CliqueDestroy(void*);
+void WordsDestroy(void*);
+void FilesDestroy(void*);
+
+/*##################              END OF DESTROY FUNCTIONS                         ##########################*/
+
+
+
+/*##################              START OF HELPER FUNCTIONS                         ##########################*/
 
 void MakeCliqueHT(Link, HashTable* );
 void CliqueConcat(Pair*, Pair*, int );
 void ChangeUnrelated(Link );
+void printRelated(Link, FILE*, char*,Queue * , Queue *, Queue * ,HashTable* );
 void printUnrelated(Link ,FILE* ,char*,Queue * , Queue *, Queue *, HashTable*  );
 void CreateTFIDF( Link, int );
 void SumTFIDF( Link , Details* );
-void ItemDestroy(Item* );
 void AdjustMStats(Link ,HashTable* );
 
-void SparseIteration(Link , LogisticRegression*  ,double*  ,int , char , int);
+/*##################              END OF HELPER FUNCTIONS                         ##########################*/
 
 
 
