@@ -516,3 +516,29 @@ void DatasetSplit(Queue * train, Queue *test, Queue *valid, Record* record ){  /
 
 
 
+void TrainingSetStats(HashTable* ht , Queue* train, HashTable* comb){ //Diavasma tou trainset(60%)
+
+	Pair *pairA, *pairB;
+	Record * record;
+	struct QueueNode* ptr;
+	char* token;
+	for( ptr = train->head ; ptr != NULL ; ptr = ptr->next){
+		record =(Record*)(ptr->data);
+		pairA = (Pair*) HTfind(ht,record->item1->item->id ,'v'); //Euresh tou left item
+		pairB = (Pair*) HTfind(ht,record->item2->item->id ,'v'); //Euresh tou right item
+		if(record->value == 1){ // an tairiazoun
+			if(pairA->cliq->related != pairB->cliq->related) //An den exoun enwthei ksana
+			CliqueConcat(pairA, pairB, 1);
+		}
+		else{ // Alliws sthn periptwsh tou 0 (dld dn tairiazoun)
+			CliqueConcat(pairA, pairB, 0);
+		}
+		
+		token=(char*)malloc(strlen(pairA->item->id) + strlen(pairB->item->id) + 1); // Dimiourgia mias leksis apo thn enwsh twn ids
+		strcpy(token , pairA->item->id);
+		strcat(token , pairB->item->id);
+		HTinsert( comb , token , (void*) token); // Eisagwgh dedomenwn so hashTable Combination
+	}
+
+}
+

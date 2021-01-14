@@ -1,5 +1,6 @@
 #define lim 1000000
 #define maxSplit 20
+#define trhold 0.05
 
 
 
@@ -13,3 +14,4 @@ void CreateDictionary(FileStats* , HashTable* ,HashTable*,int* );
 void InsertWord(HashTable* , HashTable*   , char* ,FileStats* ,int*  );
 void CutOffDictionary( HashTable*, HashTable* , int );
 void DatasetSplit(Queue * , Queue *, Queue *, Record*  );
+void TrainingSetStats(HashTable* , Queue* , HashTable* );

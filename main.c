@@ -14,7 +14,7 @@
 
 
 int main(int argc, char* argv[]){
-	int i, id = 0 ,fIndex = 0, wIndex = 0, limit;
+	int i, id = 0 ,fIndex = 0, wIndex = 0, limit, threshhold = trhold;
 	char* datasetX=NULL, *datasetW=NULL, *stopwordsFile=NULL, *tmpdir1, *json, *tmp;
 	char buff[200];
 	DIR* dir_ptr1,*dir_ptr2;
@@ -28,7 +28,9 @@ int main(int argc, char* argv[]){
 	HashTable stopwords;
 	HashTable words;
 	HashTable files;
-	Queue train,test,valid;
+	HashTable comb;
+	Queue train,test,valid,newTrain;
+	Queue nameList;
 	LogisticRegression lr;
 
 	
@@ -66,6 +68,7 @@ int main(int argc, char* argv[]){
 	QueueInit( &train );
 	QueueInit( &test );
 	QueueInit( &valid );
+	QueueInit( &nameList );
 
 	
 	//Read Stopwords file
@@ -121,6 +124,7 @@ int main(int argc, char* argv[]){
 						
 							
 	 					HTinsert(&pairs,item->id,(void*)pair);
+	 					QueueInsert(&nameList,(void**)(item->id));
 	 					
 	 					
 					}
@@ -170,19 +174,41 @@ int main(int argc, char* argv[]){
 	if(limit < wIndex)
 		CutOffDictionary(&words, &files, limit);
 	
+	// 3o paradoteo
+	HTinit(&comb);
+	QueueInit( &newTrain );
 	
 	LRinit(&lr,epsilon,lrate,dBoundary,maxIters);
+	// Epanafora twn klikwn
+	HTdestr(&cliques,&CliqueDestroy,'v');
+
+	id = 0;
+
+	
+	for( i = 0; i < numBuckets; i++)
+		RestorePairs(pairs.buckets[i],&id,buff);
+	TrainingSetStats(&pairs,&train,&comb);
+	LRtrain(&lr,&train,2*limit,'t');
+    CreateNewTrainingSet(&lr,&files,&comb ,&nameList,&newTrain,2*limit,'t',threshhold);
+
+	
+	/*LRinit(&lr,epsilon,lrate,dBoundary,maxIters);
 	printf("Training started\n");
 	LRtrain(&lr,&train,2*limit,'t');
 	printf("Training finished\n");
 
 	printf("Accuracy: %f\n",LRtest(&lr,&test,2*limit,'t'));
-
+	
 	
 	//Free allocated memory
 	free(lr.weights);
+	*/
+	// Epanafora twn klikwn
+
+
+	
+
 	HTdestr(&pairs,&PairDestroy,'v');
-	HTdestr(&cliques,&CliqueDestroy,'v');
 	HTdestr(&files,&FilesDestroy,'v');
 	HTdestr(&words,&WordsDestroy,'b');
 	HTdestr(&stopwords,NULL,'k');

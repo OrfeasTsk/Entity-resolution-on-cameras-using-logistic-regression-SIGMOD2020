@@ -225,7 +225,7 @@ void printUnrelated(Link ,FILE* ,char*,Queue * , Queue *, Queue *, HashTable*  )
 void CreateTFIDF( Link, int );
 void SumTFIDF( Link , Details* );
 void AdjustMStats(Link ,HashTable* );
-
+void RestorePairs(Link,int*,char*);
 /*##################              END OF HELPER FUNCTIONS                         ##########################*/
 
 

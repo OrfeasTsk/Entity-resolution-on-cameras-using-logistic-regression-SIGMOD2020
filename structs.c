@@ -1258,6 +1258,45 @@ void AdjustMStats(Link h,HashTable* words){
 
 
 
+void RestorePairs(Link pairTree,int* id,char* buff){  //Epanafora Pairs
+	
+	RBItem* t = pairTree->rbitem;
+	char* tmp;
+ 			
+    Pair* pair;	
+
+	
+	if(pairTree == z)			// Base-case
+		return;
+		
+	RestorePairs(pairTree->l,id,buff);	// Anadromika phgainoume aristera
+	
+	if(t->obj != NULL){	
+		pair  = (Pair*)(t->obj);
+
+
+		pair->cliq = (Clique*) malloc(sizeof(Clique));
+		sprintf(buff,"%d",*id);
+		tmp = (char*)malloc(strlen(buff) + 1 );
+		strcpy(tmp,buff);
+		pair->cliq->id = tmp;
+		(*id)++;
+		
+		pair->printed = 0;
+
+		pair->cliq->related = (Queue*)malloc(sizeof(Queue));
+		QueueInit(pair->cliq->related);
+		QueueInsert(pair->cliq->related, (void**)&pair); // Sthn arxh h related oura exei mono to idio to pair 
+		HTinit(&(pair->cliq->unrelated));
+		
+	
+	}
+
+	RestorePairs(pairTree->r,id,buff);	// Anadromika phgainoume deksia
+
+}
+
+
 
 
 /*##################                  END OF HELPER FUNCTIONS                             ##########################*/
