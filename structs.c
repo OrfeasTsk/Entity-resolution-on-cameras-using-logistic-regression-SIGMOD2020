@@ -43,6 +43,7 @@ void PairDestroy(void* obj){ //Diagrafh Pair
 void CliqueDestroy(void* obj){ //Diagrafh Clique
 	Clique* cliq = (Clique*)obj;
 	
+	QueueDelete(cliq->related,'n');
 	free(cliq->related);
 	HTdestr(&(cliq->unrelated),NULL,'n');
 	free(cliq->id);
@@ -424,14 +425,15 @@ void QueueConcat(Queue* q1 , Queue* q2,Clique* cliq){ //Enwsh ourwn
 	
 }
 
-void QueueDelete(Queue* queue){ //Diagrafh ouras
+void QueueDelete(Queue* queue,char flag){ //Diagrafh ouras
 
 	struct QueueNode* curr = queue->head,*temp;
 
 	while(curr != NULL){
 		temp = curr;
 		curr = curr->next;
-		free(temp->data);
+		if(flag == 'b')
+			free(temp->data);
 		free(temp);
 	}
 
@@ -558,6 +560,7 @@ Link NEW(char* id,void* obj, Link l, Link r, int color,int* flag){
 		x->rbitem = (RBItem*)malloc(sizeof(RBItem));
     	x->rbitem->obj = obj;
 		x->rbitem->id = id;
+		x->rbitem->valid = 1;
 		*flag = 1; // To stoixeio bhke gia prwth fora
 	}
     return x;
@@ -964,9 +967,7 @@ void RemoveUnrelated(Link h , char* id){
 		return RemoveUnrelated(h->r, id);
 	else{									// Otan vrethei h timh afaireitai
 			if(t->obj != NULL)
-				t->obj = NULL;
-
-	
+				t->valid = 0;
 	}
 	
 }
@@ -991,7 +992,7 @@ void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff,Queue* train,Qu
 	VisitUnrelated(h->l,cliq,output,buff, train, test, valid, files);	// Anadromika phgainoume aristera
 	
 	
-	if(t->obj != NULL){									// Den yparxoun diplotypa
+	if(t->obj != NULL && t->valid){									// Den yparxoun diplotypa
 	
 		unrelc  = (Clique*)(t->obj);
 		
@@ -1055,7 +1056,7 @@ void printUnrelated(Link h,FILE* output,char* buff, Queue* train, Queue* test, Q
 void printRelated(Link h,FILE* output,char* buff, Queue* train,Queue* test,Queue* valid,HashTable* files){			
 	
 	RBItem* t = h->rbitem;
-    struct QueueNode *curr, *prev=NULL, *temp;
+    struct QueueNode *curr;
  	Record* record;
 		
     Pair* pair;	
@@ -1071,43 +1072,9 @@ void printRelated(Link h,FILE* output,char* buff, Queue* train,Queue* test,Queue
 	curr = pair->cliq->related->head;
 	while( curr != NULL ){								// Diasxizoume thn related 
 		rel_pair  = (Pair*)(curr->data);															// Related_pairs	
-		if( !strcmp( pair->item->id , rel_pair->item->id ) ){										// An einai to idio item
-		
-			if (curr == pair->cliq->related->head ){														// An einai o head
-				if( curr == pair->cliq->related->tail ){													// An einai to monadiko antikeimeno
-					pair->cliq->related->head=NULL;														// Diagrafh tou komvou
-					pair->cliq->related->tail=NULL;
-					pair->cliq->related->count--;
-					temp=curr;
-					curr = curr->next; 
-					free(temp);
-				}
-				else{																				// Diaforetika o head tha deiksei ston epomeno komvo
-					pair->cliq->related->head=curr->next;
-					pair->cliq->related->count--;
-					temp=curr;
-					curr = curr->next; 
-					free(temp);
-				}
-			}
-			else if(curr == pair->cliq->related->tail){													// An einai to teleutaio item
-				pair->cliq->related->tail = prev;															// Tha metakinithei enan komvo pisw
-				prev->next = NULL;
-				pair->cliq->related->count--;
-				temp = curr;
-				curr = curr->next;
-				free(temp);
-			}
-			else{																					// Se opoiadhpote allh periptwsh
-				prev->next=curr->next;
-				pair->cliq->related->count--;
-				temp = curr;
-				curr = curr->next;
-				free(temp);
-			}
-			
-		}
-		else{																						// An den einai ta ektypwnoume
+		if( !strcmp( pair->item->id , rel_pair->item->id ) )								// An einai to idio item
+			pair->printed++;
+		else if(!rel_pair->printed){																						// An den einai ta ektypwnoume
 			sprintf(buff,"%s , %s \n", pair->item->id , rel_pair->item->id );			
 			fwrite(buff,sizeof(char),strlen(buff),output);
 							
@@ -1117,11 +1084,9 @@ void printRelated(Link h,FILE* output,char* buff, Queue* train,Queue* test,Queue
 			record->item2 = (FileStats*) HTfind(files,rel_pair->item->id,'v');
 			record->value = 1;										// 1 logw related
 			DatasetSplit(train, test, valid, record );
-			
-			prev = curr;
-			curr = curr->next;
 		}
-		
+
+		curr = curr->next;
 	}
 
 	

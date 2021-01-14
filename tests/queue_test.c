@@ -42,7 +42,7 @@ void test_qinsert(void){
 	}
 	
 	//Diagrafh komvwn
-	QueueDelete(&queue);
+	QueueDelete(&queue,'b');
 	
 	//Diagrafthke h oura?
 	TEST_ASSERT(QueueEmpty(&queue));

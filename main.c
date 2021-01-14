@@ -110,6 +110,9 @@ int main(int argc, char* argv[]){
 						pair->cliq->id = tmp;
 						id++;
 						
+						
+						pair->printed = 0;
+
 						pair->cliq->related = (Queue*)malloc(sizeof(Queue));
 						HTinit(&(pair->cliq->unrelated));
 						
@@ -183,9 +186,9 @@ int main(int argc, char* argv[]){
 	HTdestr(&files,&FilesDestroy,'v');
 	HTdestr(&words,&WordsDestroy,'b');
 	HTdestr(&stopwords,NULL,'k');
-	QueueDelete(&train);
-	QueueDelete(&test);
-	QueueDelete(&valid);
+	QueueDelete(&train,'b');
+	QueueDelete(&test,'b');
+	QueueDelete(&valid,'b');
 	RBdestr();
 	
 	return 0;

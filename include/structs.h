@@ -31,7 +31,7 @@ void QueueInit(Queue*);
 void QueueInsert(Queue*,void **);
 int QueueEmpty(Queue* );
 void QueueConcat(Queue*, Queue*,Clique*);
-void QueueDelete(Queue*);
+void QueueDelete(Queue*,char);
 
 
 /*##################                  END OF QUEUE                                     ##########################*/
@@ -102,6 +102,7 @@ int swap(struct heapNode* ,struct heapNode*  );
 typedef struct{ //Antikeimeno komvou tou red-black tree
 	char* id;
 	void* obj;
+	int valid;
 }RBItem;
 
 struct RBnode{ 
@@ -162,6 +163,7 @@ struct RelItems{
 typedef struct{
 	Item* item;
 	Clique* cliq;
+	int printed;
 }Pair;
 
 
