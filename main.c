@@ -6,8 +6,6 @@
 #include <time.h>
 #include "./include/structs.h"
 #include "./include/text_support.h"
-#include "./include/logistic_regression.h"
-
 
 
 
@@ -124,7 +122,7 @@ int main(int argc, char* argv[]){
 						
 							
 	 					HTinsert(&pairs,item->id,(void*)pair);
-	 					QueueInsert(&nameList,(void**)(item->id));
+	 					QueueInsert(&nameList,(void**)&(item->id));
 	 					
 	 					
 					}
@@ -189,6 +187,7 @@ int main(int argc, char* argv[]){
 		RestorePairs(pairs.buckets[i],&id,buff);
 	TrainingSetStats(&pairs,&train,&comb);
 	LRtrain(&lr,&train,2*limit,'t');
+	//printf("Accuracy: %f\n",LRtest(&lr,&test,2*limit,'t'));
     CreateNewTrainingSet(&lr,&files,&comb ,&nameList,&newTrain,2*limit,'t',threshhold);
 
 	

@@ -85,7 +85,7 @@ typedef struct heapTree{  //Domh swrou
 void HeapInit(Heap*);
 void HeapInsert(Heap* ,Details*);
 Details* HeapRemoveFirst(Heap*);
-void HeapDestroy(Heap*);
+void HeapDestroyW(Heap*);
 void HeapifyWords(Link* ,Heap*,int);
 struct heapNode* newNode(Details* );
 int swap(struct heapNode* ,struct heapNode*  );
@@ -182,7 +182,7 @@ typedef struct{
 
 
 struct HeapItem{
-	WordStats* wstats;
+	void* stats;
 	double count;
 };
 

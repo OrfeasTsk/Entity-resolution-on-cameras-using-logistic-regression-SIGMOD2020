@@ -5,8 +5,8 @@ all: project all_tests
 project : main.o structs.o text_support.o logistic_regression.o 
 	gcc main.o structs.o text_support.o logistic_regression.o -o project -lm
 
-all_tests : all_tests.o queue_test.o stack_test.o rbt_test.o text_test.o heap_test.o ht_test.o structs.o text_support.o 
-	gcc all_tests.o queue_test.o stack_test.o rbt_test.o text_test.o heap_test.o ht_test.o structs.o text_support.o -o all_tests -lm 
+all_tests : all_tests.o queue_test.o stack_test.o rbt_test.o text_test.o heap_test.o ht_test.o structs.o text_support.o logistic_regression.o
+	gcc all_tests.o queue_test.o stack_test.o rbt_test.o text_test.o heap_test.o ht_test.o structs.o text_support.o logistic_regression.o -o all_tests -lm 
 
 all_tests.o : ./tests/all_tests.c ./include/structs.h ./include/acutest.h ./include/all_tests.h
 	gcc -Wall -c ./tests/all_tests.c $(inc)
@@ -35,7 +35,7 @@ main.o : main.c ./include/structs.h ./include/text_support.h ./include/logistic_
 structs.o : structs.c ./include/structs.h ./include/text_support.h
 	gcc -Wall -c structs.c $(inc) 
 	
-text_support.o : text_support.c ./include/structs.h ./include/text_support.h
+text_support.o : text_support.c ./include/structs.h ./include/text_support.h ./include/logistic_regression.h
 	gcc -Wall -c text_support.c $(inc) 
 
 logistic_regression.o : logistic_regression.c ./include/structs.h ./include/logistic_regression.h

@@ -19,4 +19,3 @@ double LRpred(LogisticRegression* ,Record* , int, char );
 void UpdateWeights(LogisticRegression* , double* , double ,int, int );
 void CalculateF(LogisticRegression* , double* , double , int );
 void SparseIteration(Link , LogisticRegression*  ,double*  ,int , char , int);
-void CreateNewTrainingSet(LogisticRegression*,HashTable* ,HashTable*  ,Queue* , Queue* ,int , int ,int );

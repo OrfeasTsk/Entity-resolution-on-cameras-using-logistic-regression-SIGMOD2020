@@ -316,23 +316,26 @@ Details* HeapRemoveFirst(Heap* h){//Afairei to megalytero stoixeio tou swrou
 }
 
 
-void HeapRecDestroy(struct heapNode* h){//Anadromikh synarthsh gia katastrofh tou swrou
+void HeapRecDestroyW(struct heapNode* h){//Anadromikh synarthsh gia katastrofh tou swrou
 	
+	WordStats* wstats; 
+
 	if (h == NULL)
 		return;
-    HeapRecDestroy(h->left);
-    HeapRecDestroy(h->right);
-    free(h->data->wstats->word);
-    HTdestr(&(h->data->wstats->files),NULL,'n');
-    free(h->data->wstats);
+    HeapRecDestroyW(h->left);
+    HeapRecDestroyW(h->right);
+	wstats = (WordStats*)(h->data->stats);
+    free(wstats->word);
+    HTdestr(&(wstats->files),NULL,'n');
+    free(wstats);
     free(h->data);
     free(h);
 	
 }
 
-void HeapDestroy(Heap* h){
+void HeapDestroyW(Heap* h){
 	
-	HeapRecDestroy(h->head);
+	HeapRecDestroyW(h->head);
 	h->head=NULL;
 }
 
@@ -357,7 +360,7 @@ void HeapifyWords(Link* head,Heap* heap,int totalFiles) //Eisagwgh twn leksewn s
     	wstats=(WordStats*)((*head)->rbitem->obj);
     	
 		details = (Details*)malloc(sizeof(Details));
-		details->wstats = wstats;
+		details->stats =(void*) wstats;
 		details->count = 0.0;
 		
 		for(i = 0; i < numBuckets; i++ )
@@ -1165,7 +1168,8 @@ void SumTFIDF( Link h, Details* details){
 	
 	RBItem* t = h->rbitem;		
     FileStats* fstats;
-	ModelStats* mstats;	
+	ModelStats* mstats;
+	WordStats* wstats; 	
 	
 	if(h == z)			// Base-case
 		return;
@@ -1174,9 +1178,9 @@ void SumTFIDF( Link h, Details* details){
 	
 	
 	if(t->obj != NULL){									// Den yparxoun diplotypa
-									
+		wstats = (WordStats*)(details->stats);
 		fstats  = (FileStats*)(t->obj);
-		mstats= (ModelStats*)HTfind(&(fstats->words) , details->wstats->word, 'v' );
+		mstats= (ModelStats*)HTfind(&(fstats->words) , wstats->word, 'v' );
 		details->count += mstats->tfidf_val;
 		
 	}

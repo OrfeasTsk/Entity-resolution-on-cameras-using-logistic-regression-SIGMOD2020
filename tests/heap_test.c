@@ -6,7 +6,7 @@
 
 void test_heapnodecreate(void){		// Elegxoume an h newNode douleuei kai arxikopoiei swsta ta values
 	
-	WordStats* wstats;
+	WordStats* wstats,*wstatsTmp;
 	Details* details1 ;
 	struct heapNode* temp ;
 	HashTable files;
@@ -24,7 +24,7 @@ void test_heapnodecreate(void){		// Elegxoume an h newNode douleuei kai arxikopo
 	
 	// dhmiourgoume ta details pou prepei na baloume
 	details1 = (Details*)malloc(sizeof(Details));
-	details1->wstats= wstats;
+	details1->stats=(void*)wstats;
 	details1->count = 0.0;
 	
 	temp=newNode(details1);
@@ -32,7 +32,8 @@ void test_heapnodecreate(void){		// Elegxoume an h newNode douleuei kai arxikopo
 	// kanoume ta analoga test kai elegxoume an ola exoun bei swsta
 	TEST_ASSERT( temp->left == NULL );
 	TEST_ASSERT( temp->right == NULL );
-	TEST_ASSERT( strcmp( temp->data->wstats->word , name1 ) == 0  );
+	wstatsTmp = (WordStats*)(temp->data->stats);
+	TEST_ASSERT( strcmp( wstatsTmp->word , name1 ) == 0  );
 	TEST_ASSERT( temp->data->count == 0.0 );
 	
 	//frees
@@ -49,7 +50,7 @@ void test_heapnodecreate(void){		// Elegxoume an h newNode douleuei kai arxikopo
 void test_swap(void){		// elegxoume an h swap douleuei kai allazei to periexomeno twn details
 	
 	Details* details1, *details2;
-	WordStats* wstats1, *wstats2;
+	WordStats* wstats1, *wstats2,*wstats;
 	HashTable files;
 	int result;	
 	struct heapNode* temp1, *temp2;
@@ -68,7 +69,7 @@ void test_swap(void){		// elegxoume an h swap douleuei kai allazei to periexomen
 	
 	// dhmiourgoume ta details pou prepei na baloume
 	details1 = (Details*)malloc(sizeof(Details));
-	details1->wstats= wstats1;
+	details1->stats=(void*)wstats1;
 	details1->count = 0.0;
 	
 	
@@ -81,7 +82,7 @@ void test_swap(void){		// elegxoume an h swap douleuei kai allazei to periexomen
 	
 	// dhmiourgoume ta details pou prepei na baloume
 	details2 = (Details*)malloc(sizeof(Details));
-	details2->wstats= wstats2;
+	details2->stats=(void*) wstats2;
 	details2->count = 2.0;
 	
 	temp1=newNode(details1);
@@ -94,8 +95,10 @@ void test_swap(void){		// elegxoume an h swap douleuei kai allazei to periexomen
 	// elegxoume an exei ginei h allagh
 	TEST_ASSERT( temp1->data->count == 2.0 );	
 	TEST_ASSERT( temp2->data->count == 0.0 );
-	TEST_ASSERT( strcmp( temp1->data->wstats->word , name2 ) == 0);
-	TEST_ASSERT( strcmp( temp2->data->wstats->word , name1 ) == 0);
+	wstats = (WordStats*)(temp1->data->stats);
+	TEST_ASSERT( strcmp( wstats->word , name2 ) == 0);
+	wstats = (WordStats*)(temp2->data->stats);
+	TEST_ASSERT( strcmp( wstats->word , name1 ) == 0);
 	
 	//frees
 	HTdestr(&files,&FilesDestroy,'v');
@@ -124,14 +127,14 @@ void test_heapcreate(void){	// Elegxoume an h HeapInit douleuei kai arxikopoiei 
 	TEST_ASSERT( heap.nodes == 0 );
 	TEST_ASSERT( heap.height == 0);
 	
-	HeapDestroy(&heap);
+	HeapDestroyW(&heap);
 	
 }
 
 void test_heapinsert(void){		// Elegxoume an h HeapInsert douleuei kai mpainoun swsta oi times kai allazoun oi analoges times tou heap
 	
 	Details* details1, *details2;
-	WordStats* wstats1, *wstats2;
+	WordStats* wstats1, *wstats2,*wstats;
 	Heap heap;
 	char name1[10]="First";
 	char name2[10]="Second";
@@ -149,14 +152,15 @@ void test_heapinsert(void){		// Elegxoume an h HeapInsert douleuei kai mpainoun 
 	
 	// dhmiourgoume ta details pou prepei na baloume
 	details1 = (Details*)malloc(sizeof(Details));
-	details1->wstats= wstats1;
+	details1->stats=(WordStats*) wstats1;
 	details1->count = 5.0;
 	
 	HeapInsert(&heap,details1);	// eisagoume to prwto item 
 	
 	TEST_ASSERT( heap.nodes == 1 );
 	TEST_ASSERT( heap.height == 1);
-	TEST_ASSERT( strcmp( heap.head->data->wstats->word , name1 ) == 0 );
+	wstats = (WordStats*)(heap.head->data->stats);
+	TEST_ASSERT( strcmp( wstats->word , name1 ) == 0 );
 	TEST_ASSERT( heap.head->data->count == 5.0 );
 	
 	//dhmiourgia wstats2
@@ -168,7 +172,7 @@ void test_heapinsert(void){		// Elegxoume an h HeapInsert douleuei kai mpainoun 
 	
 	// dhmiourgoume ta details pou prepei na baloume
 	details2 = (Details*)malloc(sizeof(Details));
-	details2->wstats= wstats2;
+	details2->stats=(void*) wstats2;
 	details2->count = 10.0;
 	
 	HeapInsert(&heap,details2);	// eisagoume to deutero item
@@ -176,7 +180,7 @@ void test_heapinsert(void){		// Elegxoume an h HeapInsert douleuei kai mpainoun 
 	TEST_ASSERT( heap.height == 2);
 	
 	
-	HeapDestroy(&heap);
+	HeapDestroyW(&heap);
 
 }
 
@@ -184,7 +188,7 @@ void test_heapinsert(void){		// Elegxoume an h HeapInsert douleuei kai mpainoun 
 void test_heapremovefirst(void){	// elegxoume an h HeapRemoveFirst douleuei kai afairei swsta ta items allazontas tis analoges times tou heap
 	
 	Details* details1, *details2, *details;
-	WordStats* wstats1, *wstats2;
+	WordStats* wstats1, *wstats2,*wstats;
 	Heap heap;
 	char name1[10]="First";
 	char name2[10]="Second";
@@ -200,7 +204,7 @@ void test_heapremovefirst(void){	// elegxoume an h HeapRemoveFirst douleuei kai 
 	
 	// dhmiourgoume ta details pou prepei na baloume
 	details1 = (Details*)malloc(sizeof(Details));
-	details1->wstats= wstats1;
+	details1->stats= (void*)wstats1;
 	details1->count = 5.0;	
 	HeapInsert(&heap,details1);	// insert first item
 	
@@ -213,7 +217,7 @@ void test_heapremovefirst(void){	// elegxoume an h HeapRemoveFirst douleuei kai 
 	
 	// dhmiourgoume ta details pou prepei na baloume
 	details2 = (Details*)malloc(sizeof(Details));
-	details2->wstats= wstats2;
+	details2->stats= (void*)wstats2;
 	details2->count = 10.0;	
 	HeapInsert(&heap,details2);	// insert second item
 	
@@ -221,23 +225,25 @@ void test_heapremovefirst(void){	// elegxoume an h HeapRemoveFirst douleuei kai 
 	details= HeapRemoveFirst(&heap);
 	TEST_ASSERT( heap.nodes == 1 );
 	TEST_ASSERT( heap.height == 1);
-	TEST_ASSERT( strcmp( details->wstats->word , name2 ) == 0 );
+	wstats = (WordStats*)(details->stats);
+	TEST_ASSERT( strcmp(wstats->word , name2 ) == 0 );
 	TEST_ASSERT( details->count == 10.0 );
 	
-	free(details->wstats->word);
-	free(details->wstats);
+	free(wstats->word);
+	free(wstats);
 	free(details);
 	
 	// afairoume kai to deutero details kanontas paromoious elegxous
 	details= HeapRemoveFirst(&heap);
 	TEST_ASSERT( heap.nodes == 0 );
 	TEST_ASSERT( heap.height == 0 );
-	TEST_ASSERT( strcmp( details->wstats->word , name1 ) == 0 );
+	wstats = (WordStats*)(details->stats);
+	TEST_ASSERT( strcmp( wstats->word , name1 ) == 0 );
 	TEST_ASSERT( details->count == 5.0 );
 	
 
-	free(details->wstats->word);
-	free(details->wstats);
+	free(wstats->word);
+	free(wstats);
 	free(details);
 //	HeapDestroy(&heap);
 	
@@ -251,7 +257,9 @@ void test_heapifywords(void){	// Elegxoume an h HeapifyWords douleuei swsta kai 
 	int i;
 	Item* item1, *item2, *item3, *item4, *item5;
 	FileStats* fstats1,* fstats2,* fstats3,* fstats4, * fstats5;
+	WordStats* wstats;
 	int fIndex = 0, wIndex = 0;
+
 	
 	RBinit();
 	
@@ -370,7 +378,8 @@ void test_heapifywords(void){	// Elegxoume an h HeapifyWords douleuei swsta kai 
 
 	TEST_ASSERT(heap.nodes == 5); // oi lekseis prepei na einai 5
 	TEST_ASSERT(heap.height == 3); // kai to upsos 3
-	TEST_ASSERT(!strcmp(heap.head->data->wstats->word,str5));	// megaluterh timh
+	wstats = (WordStats*)(heap.head->data->stats);
+	TEST_ASSERT(!strcmp(wstats->word,str5));	// megaluterh timh
 	
 	
 	free(item1->id);
@@ -391,7 +400,7 @@ void test_heapifywords(void){	// Elegxoume an h HeapifyWords douleuei swsta kai 
 	free(words.buckets);
 	HTdestr(&stopwords,NULL,'k');
 
-	HeapDestroy(&heap);
+	HeapDestroyW(&heap);
 	RBdestr();
 }
 

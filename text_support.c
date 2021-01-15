@@ -15,6 +15,7 @@ void CutOffDictionary( HashTable* words, HashTable* files , int limit ){  //Apok
 	int i;
 	Heap heap;
 	Details* details;
+	WordStats* wstats;
 	
 	HeapInit(&heap);
 	
@@ -27,9 +28,10 @@ void CutOffDictionary( HashTable* words, HashTable* files , int limit ){  //Apok
 		
 	for(i = 0; i < limit; i++)  //Eksagwgh twn top limit leksewn kai dhmiourgia neou leksilogiou
 		if( (details = HeapRemoveFirst(&heap))){
-			details->wstats->index = i;
-			//printf("%s , %f \n",details->wstats->word, details->count );
-			HTinsert(words , details->wstats->word, (void*)details->wstats );
+			wstats = (WordStats*)(details->stats);
+			wstats->index = i;
+			//printf("%s , %f \n",wstats->word, details->count );
+			HTinsert(words , wstats->word, (void*)wstats );
 			free(details);
 		}
 		else
@@ -39,7 +41,7 @@ void CutOffDictionary( HashTable* words, HashTable* files , int limit ){  //Apok
 		AdjustMStats(files->buckets[i],words);
 	
 
-	HeapDestroy(&heap);
+	HeapDestroyW(&heap);
 		
 }
 
@@ -542,3 +544,39 @@ void TrainingSetStats(HashTable* ht , Queue* train, HashTable* comb){ //Diavasma
 
 }
 
+void CreateNewTrainingSet(LogisticRegression* lr,HashTable* files,HashTable* comb ,Queue* nameList, Queue* newTrain,int size, int type,int threshhold){
+
+	struct QueueNode *curr1,*curr2;
+	char* id1, *id2;
+	char* tmp;
+	Record* record;
+	
+
+	for(curr1 = nameList->head; curr1 != NULL; curr1 = curr1->next )
+		for(curr2 = curr1->next; curr2 != NULL; curr2 = curr2->next){
+			id1 = (char*)(curr1->data);
+			id2 = (char*)(curr2->data);
+			tmp = (char*)malloc(strlen(id1) + strlen(id2) + 1);
+			strcpy(tmp , id1);
+			strcat(tmp , id2);
+			if( HTfind(comb, tmp, 'k') == NULL){
+				strcpy(tmp , id2);
+				strcat(tmp , id1);
+				if(HTfind(comb, tmp, 'k') == NULL){ //Den yparxei sto training set
+					record = (Record*)malloc(sizeof(Record));
+					record->item1 = (FileStats*) HTfind(files,id1,'v');
+					record->item2 = (FileStats*) HTfind(files,id2,'v');
+					record->value = LRpred(lr, record, size, type);
+					if(record->value < threshhold || record->value > 1 - threshhold )
+						QueueInsert(newTrain,(void**)&record);
+					else
+						free(record);
+
+				}
+			}
+
+			free(tmp);
+
+
+	}
+}

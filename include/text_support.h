@@ -1,4 +1,5 @@
-#define lim 1000000
+#include "./logistic_regression.h"
+#define lim 1000
 #define maxSplit 20
 #define trhold 0.05
 
@@ -15,3 +16,4 @@ void InsertWord(HashTable* , HashTable*   , char* ,FileStats* ,int*  );
 void CutOffDictionary( HashTable*, HashTable* , int );
 void DatasetSplit(Queue * , Queue *, Queue *, Record*  );
 void TrainingSetStats(HashTable* , Queue* , HashTable* );
+void CreateNewTrainingSet(LogisticRegression*,HashTable* ,HashTable*  ,Queue* , Queue* ,int , int ,int );
