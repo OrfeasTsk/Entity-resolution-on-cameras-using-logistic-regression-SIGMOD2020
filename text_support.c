@@ -518,7 +518,7 @@ void DatasetSplit(Queue * train, Queue *test, Queue *valid, Record* record ){  /
 
 
 
-void TrainingSetStats(HashTable* ht , Queue* train, HashTable* comb){ //Diavasma tou trainset(60%)
+void TrainingSetStats(HashTable* pairs , Queue* train, HashTable* comb){ //Diavasma tou trainset(60%)
 
 	Pair *pairA, *pairB;
 	Record * record;
@@ -526,8 +526,8 @@ void TrainingSetStats(HashTable* ht , Queue* train, HashTable* comb){ //Diavasma
 	char* token;
 	for( ptr = train->head ; ptr != NULL ; ptr = ptr->next){
 		record =(Record*)(ptr->data);
-		pairA = (Pair*) HTfind(ht,record->item1->item->id ,'v'); //Euresh tou left item
-		pairB = (Pair*) HTfind(ht,record->item2->item->id ,'v'); //Euresh tou right item
+		pairA = (Pair*) HTfind(pairs,record->item1->item->id ,'v'); //Euresh tou left item
+		pairB = (Pair*) HTfind(pairs,record->item2->item->id ,'v'); //Euresh tou right item
 		if(record->value == 1){ // an tairiazoun
 			if(pairA->cliq->related != pairB->cliq->related) //An den exoun enwthei ksana
 			CliqueConcat(pairA, pairB, 1);
@@ -544,39 +544,65 @@ void TrainingSetStats(HashTable* ht , Queue* train, HashTable* comb){ //Diavasma
 
 }
 
-void CreateNewTrainingSet(LogisticRegression* lr,HashTable* files,HashTable* comb ,Queue* nameList, Queue* newTrain,int size, int type,int threshhold){
+void CreateNewTrainingSet(LogisticRegression* lr,HashTable* files,HashTable* comb ,Queue* nameList, Heap* newTrain,int size, int type,int threshhold){
 
 	struct QueueNode *curr1,*curr2;
+	double pred;
 	char* id1, *id2;
 	char* tmp;
+	Details* details;
 	Record* record;
-	
-
-	for(curr1 = nameList->head; curr1 != NULL; curr1 = curr1->next )
+			
+	 //Gia ola ta zeugaria tou x
+	for(curr1 = nameList->head; curr1 != NULL; curr1 = curr1->next ) 
 		for(curr2 = curr1->next; curr2 != NULL; curr2 = curr2->next){
 			id1 = (char*)(curr1->data);
 			id2 = (char*)(curr2->data);
-			tmp = (char*)malloc(strlen(id1) + strlen(id2) + 1);
-			strcpy(tmp , id1);
-			strcat(tmp , id2);
-			if( HTfind(comb, tmp, 'k') == NULL){
-				strcpy(tmp , id2);
-				strcat(tmp , id1);
-				if(HTfind(comb, tmp, 'k') == NULL){ //Den yparxei sto training set
-					record = (Record*)malloc(sizeof(Record));
-					record->item1 = (FileStats*) HTfind(files,id1,'v');
-					record->item2 = (FileStats*) HTfind(files,id2,'v');
-					record->value = LRpred(lr, record, size, type);
-					if(record->value < threshhold || record->value > 1 - threshhold )
-						QueueInsert(newTrain,(void**)&record);
-					else
-						free(record);
+			if(strcmp(id1, id2)){
+				tmp = (char*)malloc(strlen(id1) + strlen(id2) + 1);
+				strcpy(tmp , id1);
+				strcat(tmp , id2);
+				if( HTfind(comb, tmp, 'k') == NULL){
+					strcpy(tmp , id2);
+					strcat(tmp , id1);
+					if(HTfind(comb, tmp, 'k') == NULL){ //Den yparxei sto training set
+						record = (Record*)malloc(sizeof(Record));
+						record->item1 = (FileStats*) HTfind(files,id1,'v');
+						record->item2 = (FileStats*) HTfind(files,id2,'v');
 
+						pred = LRpred(lr, record, size, type);
+						if(pred < threshhold ){ //An h provlepsh einai mikroterh tou threshold ara kai mikroterh tou 0.5
+							record->value = 0;
+							details = (Details*)malloc(sizeof(Details));
+							details->stats = (void*)record;
+							details->count = -pred; // Eisagwgh ths antitheths timhs sto max heap gia na anakththei h mikroterh timh (pio isxyrh provlepsh)
+							HeapInsert(newTrain,details);
+						}
+						else if(pred > 1 - threshhold){
+							record->value = 1;
+							details = (Details*)malloc(sizeof(Details));
+							details->stats = (void*)record;
+							details->count = -(1 - pred); // Eisagwgh ths antitheths timhs ths diaforas apo to 1 sto max heap gia na anakththei h mikroterh timh (pio isxyrh provlepsh)
+							HeapInsert(newTrain,details);
+						}
+						else
+							free(record);
+
+					}
 				}
-			}
 
 			free(tmp);
-
-
+		}
 	}
+}
+
+void ResolveTransitivity(HashTable* pairs, Heap* newTrain, Queue* train){
+
+
+
+
+
+
+
+	
 }

@@ -27,8 +27,9 @@ int main(int argc, char* argv[]){
 	HashTable words;
 	HashTable files;
 	HashTable comb;
-	Queue train,test,valid,newTrain;
+	Queue train,test,valid;
 	Queue nameList;
+	Heap newTrain;
 	LogisticRegression lr;
 
 	
@@ -174,20 +175,21 @@ int main(int argc, char* argv[]){
 	
 	// 3o paradoteo
 	HTinit(&comb);
-	QueueInit( &newTrain );
-	
+	HeapInit( &newTrain );
 	LRinit(&lr,epsilon,lrate,dBoundary,maxIters);
+
+
 	// Epanafora twn klikwn
 	HTdestr(&cliques,&CliqueDestroy,'v');
 
 	id = 0;
 
-	
 	for( i = 0; i < numBuckets; i++)
 		RestorePairs(pairs.buckets[i],&id,buff);
 	TrainingSetStats(&pairs,&train,&comb);
+	
+
 	LRtrain(&lr,&train,2*limit,'t');
-	//printf("Accuracy: %f\n",LRtest(&lr,&test,2*limit,'t'));
     CreateNewTrainingSet(&lr,&files,&comb ,&nameList,&newTrain,2*limit,'t',threshhold);
 
 	
