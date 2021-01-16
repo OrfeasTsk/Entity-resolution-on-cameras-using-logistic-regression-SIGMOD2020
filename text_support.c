@@ -523,7 +523,7 @@ void TrainingSetStats(HashTable* pairs , Queue* train, HashTable* comb){ //Diava
 	Pair *pairA, *pairB;
 	Record * record;
 	struct QueueNode* ptr;
-	char* token;
+	char* tmp;
 	for( ptr = train->head ; ptr != NULL ; ptr = ptr->next){
 		record =(Record*)(ptr->data);
 		pairA = (Pair*) HTfind(pairs,record->item1->item->id ,'v'); //Euresh tou left item
@@ -536,10 +536,10 @@ void TrainingSetStats(HashTable* pairs , Queue* train, HashTable* comb){ //Diava
 			CliqueConcat(pairA, pairB, 0);
 		}
 		
-		token=(char*)malloc(strlen(pairA->item->id) + strlen(pairB->item->id) + 1); // Dimiourgia mias leksis apo thn enwsh twn ids
-		strcpy(token , pairA->item->id);
-		strcat(token , pairB->item->id);
-		HTinsert( comb , token , (void*) token); // Eisagwgh dedomenwn so hashTable Combination
+		tmp=(char*)malloc(strlen(pairA->item->id) + strlen(pairB->item->id) + 1); // Dimiourgia mias leksis apo thn enwsh twn ids
+		strcpy(tmp , pairA->item->id);
+		strcat(tmp , pairB->item->id);
+		HTinsert( comb , tmp , (void*) tmp); // Eisagwgh dedomenwn so hashTable Combination
 	}
 
 }
@@ -596,13 +596,54 @@ void CreateNewTrainingSet(LogisticRegression* lr,HashTable* files,HashTable* com
 	}
 }
 
+
+
+int unrelatedFound(Queue* related,HashTable* unrelated){
+	struct QueueNode* ptr;
+	Pair *pair;
+
+	for(ptr = related->head; ptr != NULL ; ptr = ptr -> next){
+		pair = (Pair*)(ptr->data);
+		if(HTfind(unrelated, pair->item->id ,'k'))
+			return 1;
+	}
+
+	return 0;
+}
+
+
+
+
 void ResolveTransitivity(HashTable* pairs, Heap* newTrain, Queue* train){
 
+	Pair *pairA, *pairB;
+	Record * record;
+	Details* details;
 
+	while((details = HeapRemoveFirst(newTrain))){
+		record =(Record*)(details->stats);
+		pairA = (Pair*) HTfind(pairs,record->item1->item->id ,'v'); //Euresh tou left item
+		pairB = (Pair*) HTfind(pairs,record->item2->item->id ,'v'); //Euresh tou right item
+		if(record->value == 1){ // an tairiazoun
+			if(pairA->cliq->related != pairB->cliq->related){ //An den exoun enwthei ksana
+				if(pairA->cliq->related->count > pairB->cliq->related->count){
+					if(!unrelatedFound(pairB->cliq->related,&(pairA->cliq->unrelated)))
+						CliqueConcat(pairA, pairB, 1);
+				}
+				else{
+					if(!unrelatedFound(pairA->cliq->related,&(pairB->cliq->unrelated)))
+						CliqueConcat(pairA, pairB, 1);
+				}
+				
+			}
+		}
+		else{ // Alliws sthn periptwsh tou 0 (dld dn tairiazoun)
+			if(pairA->cliq->related != pairB->cliq->related)
+				CliqueConcat(pairA, pairB, 0);
+		}
+		
+		free(record);
+		free(details);
 
-
-
-
-
-	
+	}
 }

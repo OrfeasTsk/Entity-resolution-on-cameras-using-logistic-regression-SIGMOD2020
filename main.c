@@ -150,14 +150,14 @@ int main(int argc, char* argv[]){
 	
 	output = fopen("unrelated.csv","w");
 	for( i = 0; i < numBuckets; i++)
-		printUnrelated(cliques.buckets[i],output,buff, &train, &test, &valid, &files );
+		printUnrelated(cliques.buckets[i],output,buff, &train, &test, &valid, &files,NULL );
 	fclose(output);
 	
 	output = fopen("related.csv","w");
 	sprintf(buff,"left_item , right_item\n");
 	fwrite(buff,sizeof(char),strlen(buff),output);
 	for( i = 0; i < numBuckets; i++)
-		printRelated(pairs.buckets[i],output,buff, &train, &test, &valid, &files);
+		printRelated(pairs.buckets[i],output,buff, &train, &test, &valid, &files,NULL);
 	fclose(output);
 	
 	
@@ -174,24 +174,42 @@ int main(int argc, char* argv[]){
 		CutOffDictionary(&words, &files, limit);
 	
 	// 3o paradoteo
-	HTinit(&comb);
-	HeapInit( &newTrain );
 	LRinit(&lr,epsilon,lrate,dBoundary,maxIters);
 
 
-	// Epanafora twn klikwn
+	// Epanafora twn klikwn WHILE
 	HTdestr(&cliques,&CliqueDestroy,'v');
+	HTinit(&cliques);
+	HTinit(&comb);
+	HeapInit( &newTrain );
+
 
 	id = 0;
 
 	for( i = 0; i < numBuckets; i++)
 		RestorePairs(pairs.buckets[i],&id,buff);
 	TrainingSetStats(&pairs,&train,&comb);
-	
 
 	LRtrain(&lr,&train,2*limit,'t');
     CreateNewTrainingSet(&lr,&files,&comb ,&nameList,&newTrain,2*limit,'t',threshhold);
+    ResolveTransitivity(&pairs, &newTrain, &train);
 
+
+    for( i = 0; i < numBuckets; i++)
+		MakeCliqueHT(pairs.buckets[i],&cliques);
+	
+	for( i = 0; i < numBuckets; i++)
+		ChangeUnrelated(cliques.buckets[i]);
+	
+	for( i = 0; i < numBuckets; i++)
+		printUnrelated(cliques.buckets[i],NULL,buff, &train, NULL, NULL, &files, &comb );
+
+	for( i = 0; i < numBuckets; i++)
+		printRelated(pairs.buckets[i],NULL,buff, &train, NULL, NULL, &files, &comb );
+
+	HTdestr(&comb,NULL,'k');
+
+	threshhold+=step;
 	
 	/*LRinit(&lr,epsilon,lrate,dBoundary,maxIters);
 	printf("Training started\n");

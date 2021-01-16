@@ -980,7 +980,7 @@ void RemoveUnrelated(Link h , char* id){
 
 
 
-void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff,Queue* train,Queue* test,Queue* valid, HashTable* files){
+void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff,Queue* train,Queue* test,Queue* valid, HashTable* files,HashTable* comb){
 	
 	RBItem* t = h->rbitem;
 	int hashnum;
@@ -988,11 +988,12 @@ void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff,Queue* train,Qu
     Clique* unrelc;
 	Pair* pair, *unrelp;	
 	Record* record;
-	
+	char* tmp;
+
 	if(h == z)			// Base-case
 		return;
 	
-	VisitUnrelated(h->l,cliq,output,buff, train, test, valid, files);	// Anadromika phgainoume aristera
+	VisitUnrelated(h->l,cliq,output,buff, train, test, valid, files, comb);	// Anadromika phgainoume aristera
 	
 	
 	if(t->obj != NULL && t->valid){									// Den yparxoun diplotypa
@@ -1003,15 +1004,34 @@ void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff,Queue* train,Qu
 			pair = (Pair*)(ptr->data);
 			for( unrelptr = unrelc->related->head ; unrelptr != NULL ; unrelptr = unrelptr->next){
 				unrelp = (Pair*)(unrelptr->data);
-				sprintf(buff,"%s , %s \n", pair->item->id , unrelp->item->id );
-				fwrite(buff,sizeof(char),strlen(buff),output);
+				
+				if(output != NULL){
+					sprintf(buff,"%s , %s \n", pair->item->id , unrelp->item->id );
+					fwrite(buff,sizeof(char),strlen(buff),output);
+				}
 	
 				//dhmiourgia record
 				record = (Record*)malloc(sizeof(Record)); //Dhmiourgia record
 				record->item1 = (FileStats*) HTfind(files,pair->item->id,'v');
 				record->item2 = (FileStats*) HTfind(files,unrelp->item->id,'v');
-				record->value = 0;										// 0 logw unrelated
-				DatasetSplit(train, test, valid, record );
+				record->value = 0;	// 0 logw unrelated
+													
+				if(test != NULL && valid != NULL)
+					DatasetSplit(train, test, valid, record );
+				else if(comb != NULL){
+					tmp = (char*)malloc(strlen(pair->item->id) + strlen(unrelp->item->id) + 1);
+					strcpy(tmp , pair->item->id);
+					strcat(tmp , unrelp->item->id);
+					if( HTfind(comb, tmp, 'k') == NULL){
+						strcpy(tmp , unrelp->item->id);
+						strcat(tmp , pair->item->id);
+						if(HTfind(comb, tmp, 'k') == NULL){ //Den yparxei sto training set
+							QueueInsert(train,(void**)&record);
+						}
+					}
+
+					free(tmp);
+				}
 			}	
 		}
 		
@@ -1021,7 +1041,7 @@ void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff,Queue* train,Qu
 	}
 	
 	
-	VisitUnrelated(h->r,cliq,output,buff, train, test, valid, files);	// Anadromika phgainoume deksia
+	VisitUnrelated(h->r,cliq,output,buff, train, test, valid, files, comb);	// Anadromika phgainoume deksia
 	
 }
 
@@ -1029,7 +1049,7 @@ void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff,Queue* train,Qu
 
 
 
-void printUnrelated(Link h,FILE* output,char* buff, Queue* train, Queue* test, Queue* valid, HashTable* files){
+void printUnrelated(Link h,FILE* output,char* buff, Queue* train, Queue* test, Queue* valid, HashTable* files,HashTable* comb){
 	
 	RBItem* t = h->rbitem;	
 	int i;	
@@ -1038,29 +1058,30 @@ void printUnrelated(Link h,FILE* output,char* buff, Queue* train, Queue* test, Q
 	if(h == z)			// Base-case
 		return;
 	
-	printUnrelated(h->l,output,buff, train, test, valid, files);	// Anadromika phgainoume aristera
+	printUnrelated(h->l,output,buff, train, test, valid, files,comb);	// Anadromika phgainoume aristera
 	
 	
 	if(t->obj != NULL){									// Den yparxoun diplotypa
 									
 		cliq  = (Clique*)(t->obj);
 		for( i = 0; i < numBuckets; i++)
-			VisitUnrelated(cliq->unrelated.buckets[i],cliq,output,buff, train, test, valid, files);
+			VisitUnrelated(cliq->unrelated.buckets[i],cliq,output,buff, train, test, valid, files,comb);
 		
 	}
 	
 	
-	printUnrelated(h->r,output,buff, train, test, valid, files);	// Anadromika phgainoume deksia
+	printUnrelated(h->r,output,buff, train, test, valid, files,comb);	// Anadromika phgainoume deksia
 	
 }
 
 
 
-void printRelated(Link h,FILE* output,char* buff, Queue* train,Queue* test,Queue* valid,HashTable* files){			
+void printRelated(Link h,FILE* output,char* buff, Queue* train,Queue* test,Queue* valid,HashTable* files,HashTable* comb){			
 	
 	RBItem* t = h->rbitem;
     struct QueueNode *curr;
  	Record* record;
+ 	char* tmp;
 		
     Pair* pair;	
 	Pair* rel_pair;	
@@ -1068,7 +1089,7 @@ void printRelated(Link h,FILE* output,char* buff, Queue* train,Queue* test,Queue
 	if(h == z)			// base-case
 		return;
 		
-	printRelated(h->l,output,buff, train, test, valid, files);	// Anadromika phgainoume aristera
+	printRelated(h->l,output,buff, train, test, valid, files, comb);	// Anadromika phgainoume aristera
 	
 	
 	pair  = (Pair*)(t->obj);
@@ -1078,15 +1099,34 @@ void printRelated(Link h,FILE* output,char* buff, Queue* train,Queue* test,Queue
 		if( !strcmp( pair->item->id , rel_pair->item->id ) )								// An einai to idio item
 			pair->printed++;
 		else if(!rel_pair->printed){																						// An den einai ta ektypwnoume
-			sprintf(buff,"%s , %s \n", pair->item->id , rel_pair->item->id );			
-			fwrite(buff,sizeof(char),strlen(buff),output);
+			
+			if(output != NULL){
+				sprintf(buff,"%s , %s \n", pair->item->id , rel_pair->item->id );			
+				fwrite(buff,sizeof(char),strlen(buff),output);
+			}
 							
 			
 			record = (Record*)malloc(sizeof(Record)); //Dhmiourgia record
 			record->item1 = (FileStats*) HTfind(files,pair->item->id,'v');
 			record->item2 = (FileStats*) HTfind(files,rel_pair->item->id,'v');
 			record->value = 1;										// 1 logw related
-			DatasetSplit(train, test, valid, record );
+
+			if(test != NULL && valid != NULL)
+				DatasetSplit(train, test, valid, record );
+			else if(comb != NULL){
+				tmp = (char*)malloc(strlen(pair->item->id) + strlen(rel_pair->item->id) + 1);
+				strcpy(tmp , pair->item->id);
+				strcat(tmp , rel_pair->item->id);
+				if( HTfind(comb, tmp, 'k') == NULL){
+					strcpy(tmp , rel_pair->item->id);
+					strcat(tmp , pair->item->id);
+					if(HTfind(comb, tmp, 'k') == NULL){ //Den yparxei sto training set
+						QueueInsert(train,(void**)&record);
+					}
+				}
+
+				free(tmp);
+			}
 		}
 
 		curr = curr->next;
@@ -1094,7 +1134,7 @@ void printRelated(Link h,FILE* output,char* buff, Queue* train,Queue* test,Queue
 
 	
 	
-	printRelated(h->r,output,buff, train, test, valid, files);	// Anadromika phgainoume deksia
+	printRelated(h->r,output,buff, train, test, valid, files,comb);	// Anadromika phgainoume deksia
 	
 	
 	
