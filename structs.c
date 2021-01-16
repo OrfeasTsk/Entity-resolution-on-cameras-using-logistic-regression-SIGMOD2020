@@ -1009,15 +1009,14 @@ void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff,Queue* train,Qu
 					sprintf(buff,"%s , %s \n", pair->item->id , unrelp->item->id );
 					fwrite(buff,sizeof(char),strlen(buff),output);
 				}
-	
-				//dhmiourgia record
-				record = (Record*)malloc(sizeof(Record)); //Dhmiourgia record
-				record->item1 = (FileStats*) HTfind(files,pair->item->id,'v');
-				record->item2 = (FileStats*) HTfind(files,unrelp->item->id,'v');
-				record->value = 0;	// 0 logw unrelated
 													
-				if(test != NULL && valid != NULL)
+				if(test != NULL && valid != NULL){
+					record = (Record*)malloc(sizeof(Record)); //Dhmiourgia record
+					record->item1 = (FileStats*) HTfind(files,pair->item->id,'v');
+					record->item2 = (FileStats*) HTfind(files,unrelp->item->id,'v');
+					record->value = 0;	// 0 logw unrelated
 					DatasetSplit(train, test, valid, record );
+				}
 				else if(comb != NULL){
 					tmp = (char*)malloc(strlen(pair->item->id) + strlen(unrelp->item->id) + 1);
 					strcpy(tmp , pair->item->id);
@@ -1026,6 +1025,10 @@ void VisitUnrelated(Link h, Clique* cliq,FILE* output,char* buff,Queue* train,Qu
 						strcpy(tmp , unrelp->item->id);
 						strcat(tmp , pair->item->id);
 						if(HTfind(comb, tmp, 'k') == NULL){ //Den yparxei sto training set
+							record = (Record*)malloc(sizeof(Record)); //Dhmiourgia record
+							record->item1 = (FileStats*) HTfind(files,pair->item->id,'v');
+							record->item2 = (FileStats*) HTfind(files,unrelp->item->id,'v');
+							record->value = 0;	// 0 logw unrelated
 							QueueInsert(train,(void**)&record);
 						}
 					}
@@ -1105,14 +1108,13 @@ void printRelated(Link h,FILE* output,char* buff, Queue* train,Queue* test,Queue
 				fwrite(buff,sizeof(char),strlen(buff),output);
 			}
 							
-			
-			record = (Record*)malloc(sizeof(Record)); //Dhmiourgia record
-			record->item1 = (FileStats*) HTfind(files,pair->item->id,'v');
-			record->item2 = (FileStats*) HTfind(files,rel_pair->item->id,'v');
-			record->value = 1;										// 1 logw related
-
-			if(test != NULL && valid != NULL)
+			if(test != NULL && valid != NULL){
+				record = (Record*)malloc(sizeof(Record)); //Dhmiourgia record
+				record->item1 = (FileStats*) HTfind(files,pair->item->id,'v');
+				record->item2 = (FileStats*) HTfind(files,rel_pair->item->id,'v');
+				record->value = 1;										// 1 logw related
 				DatasetSplit(train, test, valid, record );
+			}
 			else if(comb != NULL){
 				tmp = (char*)malloc(strlen(pair->item->id) + strlen(rel_pair->item->id) + 1);
 				strcpy(tmp , pair->item->id);
@@ -1121,6 +1123,10 @@ void printRelated(Link h,FILE* output,char* buff, Queue* train,Queue* test,Queue
 					strcpy(tmp , rel_pair->item->id);
 					strcat(tmp , pair->item->id);
 					if(HTfind(comb, tmp, 'k') == NULL){ //Den yparxei sto training set
+						record = (Record*)malloc(sizeof(Record)); //Dhmiourgia record
+						record->item1 = (FileStats*) HTfind(files,pair->item->id,'v');
+						record->item2 = (FileStats*) HTfind(files,rel_pair->item->id,'v');
+						record->value = 1;										// 1 logw related
 						QueueInsert(train,(void**)&record);
 					}
 				}
