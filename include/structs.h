@@ -247,7 +247,8 @@ typedef struct{ //Domh kyklikou buffer
 
 typedef struct{
 	int num_threads; 
-	int bufferSize;
+	int buffer_size;
+	pthread_t* tids;
 	CircularBuffer* circular_buff;  
 	pthread_mutex_t mux;
 	pthread_mutex_t struct_mux;
@@ -256,9 +257,10 @@ typedef struct{
 
 }JobScheduler;
 
-void initialize_buffer(JobScheduler* ,int );
-void add_to_buffer(JobScheduler* , struct QueueNode*);
-void remove_from_buffer(JobScheduler*, struct QueueNode**);
+void initialize_schelduler(JobScheduler* ,int,int );
+void add_job(JobScheduler* , struct QueueNode*);
+void get_job(JobScheduler*, struct QueueNode**);
+void destroy_schelduler(JobScheduler*);
 
 
 

@@ -1354,25 +1354,46 @@ void RestorePairs(Link pairTree,int* id,char* buff){  //Epanafora Pairs
 
 /*##################                  START OF THREADS                             ##########################*/
 
+void t_perror_exit(char* s,int err){
+	fprintf(stderr, "%s: %s\n", s, strerror(err));
+	exit(1);
+}
 
-
-void initialize_buffer(JobScheduler* schelduler,int bufferSize){ //Arxikpoihsh tou kyklikou buffer
-	schelduler->bufferSize = bufferSize;
-	schelduler->circular_buff->items=(BuffItem*)malloc(bufferSize*sizeof(BuffItem));
+void initialize_schelduler(JobScheduler* schelduler,int num_threads,int buffer_size,void* (*thread_fun)(void*)){ //Arxikpoihsh schelduler
+	
+	int error;
+	
+	//Arxikopoihsh buffer
+	schelduler->buffer_size = buffer_size;
+	schelduler->circular_buff =(CircularBuffer*)malloc(sizeof(CircularBuffer));
+	schelduler->circular_buff->items=(BuffItem*)malloc(buffer_size*sizeof(BuffItem));
 	schelduler->circular_buff->start=0;
 	schelduler->circular_buff->end=-1;
 	schelduler->circular_buff->count=0;
+	
+	//Arxikopoihsh twn threads
+	schelduler->num_threads = num_threads;
+	schelduler->tids=(pthread_t*)malloc(num_threads*sizeof(pthread_t));
+
+	for(i = 0 ; i < num_threads ; i++)
+		if(error = pthread_create(&tids[i], NULL, thread_fun, NULL))
+			t_perror_exit("Failed to create thread", error);
+			
+			
+	pthread_mutex_init(&(schelduler->mux), NULL);
+	pthread_cond_init(&(schelduler->cond_nonempty), NULL); 
+	pthread_cond_init(&(schelduler->cond_nonfull), NULL);
+	
 }
 
 
-
-void add_to_buffer(JobScheduler* schelduler,struct QueueNode* ptr){//Eisagwgh ston kykliko buffer
+void add_job(JobScheduler* schelduler,struct QueueNode* ptr){//Eisagwgh ston kykliko buffer
 	
 	pthread_mutex_lock(&(schelduler->mux));
-	while(schelduler->circular_buff->count == schelduler->bufferSize) //Oso einai gematos o buffer
+	while(schelduler->circular_buff->count == schelduler->buffer_size) //Oso einai gematos o buffer
 		pthread_cond_wait(&(schelduler->cond_nonfull), &(schelduler->mux));
 		
-	schelduler->circular_buff->end=(schelduler->circular_buff->end + 1) % schelduler->bufferSize;
+	schelduler->circular_buff->end=(schelduler->circular_buff->end + 1) % schelduler->buffer_size;
 	schelduler->circular_buff->items[schelduler->circular_buff->end].ptr=ptr;
 	schelduler->circular_buff->count++;
 	
@@ -1380,19 +1401,39 @@ void add_to_buffer(JobScheduler* schelduler,struct QueueNode* ptr){//Eisagwgh st
 	pthread_mutex_unlock(&(schelduler->mux));
 }
 
-void remove_from_buffer(JobScheduler* schelduler,struct QueueNode** ptr){//Diagrafh apo ton kykliko buffer
+void get_job(JobScheduler* schelduler,struct QueueNode** ptr){//Diagrafh apo ton kykliko buffer
 
 	pthread_mutex_lock(&(schelduler->mux));
 	while(schelduler->circular_buff->count == 0) //Oso einai adeios o buffer
 		pthread_cond_wait(&(schelduler->cond_nonempty), &(schelduler->mux));
 		
 	*ptr=schelduler->circular_buff->items[schelduler->circular_buff->start].ptr;
-	schelduler->circular_buff->start=(schelduler->circular_buff->start + 1) % schelduler->bufferSize;
+	schelduler->circular_buff->start=(schelduler->circular_buff->start + 1) % schelduler->buffer_size;
 	schelduler->circular_buff->count--;
 	
 	pthread_cond_signal(&(schelduler->cond_nonfull));//Epeidh afairethike kati
 	pthread_mutex_unlock(&(schelduler->mux));
 }
 
+
+void destroy_schelduler(JobScheduler* schelduler){
+	
+	int error;
+	
+	free(schelduler->circular_buff->items);
+	free(schelduler->circular_buff);
+	free(tids);
+	
+	
+	if(error = pthread_mutex_destroy(&(schelduler->mux))
+		t_perror_exit("Failed to destroy mutex", error);
+
+	if(error = pthread_cond_destroy(&(schelduler->cond_nonempty))
+		t_perror_exit("Failed to destroy condition variable", error);
+	if(error = pthread_cond_destroy(&(schelduler->cond_nonfull))
+		t_perror_exit("Failed to destroy condition variable", error);
+
+	
+}
 
 /*##################                  END OF THREADS                             ##########################*/
