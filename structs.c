@@ -1356,41 +1356,42 @@ void RestorePairs(Link pairTree,int* id,char* buff){  //Epanafora Pairs
 
 
 
-void initialize_buffer(CircularBuffer* circular_buff,int bufferSize){ //Arxikpoihsh tou kyklikou buffer
-	circular_buff->items=(BuffItem*)malloc(bufferSize*sizeof(BuffItem));
-	circular_buff->start=0;
-	circular_buff->end=-1;
-	circular_buff->count=0;
+void initialize_buffer(JobScheduler* schelduler,int bufferSize){ //Arxikpoihsh tou kyklikou buffer
+	schelduler->bufferSize = bufferSize;
+	schelduler->circular_buff->items=(BuffItem*)malloc(bufferSize*sizeof(BuffItem));
+	schelduler->circular_buff->start=0;
+	schelduler->circular_buff->end=-1;
+	schelduler->circular_buff->count=0;
 }
 
 
 
-void add_to_buffer(CircularBuffer* circular_buff,int bufferSize,struct QueueNode* ptr){//Eisagwgh ston kykliko buffer
+void add_to_buffer(JobScheduler* schelduler,struct QueueNode* ptr){//Eisagwgh ston kykliko buffer
 	
-	pthread_mutex_lock(&mux);
-	while(circular_buff->count == bufferSize) //Oso einai gematos o buffer
-		pthread_cond_wait(&cond_nonfull, &mux);
+	pthread_mutex_lock(&(schelduler->mux));
+	while(schelduler->circular_buff->count == schelduler->bufferSize) //Oso einai gematos o buffer
+		pthread_cond_wait(&(schelduler->cond_nonfull), &(schelduler->mux));
 		
-	circular_buff->end=(circular_buff->end + 1) % bufferSize;
-	circular_buff->items[circular_buff->end].ptr=ptr;
-	circular_buff->count++;
+	schelduler->circular_buff->end=(schelduler->circular_buff->end + 1) % schelduler->bufferSize;
+	schelduler->circular_buff->items[schelduler->circular_buff->end].ptr=ptr;
+	schelduler->circular_buff->count++;
 	
-	pthread_cond_signal(&cond_nonempty); //Epeidh prostethike kati
-	pthread_mutex_unlock(&mux);
+	pthread_cond_signal(&(schelduler->cond_nonempty)); //Epeidh prostethike kati
+	pthread_mutex_unlock(&(schelduler->mux));
 }
 
-void remove_from_buffer(CircularBuffer* circular_buff,int bufferSize,struct QueueNode** ptr){//Diagrafh apo ton kykliko buffer
+void remove_from_buffer(JobScheduler* schelduler,struct QueueNode** ptr){//Diagrafh apo ton kykliko buffer
 
-	pthread_mutex_lock(&mux);
-	while(circular_buff->count == 0) //Oso einai adeios o buffer
-		pthread_cond_wait(&cond_nonempty, &mux);
+	pthread_mutex_lock(&(schelduler->mux));
+	while(schelduler->circular_buff->count == 0) //Oso einai adeios o buffer
+		pthread_cond_wait(&(schelduler->cond_nonempty), &(schelduler->mux));
 		
-	*ptr=circular_buff->items[circular_buff->start].ptr;
-	circular_buff->start=(circular_buff->start + 1) % bufferSize;
-	circular_buff->count--;
+	*ptr=schelduler->circular_buff->items[schelduler->circular_buff->start].ptr;
+	schelduler->circular_buff->start=(schelduler->circular_buff->start + 1) % schelduler->bufferSize;
+	schelduler->circular_buff->count--;
 	
-	pthread_cond_signal(&cond_nonfull);//Epeidh afairethike kati
-	pthread_mutex_unlock(&mux);
+	pthread_cond_signal(&(schelduler->cond_nonfull));//Epeidh afairethike kati
+	pthread_mutex_unlock(&(schelduler->mux));
 }
 
 

@@ -3,11 +3,6 @@
 #define BLACK 1
 #define numBuckets 50
 
-extern pthread_mutex_t mux;
-extern pthread_mutex_t struct_mux;
-extern pthread_cond_t cond_nonempty;
-extern pthread_cond_t cond_nonfull;
-
 
 typedef struct RBnode* Link;
 typedef struct HeapItem Details;
@@ -250,9 +245,20 @@ typedef struct{ //Domh kyklikou buffer
 	int count;
 }CircularBuffer;
 
-void initialize_buffer(CircularBuffer* ,int );
-void add_to_buffer(CircularBuffer* ,int,struct QueueNode*);
-void remove_from_buffer(CircularBuffer* ,int,struct QueueNode**);
+typedef struct{
+	int num_threads; 
+	int bufferSize;
+	CircularBuffer* circular_buff;  
+	pthread_mutex_t mux;
+	pthread_mutex_t struct_mux;
+	pthread_cond_t cond_nonempty;
+	pthread_cond_t cond_nonfull;
+
+}JobScheduler;
+
+void initialize_buffer(JobScheduler* ,int );
+void add_to_buffer(JobScheduler* , struct QueueNode*);
+void remove_from_buffer(JobScheduler*, struct QueueNode**);
 
 
 

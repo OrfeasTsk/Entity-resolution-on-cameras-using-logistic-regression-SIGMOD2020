@@ -3,10 +3,10 @@ inc = -I ./include/
 all: project all_tests
 
 project : main.o structs.o text_support.o logistic_regression.o 
-	gcc main.o structs.o text_support.o logistic_regression.o -o project -lm
+	gcc main.o structs.o text_support.o logistic_regression.o -o project -lm -lpthread
 
 all_tests : all_tests.o queue_test.o stack_test.o rbt_test.o text_test.o heap_test.o ht_test.o structs.o text_support.o logistic_regression.o
-	gcc all_tests.o queue_test.o stack_test.o rbt_test.o text_test.o heap_test.o ht_test.o structs.o text_support.o logistic_regression.o -o all_tests -lm 
+	gcc all_tests.o queue_test.o stack_test.o rbt_test.o text_test.o heap_test.o ht_test.o structs.o text_support.o logistic_regression.o -o all_tests -lm -lpthread
 
 all_tests.o : ./tests/all_tests.c ./include/structs.h ./include/acutest.h ./include/all_tests.h
 	gcc -Wall -c ./tests/all_tests.c $(inc)
