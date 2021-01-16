@@ -1,6 +1,12 @@
+#include <pthread.h>
 #define RED 0
 #define BLACK 1
 #define numBuckets 50
+
+extern pthread_mutex_t mux;
+extern pthread_mutex_t struct_mux;
+extern pthread_cond_t cond_nonempty;
+extern pthread_cond_t cond_nonfull;
 
 
 typedef struct RBnode* Link;
@@ -227,6 +233,26 @@ void SumTFIDF( Link , Details* );
 void AdjustMStats(Link ,HashTable* );
 void RestorePairs(Link,int*,char*);
 /*##################              END OF HELPER FUNCTIONS                         ##########################*/
+
+
+/*##################              START OF THREADS                         ##########################*/
+
+
+typedef struct{
+	struct QueueNode* ptr;
+}BuffItem;
+
+
+typedef struct{ //Domh kyklikou buffer
+	BuffItem* items;
+	int start;
+	int end;
+	int count;
+}CircularBuffer;
+
+void initialize_buffer(CircularBuffer* ,int );
+void add_to_buffer(CircularBuffer* ,int,struct QueueNode*);
+void remove_from_buffer(CircularBuffer* ,int,struct QueueNode**);
 
 
 

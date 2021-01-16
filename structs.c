@@ -1344,3 +1344,48 @@ void RestorePairs(Link pairTree,int* id,char* buff){  //Epanafora Pairs
 
 
 /*##################                  END OF HELPER FUNCTIONS                             ##########################*/
+
+
+/*##################                  START OF THREADS                             ##########################*/
+
+
+
+void initialize_buffer(CircularBuffer* circular_buff,int bufferSize){ //Arxikpoihsh tou kyklikou buffer
+	circular_buff->items=(BuffItem*)malloc(bufferSize*sizeof(BuffItem));
+	circular_buff->start=0;
+	circular_buff->end=-1;
+	circular_buff->count=0;
+}
+
+
+
+void add_to_buffer(CircularBuffer* circular_buff,int bufferSize,struct QueueNode* ptr){//Eisagwgh ston kykliko buffer
+	
+	pthread_mutex_lock(&mux);
+	while(circular_buff->count == bufferSize) //Oso einai gematos o buffer
+		pthread_cond_wait(&cond_nonfull, &mux);
+		
+	circular_buff->end=(circular_buff->end + 1) % bufferSize;
+	circular_buff->items[circular_buff->end].ptr=ptr;
+	circular_buff->count++;
+	
+	pthread_cond_signal(&cond_nonempty); //Epeidh prostethike kati
+	pthread_mutex_unlock(&mux);
+}
+
+void remove_from_buffer(CircularBuffer* circular_buff,int bufferSize,struct QueueNode** ptr){//Diagrafh apo ton kykliko buffer
+
+	pthread_mutex_lock(&mux);
+	while(circular_buff->count == 0) //Oso einai adeios o buffer
+		pthread_cond_wait(&cond_nonempty, &mux);
+		
+	*ptr=circular_buff->items[circular_buff->start].ptr;
+	circular_buff->start=(circular_buff->start + 1) % bufferSize;
+	circular_buff->count--;
+	
+	pthread_cond_signal(&cond_nonfull);//Epeidh afairethike kati
+	pthread_mutex_unlock(&mux);
+}
+
+
+/*##################                  END OF THREADS                             ##########################*/
