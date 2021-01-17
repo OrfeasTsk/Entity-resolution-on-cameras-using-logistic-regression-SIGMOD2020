@@ -1,7 +1,9 @@
 #define maxIters 100
-#define lrate 0.01
+#define lrate 0.1
 #define epsilon 0.0001
 #define dBoundary 0.5
+#define nthreads 10
+#define batchSize 512
 
 typedef struct{
 	double * weights;
@@ -15,7 +17,7 @@ typedef struct{
 void LRinit(LogisticRegression* , double , double  ,double ,int );
 void LRtrain(LogisticRegression* ,Queue* ,int ,char );
 double LRtest(LogisticRegression* ,Queue* ,int ,char );
-double LRpred(LogisticRegression* ,Record* , int, char );
-void UpdateWeights(LogisticRegression* , double* , double ,int, int );
-void CalculateF(LogisticRegression* , double* , double , int );
-void SparseIteration(Link , LogisticRegression*  ,double*  ,int , char , int);
+double LRpred(LogisticRegression* ,double* ,Record* , int, char );
+void UpdateWeights(LogisticRegression* , double* , double* , double ,int, int );
+void CalculateF(LogisticRegression* , double* , double* , double , int );
+void SparseIteration(Link , LogisticRegression*  ,double* ,double*  ,int , char , int);

@@ -254,10 +254,11 @@ typedef struct{
 	pthread_mutex_t struct_mux;
 	pthread_cond_t cond_nonempty;
 	pthread_cond_t cond_nonfull;
+	pthread_cond_t cond_finished;
 
 }JobScheduler;
 
-void initialize_schelduler(JobScheduler* ,int,int );
+void initialize_schelduler(JobScheduler* ,int,int, void* (*thread_fun)(void*),int* );
 void add_job(JobScheduler* , struct QueueNode*);
 void get_job(JobScheduler*, struct QueueNode**);
 void destroy_schelduler(JobScheduler*);

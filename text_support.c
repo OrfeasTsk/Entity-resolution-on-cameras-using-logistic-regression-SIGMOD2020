@@ -570,7 +570,7 @@ void CreateNewTrainingSet(LogisticRegression* lr,HashTable* files,HashTable* com
 						record->item1 = (FileStats*) HTfind(files,id1,'v');
 						record->item2 = (FileStats*) HTfind(files,id2,'v');
 
-						pred = LRpred(lr, record, size, type);
+						pred = LRpred(lr, lr->weights, record, size, type);
 						if(pred < threshhold ){ //An h provlepsh einai mikroterh tou threshold ara kai mikroterh tou 0.5
 							record->value = 0;
 							details = (Details*)malloc(sizeof(Details));

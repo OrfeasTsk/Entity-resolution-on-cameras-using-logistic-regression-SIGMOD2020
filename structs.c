@@ -1359,10 +1359,17 @@ void t_perror_exit(char* s,int err){
 	exit(1);
 }
 
-void initialize_schelduler(JobScheduler* schelduler,int num_threads,int buffer_size,void* (*thread_fun)(void*)){ //Arxikpoihsh schelduler
+void initialize_schelduler(JobScheduler* schelduler,int num_threads,int buffer_size,void* (*thread_fun)(void*),int* times){ //Arxikpoihsh schelduler
 	
-	int error;
+	int error,i;
 	
+	pthread_mutex_init(&(schelduler->mux), NULL);
+	pthread_mutex_init(&(schelduler->struct_mux), NULL);
+	pthread_cond_init(&(schelduler->cond_nonempty), NULL); 
+	pthread_cond_init(&(schelduler->cond_nonfull), NULL);
+	pthread_cond_init(&(schelduler->cond_finished), NULL);
+
+
 	//Arxikopoihsh buffer
 	schelduler->buffer_size = buffer_size;
 	schelduler->circular_buff =(CircularBuffer*)malloc(sizeof(CircularBuffer));
@@ -1376,13 +1383,10 @@ void initialize_schelduler(JobScheduler* schelduler,int num_threads,int buffer_s
 	schelduler->tids=(pthread_t*)malloc(num_threads*sizeof(pthread_t));
 
 	for(i = 0 ; i < num_threads ; i++)
-		if(error = pthread_create(&tids[i], NULL, thread_fun, NULL))
+		if((error = pthread_create(&(schelduler->tids[i]), NULL, thread_fun, (void*)times)))
 			t_perror_exit("Failed to create thread", error);
 			
 			
-	pthread_mutex_init(&(schelduler->mux), NULL);
-	pthread_cond_init(&(schelduler->cond_nonempty), NULL); 
-	pthread_cond_init(&(schelduler->cond_nonfull), NULL);
 	
 }
 
@@ -1422,16 +1426,23 @@ void destroy_schelduler(JobScheduler* schelduler){
 	
 	free(schelduler->circular_buff->items);
 	free(schelduler->circular_buff);
-	free(tids);
+	free(schelduler->tids);
+
 	
 	
-	if(error = pthread_mutex_destroy(&(schelduler->mux))
+
+	if((error = pthread_mutex_destroy(&(schelduler->mux))))
+		t_perror_exit("Failed to destroy mutex", error);
+	if((error = pthread_mutex_destroy(&(schelduler->struct_mux))))
 		t_perror_exit("Failed to destroy mutex", error);
 
-	if(error = pthread_cond_destroy(&(schelduler->cond_nonempty))
+	if((error = pthread_cond_destroy(&(schelduler->cond_nonempty))))
 		t_perror_exit("Failed to destroy condition variable", error);
-	if(error = pthread_cond_destroy(&(schelduler->cond_nonfull))
+	if((error = pthread_cond_destroy(&(schelduler->cond_nonfull))))
 		t_perror_exit("Failed to destroy condition variable", error);
+	if((error = pthread_cond_destroy(&(schelduler->cond_finished))))
+		t_perror_exit("Failed to destroy condition variable", error);
+
 
 	
 }

@@ -5,6 +5,12 @@
 #include "./include/structs.h"
 #include "./include/logistic_regression.h"
 
+JobScheduler* schelduler;
+int weightSize, tp, numThreads, threadsFinished,bSize;
+double* weights;
+LogisticRegression* model;
+
+
 
 /*##################              START OF LOGISTIC REGRESSION MODEL                    ##########################*/
 
@@ -15,17 +21,17 @@ double sigmoid(double f){
 }
 
 
-void UpdateWeights(LogisticRegression* lr , double* error, double val, int totalFiles ,int index ){ //Enhmerwsh twn varwn
+void UpdateWeights(LogisticRegression* lr , double* w ,double* error, double val, int totalFiles ,int index ){ //Enhmerwsh twn varwn
 
 
-	lr->weights[index] -= lr->learning_rate * (*error) * val; // wj = wj - learningRate * sum((sigmoid(w^T * xi + b) - yi) * xij)
+	w[index] -= lr->learning_rate * (*error) * val/totalFiles; // wj = wj - learningRate * sum((sigmoid(w^T * xi + b) - yi) * xij)
 
 }
 
-void CalculateF(LogisticRegression* lr, double* f, double  val, int index){ //Enhmerwsh tou eswterikou ginomenou
+void CalculateF(LogisticRegression* lr, double* w ,double* f, double  val, int index){ //Enhmerwsh tou eswterikou ginomenou
 
 	
-	*f += lr->weights[index] * val; //w^T*xi
+	*f += w[index] * val; //w^T*xi
 	
 
 }
@@ -43,13 +49,13 @@ void LRinit(LogisticRegression* lr, double tol, double learning_rate ,double dec
 }
 
 
-double LRpred(LogisticRegression* lr,Record* record, int size, char type){  //Provlepsh tou montelou
+double LRpred(LogisticRegression* lr,double* w,Record* record, int size, char type){  //Provlepsh tou montelou
 	int j;
-	double f = lr->weights[0]; //Arxikopoihsh me ton stathero oro
+	double f = w[0]; //Arxikopoihsh me ton stathero oro
 
 	for( j = 0; j < numBuckets; j++ ){
-		SparseIteration(record->item1->words.buckets[j], lr ,&f, 1 , type , -1);
-		SparseIteration(record->item2->words.buckets[j], lr ,&f, size/2 + 1 , type , -1);
+		SparseIteration(record->item1->words.buckets[j], lr, w ,&f, 1 , type , -1);
+		SparseIteration(record->item2->words.buckets[j], lr, w ,&f, size/2 + 1 , type , -1);
 	}
 
 	//f += lr->weights[j + 1] * X[j]; 
@@ -68,7 +74,7 @@ double LRtest(LogisticRegression* lr,Queue* test,int size,char type){  //Testing
 			record = (Record*)(curr->data);
 			y = record->value;
 					
-			if(LRpred(lr, record, size, type) > lr->dec_boundary ){
+			if(LRpred(lr,lr->weights,record, size, type) > lr->dec_boundary ){
 				if( y == 1 )
 					correct++;
 			}
@@ -84,42 +90,115 @@ double LRtest(LogisticRegression* lr,Queue* test,int size,char type){  //Testing
 
 
 
+void* LRthread(void* args){
+	int i,j,y;
+	double error;
+	int times = *(int*)args;
+	struct QueueNode* ptr;
+	Record* record;
+	double* currWeights = (double*)malloc(sizeof(double)*(weightSize + 1)); // Dianysma me varh
+
+
+	while(1){
+
+		get_job(schelduler,&ptr);
+
+		if(ptr == NULL)
+			break;
+
+		for( j = 0; j < weightSize + 1;  j++)
+			currWeights[j] = 0.0;
+
+
+
+		for( i = 0; i < times && ptr != NULL; i++ , ptr = ptr->next ){
+
+			record=(Record*)(ptr->data);
+			y = record->value;
+
+			error = LRpred(model,model->weights,record,weightSize,tp) - y; // sigmoid(w^T*xi + b) - yi
+			
+			currWeights[0] -= model->learning_rate * error/bSize ;
+
+			
+
+			for( j = 0; j < numBuckets; j++ ){
+				SparseIteration(record->item1->words.buckets[j], model,currWeights ,&error, 1 , tp, 1);
+				SparseIteration(record->item2->words.buckets[j], model,currWeights ,&error, weightSize/2 + 1 ,tp, 1);
+			}
+
+			//	lr->weights[j + 1] -= lrate * error * X[j]; 
+		}
+
+		pthread_mutex_lock(&(schelduler->struct_mux));
+		for( j = 0; j < weightSize + 1;  j++) //Kathe dianysma enos thread prostithetai se ena dianysma
+			weights[j] += currWeights[j];
+		threadsFinished++;
+		if(threadsFinished == numThreads)
+			pthread_cond_signal(&(schelduler->cond_finished)); //Epeidh teleiwse kai to teleutaio thread		
+		pthread_mutex_unlock(&(schelduler->struct_mux));
+
+	}
+
+	free(currWeights);
+	pthread_exit(NULL);
+
+}
+
+
+
 void LRtrain(LogisticRegression* lr,Queue* train,int size,char type){ //Training tou montelou
 
-	int j,t,y;
-	double f,error;
+	int j,t,count,jobsAdded = 0;
+	double f;
 	struct QueueNode* curr;
-	Record* record;
+	weightSize = size;
+	schelduler = (JobScheduler*)malloc(sizeof(JobScheduler));
+	model = lr;
+	tp = type;
+	numThreads = nthreads;
+	bSize = batchSize;
+
 
 
 	if(lr->weights == NULL)
 		lr->weights = (double*)malloc(sizeof(double)*(size + 1)); // Dianysma me varh
 	double* wtmp = (double*)malloc(sizeof(double)*(size + 1)); //Dianysma me ta prohgoymena varh
+	weights = (double*)malloc(sizeof(double)*(size + 1)); // Dianysma me varh
 
 	for( j = 0; j < size + 1;  j++){ //Arxikopoihsh dianysmatwn
 		lr->weights[j] = 0.0;
+		weights[j] = 0.0;
 		wtmp[j] = 0.0;
 	}
 
+
+	initialize_schelduler(schelduler ,numThreads,numThreads, &LRthread, &bSize );
+
+
 	for( t = 0; t < lr->epochs; t++){
 		
-		for(curr = train->head; curr != NULL ; curr=curr->next){
-			record=(Record*)(curr->data);
-			y = record->value;
-
-			error = LRpred(lr,record,size,type) - y; // sigmoid(w^T*xi + b) - yi
+		for(curr = train->head, count = 0; curr != NULL ; curr=curr->next,count++){
 			
-			lr->weights[0] -= lr->learning_rate * error / train->count;
-
-			for( j = 0; j < numBuckets; j++ ){
-				SparseIteration(record->item1->words.buckets[j], lr ,&error, 1 , type, train->count);
-				SparseIteration(record->item2->words.buckets[j], lr ,&error, size/2 + 1 ,type, train->count);
+			if(count % batchSize == 0){
+				add_job(schelduler,curr);
+				jobsAdded++;
 			}
 
-
-			//	lr->weights[j + 1] -= lrate * error * X[j]; 
-
+			if(jobsAdded == numThreads){
+				pthread_mutex_lock(&(schelduler->struct_mux));
+				while(threadsFinished != numThreads)
+					pthread_cond_wait(&(schelduler->cond_finished), &(schelduler->struct_mux));
+				threadsFinished = 0;
+				for( j = 0; j < size + 1 ; j++){
+					lr->weights[j] += weights[j]/numThreads;
+					weights[j] = 0.0; 
+				}
+				pthread_mutex_unlock(&(schelduler->struct_mux));
+				jobsAdded = 0;				
+			}
 		}
+
 
 		f = 0.0;
 		for( j = 0; j < size + 1 ; j++){
@@ -132,14 +211,22 @@ void LRtrain(LogisticRegression* lr,Queue* train,int size,char type){ //Training
 
 	}
 
+	for( j = 0; j < numThreads; j++) //Stelnei sta threads oti den exoun allo job
+		add_job(schelduler,NULL);
 
+	for( j = 0; j < numThreads; j++)
+		pthread_join(schelduler->tids[j],NULL);
+
+	destroy_schelduler(schelduler);
+	free(schelduler);
+	free(weights);
 	free(wtmp);
 
 }
 
 
 
-void SparseIteration(Link h, LogisticRegression* lr ,double* p ,int start, char type, int totalFiles){  //Diasxish se araio pinaka
+void SparseIteration(Link h, LogisticRegression* lr,double* w ,double* p ,int start, char type, int totalFiles){  //Diasxish se araio pinaka
 
 
 	RBItem* t = h->rbitem;	
@@ -148,7 +235,7 @@ void SparseIteration(Link h, LogisticRegression* lr ,double* p ,int start, char 
 	if(h == z)			// Base-case
 		return;
 	
-	SparseIteration(h->l , lr, p , start, type , totalFiles);	// Anadromika phgainoume aristera
+	SparseIteration(h->l , lr, w, p , start, type , totalFiles);	// Anadromika phgainoume aristera
 	
 	
 	if(t->obj != NULL){									// Den yparxoun diplotypa
@@ -157,22 +244,22 @@ void SparseIteration(Link h, LogisticRegression* lr ,double* p ,int start, char 
 		
 		if(type == 'b'){	 //Bow
 			if(totalFiles != -1)
-				UpdateWeights(lr,p,(double)(mstats->bow_val),totalFiles,mstats->wstats->index + start);  
+				UpdateWeights(lr,w,p,(double)(mstats->bow_val),totalFiles,mstats->wstats->index + start);  
 			else
-				CalculateF(lr,p,(double)(mstats->bow_val),mstats->wstats->index + start);
+				CalculateF(lr,w,p,(double)(mstats->bow_val),mstats->wstats->index + start);
 
 		}
 		else{ //Tfidf
 			if(totalFiles != -1)
-				UpdateWeights(lr,p,mstats->tfidf_val,totalFiles,mstats->wstats->index + start);
+				UpdateWeights(lr,w,p,mstats->tfidf_val,totalFiles,mstats->wstats->index + start);
 			else
-				CalculateF(lr,p,mstats->tfidf_val,mstats->wstats->index + start);
+				CalculateF(lr,w,p,mstats->tfidf_val,mstats->wstats->index + start);
 		}
 
 	}
 	
 	
-	SparseIteration(h->r, lr, p , start, type , totalFiles);	// Anadromika phgainoume aristera
+	SparseIteration(h->r, lr, w, p , start, type , totalFiles);	// Anadromika phgainoume aristera
 
 }
 

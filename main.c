@@ -191,6 +191,7 @@ int main(int argc, char* argv[]){
 	TrainingSetStats(&pairs,&train,&comb);
 
 	LRtrain(&lr,&train,2*limit,'t');
+	printf("Accuracy: %f\n",LRtest(&lr,&test,2*limit,'t'));
     CreateNewTrainingSet(&lr,&files,&comb ,&nameList,&newTrain,2*limit,'t',threshhold);
     ResolveTransitivity(&pairs, &newTrain, &train);
 
