@@ -147,7 +147,7 @@ void* LRthread(void* args){
 
 
 
-void LRtrain(LogisticRegression* lr,Queue* train,int size,char type){ //Training tou montelou
+void LRtrain(LogisticRegression* lr,Queue* train,int size,char type,int thNum,int batSize){ //Training tou montelou
 
 	int j,t,count,jobsAdded = 0;
 	double f;
@@ -156,8 +156,8 @@ void LRtrain(LogisticRegression* lr,Queue* train,int size,char type){ //Training
 	schelduler = (JobScheduler*)malloc(sizeof(JobScheduler));
 	model = lr;
 	tp = type;
-	numThreads = nthreads;
-	bSize = batchSize;
+	numThreads = thNum;
+	bSize = batSize;
 
 
 

@@ -15,7 +15,7 @@ typedef struct{
 
 
 void LRinit(LogisticRegression* , double , double  ,double ,int );
-void LRtrain(LogisticRegression* ,Queue* ,int ,char );
+void LRtrain(LogisticRegression* ,Queue* ,int ,char,int,int );
 double LRtest(LogisticRegression* ,Queue* ,int ,char );
 double LRpred(LogisticRegression* ,double* ,Record* , int, char );
 void UpdateWeights(LogisticRegression* , double* , double* , double ,int, int );

@@ -5,6 +5,12 @@
 #include "./include/structs.h"
 #include "./include/text_support.h"
 
+JobScheduler* schelduler;
+int threshhold,size,type;
+LogisticRegression* model;
+HashTable* files,*comb;
+Heap* newTrain;
+
 
 
 /*##################              START OF FUNCTIONS ABOUT DICTIONARY CONSTRUNCTION            ##########################*/
@@ -539,61 +545,121 @@ void TrainingSetStats(HashTable* pairs , Queue* train, HashTable* comb){ //Diava
 		tmp=(char*)malloc(strlen(pairA->item->id) + strlen(pairB->item->id) + 1); // Dimiourgia mias leksis apo thn enwsh twn ids
 		strcpy(tmp , pairA->item->id);
 		strcat(tmp , pairB->item->id);
-		HTinsert( comb , tmp , (void*) tmp); // Eisagwgh dedomenwn so hashTable Combination
+		HTinsert( comb , tmp , (void*) tmp); // Eisagwgh dedomenwn sto hashTable twn syndiasmwn
 	}
 
 }
 
-void CreateNewTrainingSet(LogisticRegression* lr,HashTable* files,HashTable* comb ,Queue* nameList, Heap* newTrain,int size, int type,int threshhold){
-
+void* CreateAllPairs(void* args){
+	
+	int i;
+	int times = *(int*)args;
 	struct QueueNode *curr1,*curr2;
 	double pred;
 	char* id1, *id2;
 	char* tmp;
 	Details* details;
 	Record* record;
-			
-	 //Gia ola ta zeugaria tou x
-	for(curr1 = nameList->head; curr1 != NULL; curr1 = curr1->next ) 
-		for(curr2 = curr1->next; curr2 != NULL; curr2 = curr2->next){
-			id1 = (char*)(curr1->data);
-			id2 = (char*)(curr2->data);
-			if(strcmp(id1, id2)){
-				tmp = (char*)malloc(strlen(id1) + strlen(id2) + 1);
-				strcpy(tmp , id1);
-				strcat(tmp , id2);
-				if( HTfind(comb, tmp, 'k') == NULL){
-					strcpy(tmp , id2);
-					strcat(tmp , id1);
-					if(HTfind(comb, tmp, 'k') == NULL){ //Den yparxei sto training set
-						record = (Record*)malloc(sizeof(Record));
-						record->item1 = (FileStats*) HTfind(files,id1,'v');
-						record->item2 = (FileStats*) HTfind(files,id2,'v');
 
-						pred = LRpred(lr, lr->weights, record, size, type);
-						if(pred < threshhold ){ //An h provlepsh einai mikroterh tou threshold ara kai mikroterh tou 0.5
-							record->value = 0;
-							details = (Details*)malloc(sizeof(Details));
-							details->stats = (void*)record;
-							details->count = -pred; // Eisagwgh ths antitheths timhs sto max heap gia na anakththei h mikroterh timh (pio isxyrh provlepsh)
-							HeapInsert(newTrain,details);
-						}
-						else if(pred > 1 - threshhold){
-							record->value = 1;
-							details = (Details*)malloc(sizeof(Details));
-							details->stats = (void*)record;
-							details->count = -(1 - pred); // Eisagwgh ths antitheths timhs ths diaforas apo to 1 sto max heap gia na anakththei h mikroterh timh (pio isxyrh provlepsh)
-							HeapInsert(newTrain,details);
-						}
-						else
-							free(record);
 
+	while(1){
+
+		get_job(schelduler,&curr1);
+
+		if(curr1 == NULL)
+			break;
+		//Gia ola ta zeugaria tou x
+		for(i = 0 ; i < times && curr1 != NULL; i++, curr1 = curr1->next ) 
+			for(curr2 = curr1->next; curr2 != NULL; curr2 = curr2->next){
+				id1 = (char*)(curr1->data);
+				id2 = (char*)(curr2->data);
+				if(strcmp(id1, id2)){
+					tmp = (char*)malloc(strlen(id1) + strlen(id2) + 1);
+					strcpy(tmp , id1);
+					strcat(tmp , id2);
+					if( HTfind(comb, tmp, 'k') == NULL){
+						strcpy(tmp , id2);
+						strcat(tmp , id1);
+						if(HTfind(comb, tmp, 'k') == NULL){ //Den yparxei sto training set
+							record = (Record*)malloc(sizeof(Record));
+							record->item1 = (FileStats*) HTfind(files,id1,'v');
+							record->item2 = (FileStats*) HTfind(files,id2,'v');
+
+							pred = LRpred(model, model->weights, record, size, type);
+							if(pred < threshhold ){ //An h provlepsh einai mikroterh tou threshold ara kai mikroterh tou 0.5
+								record->value = 0;
+								details = (Details*)malloc(sizeof(Details));
+								details->stats = (void*)record;
+								details->count = -pred; // Eisagwgh ths antitheths timhs sto max heap gia na anakththei h mikroterh timh (pio isxyrh provlepsh)
+								pthread_mutex_lock(&(schelduler->struct_mux));
+								HeapInsert(newTrain,details);
+								pthread_mutex_unlock(&(schelduler->struct_mux));
+							}
+							else if(pred > 1 - threshhold){
+								record->value = 1;
+								details = (Details*)malloc(sizeof(Details));
+								details->stats = (void*)record;
+								details->count = -(1 - pred); // Eisagwgh ths antitheths timhs ths diaforas apo to 1 sto max heap gia na anakththei h mikroterh timh (pio isxyrh provlepsh)
+								pthread_mutex_lock(&(schelduler->struct_mux));
+								HeapInsert(newTrain,details);
+								pthread_mutex_unlock(&(schelduler->struct_mux));
+							}
+							else
+								free(record);
+
+						}
 					}
-				}
 
-			free(tmp);
-		}
+					free(tmp);
+				}
+			}
 	}
+
+	pthread_exit(NULL);
+
+
+}
+
+
+
+
+void CreateNewTrainingSet(LogisticRegression* lr,HashTable* filesHT,HashTable* combHT ,Queue* nameList, Heap* newTrainH,int wsize, int tp,int thold,int thNum,int batSize){
+
+
+	struct QueueNode *curr;
+	int bSize = batSize;
+	int numThreads = thNum;
+	int count,i;
+	
+	model = lr;
+	files = filesHT;
+	comb = combHT;
+	newTrain = newTrainH;
+	type = tp;
+	size = wsize;
+	threshhold = thold;
+
+
+	schelduler = (JobScheduler*)malloc(sizeof(JobScheduler));
+	initialize_schelduler(schelduler ,numThreads,numThreads, &CreateAllPairs, &bSize );
+			
+	
+	for(curr = nameList->head, count = 0; curr != NULL; curr = curr->next, count++ )
+		if(count % bSize == 0){
+			add_job(schelduler,curr);
+			printf("%d\n",count);
+		}
+
+
+	for( i = 0; i < numThreads; i++) //Stelnei sta threads oti den exoun allo job
+		add_job(schelduler,NULL);
+
+	for( i = 0; i < numThreads; i++)
+		pthread_join(schelduler->tids[i],NULL);
+
+
+	destroy_schelduler(schelduler);
+	free(schelduler);
 }
 
 
