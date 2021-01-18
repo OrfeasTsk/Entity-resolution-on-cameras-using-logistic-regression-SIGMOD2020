@@ -17,5 +17,5 @@ void InsertWord(HashTable* , HashTable*   , char* ,FileStats* ,int*  );
 void CutOffDictionary( HashTable*, HashTable* , int );
 void DatasetSplit(Queue * , Queue *, Queue *, Record*  );
 void TrainingSetStats(HashTable* , Queue* , HashTable* );
-void CreateNewTrainingSet(LogisticRegression*,HashTable* ,HashTable*  ,Queue* , Heap* ,int , int ,int,int,int );
+void CreateNewTrainingSet(LogisticRegression*,HashTable* ,HashTable*  ,Queue* , Heap* ,int , int ,double,int,int );
 void ResolveTransitivity(HashTable* , Heap* , Queue* );

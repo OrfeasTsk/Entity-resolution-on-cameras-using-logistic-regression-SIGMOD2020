@@ -6,7 +6,8 @@
 #include "./include/text_support.h"
 
 JobScheduler* schelduler;
-int threshhold,size,type;
+int size,type;
+double threshhold;
 LogisticRegression* model;
 HashTable* files,*comb;
 Heap* newTrain;
@@ -623,7 +624,7 @@ void* CreateAllPairs(void* args){
 
 
 
-void CreateNewTrainingSet(LogisticRegression* lr,HashTable* filesHT,HashTable* combHT ,Queue* nameList, Heap* newTrainH,int wsize, int tp,int thold,int thNum,int batSize){
+void CreateNewTrainingSet(LogisticRegression* lr,HashTable* filesHT,HashTable* combHT ,Queue* nameList, Heap* newTrainH,int wsize, int tp,double thold,int thNum,int batSize){
 
 
 	struct QueueNode *curr;
