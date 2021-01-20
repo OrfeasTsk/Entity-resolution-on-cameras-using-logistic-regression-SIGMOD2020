@@ -553,7 +553,7 @@ void TrainingSetStats(HashTable* pairs , Queue* train, HashTable* comb){ //Diava
 
 void* CreateAllPairs(void* args){
 	
-	int i;
+	int i,flag = 0;
 	int times = *(int*)args;
 	struct QueueNode *curr1,*curr2;
 	double pred;
@@ -570,7 +570,9 @@ void* CreateAllPairs(void* args){
 		if(curr1 == NULL)
 			break;
 		//Gia ola ta zeugaria tou x
-		for(i = 0 ; i < times && curr1 != NULL; i++, curr1 = curr1->next ) 
+		for(i = 0 ; i < times && curr1 != NULL; i++, curr1 = curr1->next ){
+			if(flag)
+				break;
 			for(curr2 = curr1->next; curr2 != NULL; curr2 = curr2->next){
 				id1 = (char*)(curr1->data);
 				id2 = (char*)(curr2->data);
@@ -594,6 +596,11 @@ void* CreateAllPairs(void* args){
 								details->count = -pred; // Eisagwgh ths antitheths timhs sto max heap gia na anakththei h mikroterh timh (pio isxyrh provlepsh)
 								pthread_mutex_lock(&(schelduler->struct_mux));
 								HeapInsert(newTrain,details);
+								if(newTrain->nodes >= maxSample){
+									flag = 1;
+									pthread_mutex_unlock(&(schelduler->struct_mux));
+									break;
+								}
 								pthread_mutex_unlock(&(schelduler->struct_mux));
 							}
 							else if(pred > 1 - threshhold){
@@ -603,6 +610,11 @@ void* CreateAllPairs(void* args){
 								details->count = -(1 - pred); // Eisagwgh ths antitheths timhs ths diaforas apo to 1 sto max heap gia na anakththei h mikroterh timh (pio isxyrh provlepsh)
 								pthread_mutex_lock(&(schelduler->struct_mux));
 								HeapInsert(newTrain,details);
+								if(newTrain->nodes >= maxSample){
+									flag = 1;
+									pthread_mutex_unlock(&(schelduler->struct_mux));
+									break;
+								}
 								pthread_mutex_unlock(&(schelduler->struct_mux));
 							}
 							else
@@ -614,6 +626,7 @@ void* CreateAllPairs(void* args){
 					free(tmp);
 				}
 			}
+		}
 	}
 
 	pthread_exit(NULL);
@@ -646,10 +659,8 @@ void CreateNewTrainingSet(LogisticRegression* lr,HashTable* filesHT,HashTable* c
 			
 	
 	for(curr = nameList->head, count = 0; curr != NULL; curr = curr->next, count++ )
-		if(count % bSize == 0){
+		if(count % bSize == 0)
 			add_job(schelduler,curr);
-			printf("%d\n",count);
-		}
 
 
 	for( i = 0; i < numThreads; i++) //Stelnei sta threads oti den exoun allo job

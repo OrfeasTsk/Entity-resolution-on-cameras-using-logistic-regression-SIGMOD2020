@@ -1,10 +1,11 @@
 #include "./logistic_regression.h"
 #define lim 1000
 #define maxSplit 20
-#define trhold_init 0.05
-#define step1 0.05
-#define step2 0.1
-#define step3 0.3
+#define trhold_init 0.01
+#define maxSample 250000
+#define step1 0.02
+#define step2 0.02
+#define step3 0.45
 
 
 Item* parse(char*);
