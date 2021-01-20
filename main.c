@@ -179,6 +179,7 @@ int main(int argc, char* argv[]){
 
 	// 3o paradoteo
 	for( count = 0; threshhold < 0.5 && count < stepnum; count++){
+		printf("Iteration %d started\n",count);
 	// Epanafora twn klikwn
 		HTdestr(&cliques,&CliqueDestroy,'v');
 		HTinit(&cliques);
@@ -221,7 +222,6 @@ int main(int argc, char* argv[]){
 		
 
 		HTdestr(&comb,NULL,'k');
-		//HeapDestroy(&newTrain);
 		free(lr.weights);
 
 		threshhold += steps[count];
@@ -229,22 +229,13 @@ int main(int argc, char* argv[]){
 		printf("Iteration %d finished\n",count);
 	}
 	
-
-	HTinit(&comb);
 	LRinit(&lr,epsilon,lrate,dBoundary,maxIters);
-
-	id = 0;
-
-	for( i = 0; i < numBuckets; i++)
-		RestorePairs(pairs.buckets[i],&id,buff);
-	TrainingSetStats(&pairs,&train,&comb);
 
 	LRtrain(&lr,&train,2*limit,'t',nthreads,batchSize);
 	printf("Accuracy: %f\n",LRtest(&lr,&valid,2*limit,'t'));
 	
 	
 	//Free allocated memory
-	HTdestr(&comb,NULL,'k');
 	free(lr.weights);
 	HTdestr(&cliques,&CliqueDestroy,'v');
 	HTdestr(&pairs,&PairDestroy,'v');
@@ -254,6 +245,7 @@ int main(int argc, char* argv[]){
 	QueueDelete(&train,'b');
 	QueueDelete(&test,'b');
 	QueueDelete(&valid,'b');
+	QueueDelete(&nameList,'n'); 
 	RBdestr();
 	
 	return 0;

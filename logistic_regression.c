@@ -158,6 +158,7 @@ void LRtrain(LogisticRegression* lr,Queue* train,int size,char type,int thNum,in
 	tp = type;
 	numThreads = thNum;
 	bSize = batSize;
+	threadsFinished = 0;
 
 
 
