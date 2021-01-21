@@ -194,7 +194,7 @@ int main(int argc, char* argv[]){
 		TrainingSetStats(&pairs,&train,&comb);
 
 		LRtrain(&lr,&train,2*limit,'t',nthreads,batchSize);
-	    CreateNewTrainingSet(&lr,&files,&comb ,&nameList,&newTrain,2*limit,'t',threshhold,10,1024);
+	    CreateNewTrainingSet(&lr,&files,&comb ,&nameList,&newTrain,2*limit,'t',threshhold,15,1024);
 	    ResolveTransitivity(&pairs, &newTrain, &train);
 
 
