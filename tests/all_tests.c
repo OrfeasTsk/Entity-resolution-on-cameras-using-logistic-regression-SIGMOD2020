@@ -28,5 +28,7 @@ TEST_LIST = {
 	{ "stack_create", test_stcreate },
 	{ "stack_push", test_stpush },
 	{ "stack_check", test_stcheck },
+	{ "initialize_scheduler", test_initializeSchelduler},
+	{"jobs_tasks", test_jobs},
 	{ NULL, NULL } // NULL sto telos
 };
