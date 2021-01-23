@@ -22,3 +22,5 @@
 	void test_stcreate(void);
 	void test_stpush(void);
 	void test_stcheck(void);
+	void test_initializeSchelduler(void);
+	void test_jobs(void);

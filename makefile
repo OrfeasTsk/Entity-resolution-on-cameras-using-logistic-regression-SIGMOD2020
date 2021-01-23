@@ -5,8 +5,8 @@ all: project all_tests
 project : main.o structs.o text_support.o logistic_regression.o 
 	gcc main.o structs.o text_support.o logistic_regression.o -o project -lm -lpthread
 
-all_tests : all_tests.o queue_test.o stack_test.o rbt_test.o text_test.o heap_test.o ht_test.o structs.o text_support.o logistic_regression.o
-	gcc all_tests.o queue_test.o stack_test.o rbt_test.o text_test.o heap_test.o ht_test.o structs.o text_support.o logistic_regression.o -o all_tests -lm -lpthread
+all_tests : all_tests.o queue_test.o stack_test.o rbt_test.o text_test.o heap_test.o ht_test.o thread_test.o structs.o text_support.o logistic_regression.o
+	gcc all_tests.o queue_test.o stack_test.o rbt_test.o text_test.o heap_test.o ht_test.o thread_test.o structs.o text_support.o logistic_regression.o -o all_tests -lm -lpthread
 
 all_tests.o : ./tests/all_tests.c ./include/structs.h ./include/acutest.h ./include/all_tests.h
 	gcc -Wall -c ./tests/all_tests.c $(inc)
@@ -28,6 +28,9 @@ heap_test.o : ./tests/heap_test.c ./include/structs.h ./include/acutest.h
 	
 ht_test.o : ./tests/ht_test.c ./include/structs.h ./include/acutest.h
 	gcc -Wall -c ./tests/ht_test.c $(inc)
+	
+thread_test.o: ./tests/thread_test.c ./include/structs.h ./include/acutest.h
+	gcc -Wall -c ./tests/thread_test.c $(inc)
 
 main.o : main.c ./include/structs.h ./include/text_support.h ./include/logistic_regression.h
 	gcc -Wall -c main.c $(inc)
@@ -44,4 +47,4 @@ logistic_regression.o : logistic_regression.c ./include/structs.h ./include/logi
 
 
 clean:
-	rm project all_tests main.o structs.o rbt_test.o stack_test.o queue_test.o text_test.o heap_test.o ht_test.o text_support.o all_tests.o logistic_regression.o related.csv unrelated.csv
+	rm project all_tests main.o structs.o rbt_test.o stack_test.o queue_test.o text_test.o heap_test.o ht_test.o thread_test.o text_support.o all_tests.o logistic_regression.o related.csv unrelated.csv
