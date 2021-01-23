@@ -6,7 +6,7 @@
 #include "./include/logistic_regression.h"
 
 JobScheduler* schelduler;
-int weightSize, tp, numThreads, threadsFinished,bSize;
+int weightSize, tp, numThreads, threadsFinished,bSize,lastFinished;
 double* weights;
 LogisticRegression* model;
 
@@ -136,6 +136,10 @@ void* LRthread(void* args){
 		threadsFinished++;
 		if(threadsFinished == numThreads)
 			pthread_cond_signal(&(schelduler->cond_finished)); //Epeidh teleiwse kai to teleutaio thread		
+		if(ptr == NULL){ // Epeidh einai to teleutaio genika
+			lastFinished = 1;
+			pthread_cond_signal(&(schelduler->cond_finished)); //Epeidh teleiwse kai to teleutaio thread	
+		}
 		pthread_mutex_unlock(&(schelduler->struct_mux));
 
 	}
@@ -159,6 +163,7 @@ void LRtrain(LogisticRegression* lr,Queue* train,int size,char type,int thNum,in
 	numThreads = thNum;
 	bSize = batSize;
 	threadsFinished = 0;
+	lastFinished = 0;
 
 
 
@@ -198,6 +203,19 @@ void LRtrain(LogisticRegression* lr,Queue* train,int size,char type,int thNum,in
 				pthread_mutex_unlock(&(schelduler->struct_mux));
 				jobsAdded = 0;				
 			}
+		}
+		
+		
+		if(jobsAdded){ //An exoun meinei jobs sto telos
+			pthread_mutex_lock(&(schelduler->struct_mux));
+			while(!lastFinished)
+				pthread_cond_wait(&(schelduler->cond_finished), &(schelduler->struct_mux));
+			lastFinished = 0;
+			for( j = 0; j < size + 1 ; j++){
+				lr->weights[j] += weights[j]/jobsAdded;
+				weights[j] = 0.0; 
+			}
+			pthread_mutex_unlock(&(schelduler->struct_mux));
 		}
 
 
