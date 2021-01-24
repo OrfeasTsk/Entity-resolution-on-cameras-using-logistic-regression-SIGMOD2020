@@ -232,7 +232,7 @@ int main(int argc, char* argv[]){
 	LRinit(&lr,epsilon,lrate,dBoundary,maxIters);
 
 	LRtrain(&lr,&train,2*limit,'t',nthreads,batchSize);
-	printf("Accuracy: %f\n",LRtest(&lr,&valid,2*limit,'t'));
+	printf("Accuracy: %f\n",LRtest(&lr,&valid,2*limit,'t',nthreads,batchSize));
 	
 	
 	//Free allocated memory

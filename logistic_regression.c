@@ -6,7 +6,7 @@
 #include "./include/logistic_regression.h"
 
 JobScheduler* schelduler;
-int weightSize, tp, numThreads, threadsFinished,bSize,lastFinished;
+int weightSize, tp, numThreads, threadsFinished,bSize,lastFinished,totalCorrect;
 double* weights;
 LogisticRegression* model;
 
@@ -63,18 +63,27 @@ double LRpred(LogisticRegression* lr,double* w,Record* record, int size, char ty
 	return sigmoid(f);
 }
 
-double LRtest(LogisticRegression* lr,Queue* test,int size,char type){  //Testing me vash to montelo kai epistrofh ths akriveias
 
-	int y, correct = 0;
-	struct QueueNode* curr;
+void* LRthreadTest(void* args){
+	int i, y, correct;
+	int times = *(int*)args;
+	struct QueueNode* ptr;
 	Record* record;
 
+	while(1){
 
-	for(curr = test->head; curr != NULL ; curr = curr->next){
-			record = (Record*)(curr->data);
+		get_job(schelduler,&ptr);
+
+		if(ptr == NULL)
+			break;
+
+		correct = 0;
+
+		for( i = 0; i < times && ptr != NULL; i++ , ptr = ptr->next ){
+			record = (Record*)(ptr->data);
 			y = record->value;
 					
-			if(LRpred(lr,lr->weights,record, size, type) > lr->dec_boundary ){
+			if(LRpred(model,model->weights,record, weightSize, tp) > model->dec_boundary ){
 				if( y == 1 )
 					correct++;
 			}
@@ -82,15 +91,53 @@ double LRtest(LogisticRegression* lr,Queue* test,int size,char type){  //Testing
 				if( y == 0)
 					correct++;
 			}
+		}
+
+	
+		pthread_mutex_lock(&(schelduler->struct_mux));
+		totalCorrect+= correct;
+		pthread_mutex_unlock(&(schelduler->struct_mux));
+
 	}
+	
+	pthread_exit(NULL);
+}
 
 
-	return (double)correct/test->count;
+double LRtest(LogisticRegression* lr,Queue* test,int size,char type,int thNum,int batSize){  //Testing me vash to montelo kai epistrofh ths akriveias
+
+	int count,j;
+	struct QueueNode* curr;
+	totalCorrect = 0;
+	weightSize = size;
+	schelduler = (JobScheduler*)malloc(sizeof(JobScheduler));
+	model = lr;
+	tp = type;
+	numThreads = thNum;
+	bSize = batSize;
+
+	initialize_schelduler(schelduler ,numThreads,numThreads, &LRthreadTest, &bSize );
+
+	for(curr = test->head, count = 0; curr != NULL ; curr=curr->next,count++)
+		if(count % bSize == 0)
+			add_job(schelduler,curr);
+
+	for( j = 0; j < numThreads; j++) //Stelnei sta threads oti den exoun allo job
+		add_job(schelduler,NULL);
+
+	for( j = 0; j < numThreads; j++)
+		pthread_join(schelduler->tids[j],NULL);
+
+	destroy_schelduler(schelduler);
+	free(schelduler);	
+
+
+	return (double)totalCorrect/test->count;
 }
 
 
 
-void* LRthread(void* args){
+void* LRthreadTrain(void* args){
 	int i,j,y;
 	double error;
 	int times = *(int*)args;
@@ -179,14 +226,14 @@ void LRtrain(LogisticRegression* lr,Queue* train,int size,char type,int thNum,in
 	}
 
 
-	initialize_schelduler(schelduler ,numThreads,numThreads, &LRthread, &bSize );
+	initialize_schelduler(schelduler ,numThreads,numThreads, &LRthreadTrain, &bSize );
 
 
 	for( t = 0; t < lr->epochs; t++){
 		
 		for(curr = train->head, count = 0; curr != NULL ; curr=curr->next,count++){
 			
-			if(count % batchSize == 0){
+			if(count % bSize == 0){
 				add_job(schelduler,curr);
 				jobsAdded++;
 			}

@@ -2,7 +2,7 @@
 #define lim 1000
 #define maxSplit 20
 #define trhold_init 0.02
-#define maxSample 280000
+#define maxSample 8000
 #define step1 0.01
 #define step2 0.02
 #define step3 0.45
