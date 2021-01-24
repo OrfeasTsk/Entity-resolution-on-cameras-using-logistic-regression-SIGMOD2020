@@ -136,7 +136,7 @@ void* LRthread(void* args){
 		threadsFinished++;
 		if(threadsFinished == numThreads)
 			pthread_cond_signal(&(schelduler->cond_finished)); //Epeidh teleiwse kai to teleutaio thread		
-		if(ptr == NULL){ // Epeidh einai to teleutaio genika
+		else if(ptr == NULL){ // Epeidh einai to teleutaio genika
 			lastFinished = 1;
 			pthread_cond_signal(&(schelduler->cond_finished)); //Epeidh teleiwse kai to teleutaio thread	
 		}
